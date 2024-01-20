@@ -1,0 +1,45 @@
+{
+  "Name": "hwinfo-reader",
+  "Version": "0.1.0",
+  "Author": "5e",
+  "Actions": [
+    {
+      "Name": "Counter",
+      "UUID": "com.5e.hwinfo-reader.increment",
+      "Icon": "imgs/actions/counter/icon",
+      "Tooltip": "Displays a count, which increments by one on press.",
+      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "imgs/actions/counter/key",
+          "TitleAlignment": "middle"
+        }
+      ],
+      "PropertyInspectorPath": "pi/inspector.html"
+    }
+  ],
+  "Category": "hwinfo-reader",
+  "CategoryIcon": "imgs/plugin/category-icon",
+  "CodePath": "bin/plugin.js",
+  "Description": "read",
+  "Icon": "imgs/plugin/marketplace",
+  "SDKVersion": 2,
+  "Software": {
+    "MinimumVersion": "6.5"
+  },
+  "OS": [
+    {
+      "Platform": "mac",
+      "MinimumVersion": "10.15"
+    },
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Nodejs": {
+    "Version": "20",
+    "Debug": "enabled"
+  },
+  "UUID": "com.5e.hwinfo-reader"
+}

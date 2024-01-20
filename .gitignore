@@ -1,0 +1,4 @@
+# Node.js
+node_modules/
+com.5e.hwinfo-reader.sdPlugin/logs/
+.vscode/
