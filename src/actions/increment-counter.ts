@@ -20,26 +20,14 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
    * we're setting the title to the "count" that is incremented in {@link IncrementCounter.onKeyDown}.
    */
 
-  onPropertyInspectorDidAppear(
+  async onPropertyInspectorDidAppear(
     ev: PropertyInspectorDidAppearEvent<CounterSettings>
   ): void | Promise<void> {
-    let regKey = new Registry({
-      // new operator is optional
-      hive: Registry.HKCU, // open registry hive HKEY_CURRENT_USER
-      key: "\\Software\\HWiNFO64\\VSB", // key containing autostart programs
-    });
-    let arrayOfKeys: Registry.RegistryItem[] = [];
-    regKey.values(async function (err, items /* array of RegistryItem */) {
-      if (err) console.log("ERROR: " + err);
-      else {
-        for (var i = 0; i < items.length; i++) {
-          arrayOfKeys.push(items[i]);
-        }
-        await ev.action.sendToPropertyInspector({
-          event: "registryKeys",
-          payload: arrayOfKeys,
-        });
-      }
+    let registryKeys: { registry: RegistryItem[] } =
+      await streamDeck.settings.getGlobalSettings();
+    await ev.action.sendToPropertyInspector({
+      event: "registryKeys",
+      payload: registryKeys["registry"],
     });
   }
 
