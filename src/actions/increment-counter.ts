@@ -3,6 +3,7 @@ import {
   KeyDownEvent,
   PropertyInspectorDidAppearEvent,
   SingletonAction,
+  TitleParametersDidChangeEvent,
   WillAppearEvent,
 } from "@elgato/streamdeck";
 import Registry, { RegistryItem } from "winreg";
@@ -22,7 +23,7 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
 
   async onPropertyInspectorDidAppear(
     ev: PropertyInspectorDidAppearEvent<CounterSettings>
-  ): void | Promise<void> {
+  ) {
     let registryKeys: { registry: RegistryItem[] } =
       await streamDeck.settings.getGlobalSettings();
     await ev.action.sendToPropertyInspector({
@@ -38,7 +39,10 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
         await streamDeck.settings.getGlobalSettings();
       let settings = await ev.action.getSettings();
       //logger.info(JSON.stringify(settings, null, 2));
-      let registryName = settings["index"].toString();
+      if (settings["registryName"] == undefined) {
+        return;
+      }
+      let registryName = settings["registryName"];
       //split at space and add celcius sign
 
       for (let index = 0; index < registryKeys["registry"].length; index++) {
@@ -63,7 +67,9 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
             if (sensorValueValue.includes("�")) {
               sensorValueValue = sensorValueValue.replace("�", "°");
             }
-            await ev.action.setTitle(sensorValueValue);
+            await ev.action.setTitle(
+              `${settings["title"]}\n` + sensorValueValue
+            );
           }
         }
       }
@@ -93,5 +99,6 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
  * Settings for {@link IncrementCounter}.
  */
 type CounterSettings = {
-  index: number;
+  registryName: string;
+  title: string;
 };

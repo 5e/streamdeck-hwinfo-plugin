@@ -5936,6 +5936,92 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
+const logger$1 = index.logger.createScope("Custom Scope");
+/**
+ * An example action class that displays a count that increments by one each time the button is pressed.
+ */
+let IncrementCounter = (() => {
+    let _classDecorators = [action({ UUID: "com.5e.hwinfo-reader.increment" })];
+    let _classDescriptor;
+    let _classExtraInitializers = [];
+    let _classThis;
+    let _classSuper = SingletonAction;
+    (class extends _classSuper {
+        static { _classThis = this; }
+        static {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
+            _classThis = _classDescriptor.value;
+            if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+            __runInitializers(_classThis, _classExtraInitializers);
+        }
+        /**
+         * The {@link SingletonAction.onWillAppear} event is useful for setting the visual representation of an action when it become visible. This could be due to the Stream Deck first
+         * starting up, or the user navigating between pages / folders etc.. There is also an inverse of this event in the form of {@link streamDeck.client.onWillDisappear}. In this example,
+         * we're setting the title to the "count" that is incremented in {@link IncrementCounter.onKeyDown}.
+         */
+        async onPropertyInspectorDidAppear(ev) {
+            let registryKeys = await index.settings.getGlobalSettings();
+            await ev.action.sendToPropertyInspector({
+                event: "registryKeys",
+                payload: registryKeys["registry"],
+            });
+        }
+        onWillAppear(ev) {
+            //return ev.action.setTitle(`${ev.payload.settings.count ?? 0}`);
+            setInterval(async function () {
+                let registryKeys = await index.settings.getGlobalSettings();
+                let settings = await ev.action.getSettings();
+                //logger.info(JSON.stringify(settings, null, 2));
+                if (settings["registryName"] == undefined) {
+                    return;
+                }
+                let registryName = settings["registryName"];
+                //split at space and add celcius sign
+                for (let index = 0; index < registryKeys["registry"].length; index++) {
+                    const element = registryKeys["registry"][index];
+                    if (element["value"] == registryName) {
+                        let sensorName = element["name"];
+                        //get last character which is the index number
+                        let index = sensorName[sensorName.length - 1];
+                        let sensorValueName = "Value" + index;
+                        //find sensorValueName is registryKeys
+                        let sensorValue = registryKeys["registry"].find((item) => item.name === sensorValueName);
+                        let sensorValueValue = sensorValue?.value;
+                        if (sensorValueValue == undefined) {
+                            await ev.action.setTitle("ERROR");
+                        }
+                        else {
+                            sensorValueValue = sensorValueValue.replace(/\s/g, "");
+                            //winreg returns a � instead of a °
+                            if (sensorValueValue.includes("�")) {
+                                sensorValueValue = sensorValueValue.replace("�", "°");
+                            }
+                            await ev.action.setTitle(`${settings["title"]}\n` + sensorValueValue);
+                        }
+                    }
+                }
+            }, 2000);
+        }
+        /**
+         * Listens for the {@link SingletonAction.onKeyDown} event which is emitted by Stream Deck when an action is pressed. Stream Deck provides various events for tracking interaction
+         * with devices including key down/up, dial rotations, and device connectivity, etc. When triggered, {@link ev} object contains information about the event including any payloads
+         * and action information where applicable. In this example, our action will display a counter that increments by one each press. We track the current count on the action's persisted
+         * settings using `setSettings` and `getSettings`.
+         */
+        async onKeyDown(ev) {
+            // Determine the current count from the settings.
+            // let count = ev.payload.settings.count ?? 0;
+            // count++;
+            logger$1.info(JSON.stringify(await ev.action.getSettings(), null, 2));
+            // // Update the current count in the action's settings, and change the title.
+            // await ev.action.setSettings({ count });
+            // await ev.action.setTitle(`${count}`);
+        }
+    });
+    return _classThis;
+})();
+
 /************************************************************************************************************
  * registry.js - contains a wrapper for the REG command under Windows, which provides access to the registry
  *
@@ -6923,100 +7009,28 @@ var registry = Registry;
 
 var Registry$1 = /*@__PURE__*/getDefaultExportFromCjs(registry);
 
-const logger = index.logger.createScope("Custom Scope");
-/**
- * An example action class that displays a count that increments by one each time the button is pressed.
- */
-let IncrementCounter = (() => {
-    let _classDecorators = [action({ UUID: "com.5e.hwinfo-reader.increment" })];
-    let _classDescriptor;
-    let _classExtraInitializers = [];
-    let _classThis;
-    let _classSuper = SingletonAction;
-    (class extends _classSuper {
-        static { _classThis = this; }
-        static {
-            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
-            __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-            _classThis = _classDescriptor.value;
-            if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-            __runInitializers(_classThis, _classExtraInitializers);
-        }
-        /**
-         * The {@link SingletonAction.onWillAppear} event is useful for setting the visual representation of an action when it become visible. This could be due to the Stream Deck first
-         * starting up, or the user navigating between pages / folders etc.. There is also an inverse of this event in the form of {@link streamDeck.client.onWillDisappear}. In this example,
-         * we're setting the title to the "count" that is incremented in {@link IncrementCounter.onKeyDown}.
-         */
-        onPropertyInspectorDidAppear(ev) {
-            let regKey = new Registry$1({
-                // new operator is optional
-                hive: Registry$1.HKCU, // open registry hive HKEY_CURRENT_USER
-                key: "\\Software\\HWiNFO64\\VSB", // key containing autostart programs
-            });
-            let arrayOfKeys = [];
-            regKey.values(async function (err, items /* array of RegistryItem */) {
-                if (err)
-                    console.log("ERROR: " + err);
-                else {
-                    for (var i = 0; i < items.length; i++) {
-                        arrayOfKeys.push(items[i]);
-                    }
-                    await ev.action.sendToPropertyInspector({
-                        event: "registryKeys",
-                        payload: arrayOfKeys,
-                    });
-                }
-            });
-        }
-        onWillAppear(ev) {
-            //return ev.action.setTitle(`${ev.payload.settings.count ?? 0}`);
-            let regKey = new Registry$1({
-                // new operator is optional
-                hive: Registry$1.HKCU, // open registry hive HKEY_CURRENT_USER
-                key: "\\Software\\HWiNFO64\\VSB", // key containing autostart programs
-            });
-            //get key
-            setInterval(async function () {
-                let key = await ev.action.getSettings();
-                logger.info(JSON.stringify(key, null, 2));
-                let registryName = key["index"].toString();
-                //split at space and add celcius sign
-                regKey.get(registryName, async function (err, item) {
-                    if (err) {
-                        logger.error(err.toString());
-                    }
-                    else {
-                        //split at space and add celcius sign
-                        let value = item.value;
-                        await ev.action.setTitle(value);
-                    }
-                });
-            }, 2000);
-        }
-        /**
-         * Listens for the {@link SingletonAction.onKeyDown} event which is emitted by Stream Deck when an action is pressed. Stream Deck provides various events for tracking interaction
-         * with devices including key down/up, dial rotations, and device connectivity, etc. When triggered, {@link ev} object contains information about the event including any payloads
-         * and action information where applicable. In this example, our action will display a counter that increments by one each press. We track the current count on the action's persisted
-         * settings using `setSettings` and `getSettings`.
-         */
-        async onKeyDown(ev) {
-            // Determine the current count from the settings.
-            // let count = ev.payload.settings.count ?? 0;
-            // count++;
-            logger.info(JSON.stringify(await ev.action.getSettings(), null, 2));
-            // // Update the current count in the action's settings, and change the title.
-            // await ev.action.setSettings({ count });
-            // await ev.action.setTitle(`${count}`);
-        }
-    });
-    return _classThis;
-})();
-
 // We can enable "trace" logging so that all messages between the Stream Deck, and the plugin are recorded. When storing sensitive information
 index.logger.setLevel(LogLevel.TRACE);
-// Register the increment action.
 index.actions.registerAction(new IncrementCounter());
-index.logger.createScope("Plugin.Ts scope");
-// Finally, connect to the Stream Deck.
+const logger = index.logger.createScope("Plugin.Ts scope");
+let regKey = new Registry$1({
+    // new operator is optional
+    hive: Registry$1.HKCU, // open registry hive HKEY_CURRENT_USER
+    key: "\\Software\\HWiNFO64\\VSB", // key containing autostart programs
+});
+//keep a local copy of the registry keys so the actions can access it
+setInterval(async function () {
+    let arrayOfKeys = [];
+    regKey.values(async function (err, items) {
+        if (err)
+            logger.error(err.toString());
+        else {
+            for (var i = 0; i < items.length; i++) {
+                arrayOfKeys.push(items[i]);
+            }
+            await index.settings.setGlobalSettings({ registry: arrayOfKeys });
+        }
+    });
+}, 2000);
 index.connect();
 //# sourceMappingURL=plugin.js.map

@@ -24,24 +24,27 @@ $PI.onConnected((jsn) => {
 
 $PI.onSendToPropertyInspector("com.5e.hwinfo-reader.increment", function (event) {
 	let registryArray = event['payload']['payload'];
-	let selectElement = document.getElementById('index');
+	let selectElement = document.getElementById('registryName');
 	//clear all options in select
 	selectElement.innerHTML = "";
+	let option = document.createElement("option");
+	option.value = undefined;
+	option.text = "Select a sensor";
+	option.selected = true;
+	option.hidden = true;
+	//append the option to the select element
+	selectElement.appendChild(option);
 	// Create new options and append them to the select element
 	for (let index = 0; index < registryArray.length; index++) {
 		const element = registryArray[index];
 		if (element['name'].includes('Label') == true) {
-			var option = document.createElement("option");
-			//set the value using the item in the array
-			//get last character of string
+			let option = document.createElement("option");
 			option.value = element['value'];
-			//set the text content
 			option.text = element['value'];
 
-			if (localSettings['index'] == option.value) {
+			if (localSettings['registryName'] == option.value) {
 				option.selected = true;
 			}
-			//append the option to the select element
 			selectElement.appendChild(option);
 		} else {
 			continue

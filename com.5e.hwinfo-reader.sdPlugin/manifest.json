@@ -4,14 +4,14 @@
   "Author": "5e",
   "Actions": [
     {
-      "Name": "Counter",
+      "Name": "HWiNFO Reader",
       "UUID": "com.5e.hwinfo-reader.increment",
       "Icon": "imgs/actions/counter/icon",
-      "Tooltip": "Displays a count, which increments by one on press.",
+      "UserTitleEnabled": false,
+      "Tooltip": "Displays a sensor value from HWiNFO",
       "Controllers": ["Keypad"],
       "States": [
         {
-          "Image": "imgs/actions/counter/key",
           "TitleAlignment": "middle"
         }
       ],
