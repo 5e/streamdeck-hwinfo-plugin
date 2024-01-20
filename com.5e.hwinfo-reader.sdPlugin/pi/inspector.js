@@ -34,8 +34,7 @@ $PI.onSendToPropertyInspector("com.5e.hwinfo-reader.increment", function (event)
 			var option = document.createElement("option");
 			//set the value using the item in the array
 			//get last character of string
-			var lastChar = element['name'].slice(-1);
-			option.value = "Value" + lastChar;
+			option.value = element['value'];
 			//set the text content
 			option.text = element['value'];
 

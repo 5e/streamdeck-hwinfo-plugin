@@ -5,7 +5,7 @@ import {
   SingletonAction,
   WillAppearEvent,
 } from "@elgato/streamdeck";
-import Registry from "winreg";
+import Registry, { RegistryItem } from "winreg";
 import streamDeck, { LogLevel } from "@elgato/streamdeck";
 
 const logger = streamDeck.logger.createScope("Custom Scope");
@@ -45,27 +45,40 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
 
   onWillAppear(ev: WillAppearEvent<CounterSettings>): void | Promise<void> {
     //return ev.action.setTitle(`${ev.payload.settings.count ?? 0}`);
-    let regKey = new Registry({
-      // new operator is optional
-      hive: Registry.HKCU, // open registry hive HKEY_CURRENT_USER
-      key: "\\Software\\HWiNFO64\\VSB", // key containing autostart programs
-    });
-    //get key
-
     setInterval(async function () {
-      let key = await ev.action.getSettings();
-      logger.info(JSON.stringify(key, null, 2));
-      let registryName = key["index"].toString();
+      let registryKeys: { registry: RegistryItem[] } =
+        await streamDeck.settings.getGlobalSettings();
+      let settings = await ev.action.getSettings();
+      //logger.info(JSON.stringify(settings, null, 2));
+      let registryName = settings["index"].toString();
       //split at space and add celcius sign
-      regKey.get(registryName, async function (err, item) {
-        if (err) {
-          logger.error(err.toString());
-        } else {
-          //split at space and add celcius sign
-          let value = item.value;
-          await ev.action.setTitle(value);
+
+      for (let index = 0; index < registryKeys["registry"].length; index++) {
+        const element: RegistryItem = registryKeys["registry"][index];
+        if (element["value"] == registryName) {
+          let sensorName = element["name"];
+          //get last character which is the index number
+          let index = sensorName[sensorName.length - 1];
+          let sensorValueName = "Value" + index;
+          //find sensorValueName is registryKeys
+          let sensorValue = registryKeys["registry"].find(
+            (item) => item.name === sensorValueName
+          );
+
+          let sensorValueValue = sensorValue?.value;
+
+          if (sensorValueValue == undefined) {
+            await ev.action.setTitle("ERROR");
+          } else {
+            sensorValueValue = sensorValueValue.replace(/\s/g, "");
+            //winreg returns a � instead of a °
+            if (sensorValueValue.includes("�")) {
+              sensorValueValue = sensorValueValue.replace("�", "°");
+            }
+            await ev.action.setTitle(sensorValueValue);
+          }
         }
-      });
+      }
     }, 2000);
   }
 
