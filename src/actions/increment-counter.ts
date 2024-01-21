@@ -8,11 +8,53 @@ import {
 } from "@elgato/streamdeck";
 import Registry, { RegistryItem } from "winreg";
 import streamDeck, { LogLevel } from "@elgato/streamdeck";
-
+//@ts-ignore
+import * as SvgBuilder from "svg-builder";
 const logger = streamDeck.logger.createScope("Custom Scope");
-/**
- * An example action class that displays a count that increments by one each time the button is pressed.
- */
+
+let graphHistory: GraphHistoryEntry[] = [];
+function generateSvg(sensorValue: number) {
+  //if graphistory has 72 entries, remove the first one and push the new one
+  //we treat the 72 entries in the array as 72 pixels in the Y axis
+  //if graph refreshes every 2 seconds, we have 144 seconds of history
+
+  if (graphHistory.length >= 72) {
+    graphHistory.shift();
+  }
+
+  //if sensor value is at 100, it should correlate to the Y coordinate being 72, so we need to calculate the Y coordinate
+  let yCoordinate = 72 - (sensorValue / 100) * 72;
+
+  //change the last entry to the new Y coordinate
+  if (graphHistory[graphHistory.length - 1] != undefined) {
+    graphHistory[graphHistory.length - 1].y2 = yCoordinate;
+  }
+
+  //add new entry
+  graphHistory.push({
+    y1: yCoordinate,
+    y2: yCoordinate,
+  });
+
+  var svgImg = SvgBuilder.newInstance();
+  svgImg.width(72).height(72);
+
+  for (let index = 0; index < graphHistory.length; index++) {
+    const element: GraphHistoryEntry = graphHistory[index];
+    svgImg.line({
+      x1: index,
+      y1: element.y1,
+      x2: index + 1,
+      y2: element.y2,
+      stroke: "#FF0000",
+      "stroke-width": 2,
+    });
+  }
+
+  var logo = svgImg.render();
+  let svgImage = `data:image/svg, ${logo}`;
+  return svgImage;
+}
 @action({ UUID: "com.5e.hwinfo-reader.increment" })
 export class IncrementCounter extends SingletonAction<CounterSettings> {
   /**
@@ -33,7 +75,6 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
   }
 
   onWillAppear(ev: WillAppearEvent<CounterSettings>): void | Promise<void> {
-    //return ev.action.setTitle(`${ev.payload.settings.count ?? 0}`);
     setInterval(async function () {
       let registryKeys: { registry: RegistryItem[] } =
         await streamDeck.settings.getGlobalSettings();
@@ -67,6 +108,9 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
             if (sensorValueValue.includes("�")) {
               sensorValueValue = sensorValueValue.replace("�", "°");
             }
+
+            let svgImage = generateSvg(parseFloat(sensorValueValue));
+            await ev.action.setImage(svgImage);
             await ev.action.setTitle(
               `${settings["title"]}\n` + sensorValueValue
             );
@@ -95,10 +139,12 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
   }
 }
 
-/**
- * Settings for {@link IncrementCounter}.
- */
 type CounterSettings = {
   registryName: string;
   title: string;
+};
+
+type GraphHistoryEntry = {
+  y1: number;
+  y2: number;
 };

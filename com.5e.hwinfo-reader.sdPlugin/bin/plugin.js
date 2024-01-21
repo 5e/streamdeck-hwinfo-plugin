@@ -10,7 +10,7 @@ import require$$3 from 'net';
 import require$$4 from 'tls';
 import require$$7 from 'url';
 import fs, { existsSync, readFileSync } from 'node:fs';
-import path$1, { join } from 'node:path';
+import path$2, { join } from 'node:path';
 import { cwd } from 'node:process';
 import { EOL } from 'node:os';
 import require$$0$4 from 'util';
@@ -5004,7 +5004,7 @@ function isDebugMode() {
  * @returns The plugin's unique-identifier.
  */
 function getPluginUUID() {
-    const name = path$1.basename(process.cwd());
+    const name = path$2.basename(process.cwd());
     const suffixIndex = name.lastIndexOf(".sdPlugin");
     return suffixIndex < 0 ? name : name.substring(0, suffixIndex);
 }
@@ -5060,7 +5060,7 @@ class I18nProvider {
      */
     loadLocales(manifest) {
         for (const filePath of fs.readdirSync(process.cwd())) {
-            const { ext, name } = path$1.parse(filePath);
+            const { ext, name } = path$2.parse(filePath);
             const lng = name;
             if (ext.toLowerCase() == ".json" && supportedLanguages.includes(lng)) {
                 const contents = this.readFile(filePath);
@@ -5188,7 +5188,7 @@ class FileTarget {
      * @returns File path that represents the indexed log file.
      */
     getLogFilePath(index = 0) {
-        return path$1.join(this.options.dest, `${this.options.fileName}.${index}.log`);
+        return path$2.join(this.options.dest, `${this.options.fileName}.${index}.log`);
     }
     /**
      * Gets the log files associated with this file target, including past and present.
@@ -5207,7 +5207,7 @@ class FileTarget {
                 return prev;
             }
             prev.push({
-                path: path$1.join(this.options.dest, entry.name),
+                path: path$2.join(this.options.dest, entry.name),
                 index: parseInt(match[1])
             });
             return prev;
@@ -5377,7 +5377,7 @@ class Logger {
  */
 function createLogger() {
     const target = new FileTarget({
-        dest: path$1.join(cwd(), "logs"),
+        dest: path$2.join(cwd(), "logs"),
         fileName: getPluginUUID(),
         maxFileCount: 10,
         maxSize: 50 * 1024 * 1024
@@ -5936,10 +5936,813 @@ typeof SuppressedError === "function" ? SuppressedError : function (error, suppr
     return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
 };
 
+var elements$1 = {};
+
+var content = {
+    animation: [
+        'animate',
+        'animatecolor',
+        'animatemotion',
+        'animatetransform',
+        'discard',
+        'mapath',
+        'set'
+    ],
+    basicshapes: [
+        'circle',
+        'ellipse',
+        'line',
+        'polygon',
+        'polyline',
+        'rect'
+    ],
+    container: [
+        'a',
+        'defs',
+        'glyph',
+        'g',
+        'marker',
+        'mask',
+        'missing-glyph',
+        'pattern',
+        'svg',
+        'switch',
+        'symbol'
+    ],
+    descriptive: [
+        'desc',
+        'metadata',
+        'title'
+    ],
+    paint: [
+        'linearGradient', 
+        'radialGradient', 
+        'pattern'
+    ],
+    structural: [
+        'defs', 
+        'g', 
+        'svg', 
+        'symbol', 
+        'use'
+    ],
+    textcontent: [
+        'altglyph',
+        'altglyphdef',
+        'altglyphitem',
+        'glyph',
+        'glyphref',
+        'text',
+        'textpath',
+        'tref',
+        'tspan'
+    ],
+    textcontentchild: [
+        'altglyph',
+        'textpath',
+        'tref',
+        'tspan'
+    ]
+
+};
+
+var attributes = {
+    animationevent: [
+        'onbegin',
+        'onend',
+        'onload',
+        'onrepeat'
+    ],
+    animationattributetarget: [
+        'attributeType',
+        'attributeName'
+    ],
+    animationtiming: [
+        'begin',
+        'dur',
+        'end',
+        'min',
+        'max',
+        'restart',
+        'repeatCount',
+        'repeatDur',
+        'fill'
+    ],
+    animationvalue: [
+        'calcMode',
+        'values',
+        'keyTimes',
+        'keySplines',
+        'from',
+        'to',
+        'by'
+    ],
+    animationaddition: [
+        'additive',
+        'accumulate'
+    ],
+    aria: [
+        'aria-activedescendant', 'aria-atomic', 'aria-autocomplete', 'aria-busy', 'aria-checked', 'aria-colcount', 'aria-colindex', 'aria-colspan', 'aria-controls', 'aria-current', 'aria-describedby', 'aria-details', 'aria-disabled', 'aria-dropeffect', 'aria-errormessage', 'aria-expanded', 'aria-flowto', 'aria-grabbed', 'aria-haspopup', 'aria-hidden', 'aria-invalid', 'aria-keyshortcuts', 'aria-label', 'aria-labelledby', 'aria-level', 'aria-live', 'aria-modal', 'aria-multiline', 'aria-multiselectable', 'aria-orientation', 'aria-owns', 'aria-placeholder', 'aria-posinset', 'aria-pressed', 'aria-readonly', 'aria-relevant', 'aria-required', 'aria-roledescription', 'aria-rowcount', 'aria-rowindex', 'aria-rowspan', 'aria-selected', 'aria-setsize', 'aria-sort', 'aria-valuemax', 'aria-valuemin', 'aria-valuenow', 'aria-valuetext', 'role'
+    ],
+    conditionalprocessing: [
+        'requiredExtensions',
+        'requiredFeatures',
+        'systemLanguage'
+    ],
+    core: [
+        'class',
+        'id',
+        'lang',
+        'style',
+        'tabindex',
+        'xml:base',
+        'xml:lang',
+        'xml:space'
+    ],
+    documentevent: [
+        'onabort',
+        'onerror',
+        'onresize',
+        'onscroll',
+        'onunload',
+        'onzoom'
+    ],
+    filterprimitive: [
+        'height',
+        'result',
+        'width',
+        'x',
+        'y'
+    ],
+    graphicalevent: [
+        'onactivate',
+        'onclick',
+        'onfocusin',
+        'onfocusout',
+        'onload',
+        'onmousedown',
+        'onmousemove',
+        'onmouseout',
+        'onmouseover',
+        'onmouseup'
+    ],
+    presentation: [
+        'alignment-baseline',
+        'baseline-shift',
+        'clip',
+        'clip-path',
+        'clip-rule',
+        'color',
+        'color-interpolation',
+        'color-interpolation-filters',
+        'color-profile',
+        'color-rendering',
+        'cursor',
+        'direction',
+        'display',
+        'dominant-baseline',
+        'enable-background',
+        'fill',
+        'fill-opacity',
+        'fill-rule',
+        'filter',
+        'flood-color',
+        'flood-opacity',
+        'font-family',
+        'font-size',
+        'font-size-adjust',
+        'font-stretch',
+        'font-style',
+        'font-variant',
+        'font-weight',
+        'glyph-orientation-horizontal',
+        'glyph-orientation-vertical',
+        'image-rendering',
+        'kerning',
+        'letter-spacing',
+        'lighting-color',
+        'marker-end',
+        'marker-mid',
+        'marker-start',
+        'mask',
+        'opacity',
+        'overflow',
+        'pointer-events',
+        'shape-rendering',
+        'stop-color',
+        'stop-opacity',
+        'stroke',
+        'stroke-dasharray',
+        'stroke-dashoffset',
+        'stroke-linecap',
+        'stroke-linejoin',
+        'stroke-miterlimit',
+        'stroke-opacity',
+        'stroke-width',
+        'text-anchor',
+        'text-decoration',
+        'text-rendering',
+        'unicode-bidi',
+        'visibility',
+        'word-spacing',
+        'writing-mode'
+    ],
+    transferfunction: [
+        'type',
+        'tableValues',
+        'slope',
+        'intercept',
+        'amplitude',
+        'exponent',
+        'offset'
+    ],
+    xlink: [
+        'xlink:href',
+        'xlink:type',
+        'xlink:role',
+        'xlink:arcrole',
+        'xlink:title',
+        'xlink:show',
+        'xlink:actuate'
+    ]
+};
+
+var prop = Object.defineProperty,
+    getPropDesc = Object.getOwnPropertyDescriptor,
+    permittedContent = content,
+    permittedAttributes = attributes,
+    Element$9 = {
+
+        globalAttributes: [
+            'conditionalprocessing',
+            'core'
+        ],
+
+        constructor: function (attrs, content) {
+            this.attributes = attrs;
+            this.content = content;
+            this.defineAttributes();
+            this.defineContent();
+            this.checkAttributes();
+            this.checkContent();
+            this.make(attrs, content);
+        },
+
+        checkAny: function checkAny(list) {
+            return (list === 'any');
+        },
+
+        defineContent: function contentList() {
+            if (this.checkAny(this.permittedContent)) return;
+            this.permittedContent.forEach(function (item) {
+                this.permittedContent = this.permittedContent.concat(permittedContent[item]);
+            }, this);
+        },
+
+        defineAttributes: function attrsList() {
+            if (this.checkAny(this.permittedAttributes)) return;
+            var args = this.permittedAttributes.concat(this.globalAttributes);
+            args.forEach(function (item) {
+                this.permittedAttributes = args.concat(permittedAttributes[item]);
+            }, this);
+        },
+
+        getElementName: function getElementName(element) {
+            return element.match(/(\w+)/)[0];
+        },
+
+        checkAttributes: function checkAttributes() {
+            for (var attr in this.attributes) {
+                if (this.permittedAttributes.indexOf(attr) !== -1) {
+                    throw new Error(attr + ' is not permitted on ' + this.name + ' elements.');
+                }
+            }
+        },
+
+        checkContent: function checkContent() {
+            if (this.content) {
+                if (typeof this.content === 'string' && this.name !== 'text') {
+                    throw new Error('Content cannot be a string.');
+
+                } else if (this.content.elements && this.permittedContent !== 'any') {
+                    this.content.elements.forEach(function (element) {
+                        var name = this.getElementName(element);
+                        if (this.permittedContent.indexOf(name) === -1) {
+                            throw new Error(this.name + ' cannot contain ' + name + ' elements.');
+                        }
+                    }.bind(this));
+                }
+            }
+        },
+
+        make: function makeElement(attrs, content) {
+            var element = '<' + this.name,
+                prop;
+
+            if ( attrs) {
+               for (prop in attrs) {
+                    element += (' ' + prop + '="' + attrs[prop]) + '"';
+                }
+            }
+            element += '>';
+            this.node = element;
+        }
+
+    };
+
+function extendProps(onto, from) {
+    var props = Object.getOwnPropertyNames(from),
+        replace,
+        i;
+    for (i = 0; i < props.length; ++i) {
+        replace = getPropDesc(onto, props[i]);
+        if (!(props[i] in Function) && (!replace || replace.writable)) {
+            prop(onto, props[i], getPropDesc(from, props[i]));
+        }
+    }
+}
+
+function extend(parent, protoProps, staticProps) {
+    var child;
+
+    if (protoProps && protoProps.hasOwnProperty('constructor')) {
+        child = protoProps.constructor;
+    } else {
+        child = function subClass() {
+            return child.super.apply(this, arguments);
+        };
+    }
+
+    prop(child, 'super', { value: parent });
+
+    extendProps(child, parent);
+    if (staticProps) {
+        extendProps(child, staticProps);
+    }
+
+    child.prototype = Object.create(parent, {
+        constructor: {
+            value: child,
+            enumerable: false,
+            writable: true,
+            configurable: true
+        },
+    });
+
+    if (protoProps) {
+        extendProps(child.prototype, protoProps);
+    }
+    return child;
+}
+
+prop(Element$9, 'extend', {
+    configurable: true,
+    writable: true,
+    value: function ElementExtend(protoProps, staticProps) {
+        return extend(this, protoProps, staticProps);
+    },
+});
+
+var element = Element$9;
+
+var Element$8 = element;
+
+var a = Element$8.extend({
+
+    constructor: function () {
+
+        this.name = 'a';
+
+        this.permittedContent = 'any';
+
+        this.permittedAttributes = [
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+
+        Element$8.constructor.apply(this, arguments);
+
+    }
+
+});
+
+var Element$7 = element;
+
+var g = Element$7.extend({
+
+    constructor: function () {
+
+        this.name = 'g';
+
+        this.permittedContent = 'any';
+
+        this.permittedAttributes = [
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+
+        Element$7.constructor.apply(this, arguments);
+
+    }
+
+});
+
+var Element$6 = element;
+
+var circle = Element$6.extend({
+
+    constructor: function () {
+
+        this.name = 'circle';
+
+        this.permittedContent = [
+            'animation',
+            'descriptive'
+        ];
+
+        this.permittedAttributes = [
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+
+        Element$6.constructor.apply(this, arguments);
+
+    }
+
+});
+
+var Element$5 = element;
+
+var text = Element$5.extend({
+
+    constructor: function () {
+
+        this.name = 'text';
+
+        this.permittedContent = [
+            'animation',
+            'descriptive',
+            'textcontentchild',
+            'container a'
+        ];
+
+        this.permittedAttributes = [
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+
+        Element$5.constructor.apply(this, arguments);
+    }
+
+});
+
+var Element$4 = element;
+
+var foreignobject = Element$4.extend({
+
+    constructor: function () {
+
+        this.name = 'foreignObject';
+
+        this.permittedContent = 'any';
+
+        this.permittedAttributes = [
+            'filterprimitive',
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+
+        Element$4.constructor.apply(this, arguments);
+    }
+
+});
+
+var Element$3 = element;
+
+var line = Element$3.extend({
+
+    constructor: function () {
+
+        this.name = 'line';
+
+        this.permittedContent = [
+            'animation',
+            'descriptive'
+        ];
+
+        this.permittedAttributes = [
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+        Element$3.constructor.apply(this, arguments);
+
+    }
+
+});
+
+var Element$2 = element;
+
+var rect = Element$2.extend({
+
+    constructor: function () {
+
+        this.name = 'rect';
+
+        this.permittedContent = [
+            'animation',
+            'descriptive'
+        ];
+
+        this.permittedAttributes = [
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+        Element$2.constructor.apply(this, arguments);
+
+    }
+
+});
+
+var Element$1 = element;
+
+var path$1 = Element$1.extend({
+
+    constructor: function () {
+
+        this.name = 'path';
+
+        this.permittedContent = [
+            'animation',
+            'descriptive'
+        ];
+
+        this.permittedAttributes = [
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+
+        Element$1.constructor.apply(this, arguments);
+
+    }
+
+});
+
+var Element = element;
+
+var style = Element.extend({
+
+    constructor: function () {
+
+        this.name = 'style';
+
+        this.categories = 'none';
+
+        this.permittedContent = 'any';
+
+        this.permittedAttributes = [
+            'type',
+            'media',
+            'title',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+
+        Element.constructor.apply(this, arguments);
+
+    }
+
+});
+
+elements$1.A = a;
+elements$1.G = g;
+elements$1.Circle = circle;
+elements$1.Text = text;
+elements$1.ForeignObject = foreignobject;
+elements$1.Line = line;
+elements$1.Rect = rect;
+elements$1.Path = path$1;
+elements$1.Style = style;
+
+var elements = elements$1;
+
+function SvgBuilder() {
+
+    this.root = '<svg height="100" width="100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
+    this.elements = [];
+
+    function formatRoot(name, value) {
+      /* jshint -W040 */
+        var formatted = this.root,
+            regexp = new RegExp(name + '([^=,]*)=("[^"]*"|[^,"]*)');
+        return formatted.replace(regexp, name + '="' + value + '"');
+      /* jshint +W040 */
+    }
+
+    this.closeTag = function closeTag(name) {
+        return '</' + name + '>';
+    };
+
+    this.width = function width(value) {
+        this.root = formatRoot.call(this, 'width', value);
+        return this;
+    };
+
+    this.height = function height(value) {
+        this.root = formatRoot.call(this, 'height', value);
+        return this;
+    };
+
+    this.viewBox = function viewBox(value) {
+        this.root = this.root.replace("<svg ", `<svg viewBox="${value}" `);
+        return this;
+    };
+
+    this.addElement = function addElement(element) {
+        if (!element.content) {
+            element.node += this.closeTag(element.name);
+            this.elements.push(element.node);
+        } else if (typeof element.content === 'string' && element.name === 'text') {
+            element.node += element.content + this.closeTag(element.name);
+            this.elements.push(element.node);
+        } else if (typeof element.content === 'object') {
+            var elements = this.elements.join('');
+            this.elements = [];
+            this.elements.unshift(element.node, elements);
+            this.elements.push(this.closeTag(element.name));
+        }
+    };
+
+}
+
+SvgBuilder.prototype.newInstance = function() {
+  return new SvgBuilder();
+};
+
+SvgBuilder.prototype.reset = function() {
+  this.elements = [];
+  return this;
+};
+
+SvgBuilder.prototype.render = function render() {
+    return this.root + this.elements.join('') + this.closeTag('svg');
+};
+
+SvgBuilder.prototype.buffer = function toBuffer() {
+    return Buffer.from(this.render());
+};
+
+SvgBuilder.prototype.a = function anchor(attrs, content) {
+    this.addElement(new elements.A(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.g = function group(attrs, content) {
+    this.addElement(new elements.G(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.circle = function circle(attrs, content) {
+    this.addElement(new elements.Circle(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.text = function link(attrs, content) {
+    this.addElement(new elements.Text(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.foreignObject = function foreignObject(attrs, content) {
+    this.addElement(new elements.ForeignObject(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.line = function line(attrs, content) {
+    this.addElement(new elements.Line(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.rect = function rect(attrs, content) {
+    this.addElement(new elements.Rect(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.path = function line(attrs, content) {
+    this.addElement(new elements.Path(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.style = function line(attrs, content) {
+    this.addElement(new elements.Style(attrs, content));
+    return this;
+};
+
+var svgBuilder = new SvgBuilder();
+
 const logger$1 = index.logger.createScope("Custom Scope");
-/**
- * An example action class that displays a count that increments by one each time the button is pressed.
- */
+let graphHistory = [];
+function generateSvg(sensorValue) {
+    //if graphistory has 72 entries, remove the first one and push the new one
+    //we treat the 72 entries in the array as 72 pixels in the Y axis
+    //if graph refreshes every 2 seconds, we have 144 seconds of history
+    if (graphHistory.length >= 72) {
+        graphHistory.shift();
+    }
+    //if sensor value is at 100, it should correlate to the Y coordinate being 72, so we need to calculate the Y coordinate
+    let yCoordinate = 72 - (sensorValue / 100) * 72;
+    //change the last entry to the new Y coordinate
+    if (graphHistory[graphHistory.length - 1] != undefined) {
+        graphHistory[graphHistory.length - 1].y2 = yCoordinate;
+    }
+    //add new entry
+    graphHistory.push({
+        y1: yCoordinate,
+        y2: yCoordinate,
+    });
+    var svgImg = svgBuilder.newInstance();
+    svgImg.width(72).height(72);
+    for (let index = 0; index < graphHistory.length; index++) {
+        const element = graphHistory[index];
+        svgImg.line({
+            x1: index,
+            y1: element.y1,
+            x2: index + 1,
+            y2: element.y2,
+            stroke: "#FF0000",
+            "stroke-width": 2,
+        });
+    }
+    var logo = svgImg.render();
+    let svgImage = `data:image/svg, ${logo}`;
+    return svgImage;
+}
 let IncrementCounter = (() => {
     let _classDecorators = [action({ UUID: "com.5e.hwinfo-reader.increment" })];
     let _classDescriptor;
@@ -5968,7 +6771,6 @@ let IncrementCounter = (() => {
             });
         }
         onWillAppear(ev) {
-            //return ev.action.setTitle(`${ev.payload.settings.count ?? 0}`);
             setInterval(async function () {
                 let registryKeys = await index.settings.getGlobalSettings();
                 let settings = await ev.action.getSettings();
@@ -5997,6 +6799,8 @@ let IncrementCounter = (() => {
                             if (sensorValueValue.includes("�")) {
                                 sensorValueValue = sensorValueValue.replace("�", "°");
                             }
+                            let svgImage = generateSvg(parseFloat(sensorValueValue));
+                            await ev.action.setImage(svgImage);
                             await ev.action.setTitle(`${settings["title"]}\n` + sensorValueValue);
                         }
                     }

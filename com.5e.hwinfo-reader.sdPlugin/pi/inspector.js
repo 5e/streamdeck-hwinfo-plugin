@@ -11,7 +11,6 @@ $PI.onConnected((jsn) => {
 	localSettings = settings;
 
 	Utils.setFormValue(settings, form);
-
 	form.addEventListener(
 		'input',
 		Utils.debounce(150, () => {

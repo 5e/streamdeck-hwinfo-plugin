@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@elgato/streamdeck": "^0.2.0",
+    "svg-builder": "^2.0.0",
     "winreg": "^1.2.5"
   }
 }
