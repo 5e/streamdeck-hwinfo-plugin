@@ -12,69 +12,73 @@ import streamDeck, { LogLevel } from "@elgato/streamdeck";
 import * as SvgBuilder from "svg-builder";
 const logger = streamDeck.logger.createScope("Custom Scope");
 
-let graphHistory: GraphHistoryEntry[] = [];
-function generateSvg(sensorValue: number) {
-  //if graphistory has 72 entries, remove the first one and push the new one
-  //we treat the 72 entries in the array as 72 pixels in the Y axis
-  //if graph refreshes every 2 seconds, we have 144 seconds of history
+class Graph {
+  graphHistory: GraphHistoryEntry[] = [];
 
-  if (graphHistory.length >= 72) {
-    graphHistory.shift();
-  }
+  generateSvg(sensorValue: number) {
+    //if graphistory has 72 entries, remove the first one and push the new one
+    //we treat the 72 entries in the array as 72 pixels in the Y axis
+    //if graph refreshes every 2 seconds, we have 144 seconds of history
 
-  //if sensor value is at 100, it should correlate to the Y coordinate being 72, so we need to calculate the Y coordinate
-  let yCoordinate = 72 - (sensorValue / 100) * 72;
+    if (this.graphHistory.length >= 72) {
+      this.graphHistory.shift();
+    }
 
-  //change the last entry to the new Y coordinate to match the line so it doesn't skip up or down
-  if (graphHistory[graphHistory.length - 1] != undefined) {
-    graphHistory[graphHistory.length - 1].y2 = yCoordinate;
-  }
+    //if sensor value is at 100, it should correlate to the Y coordinate being 72, so we need to calculate the Y coordinate
+    let yCoordinate = 72 - (sensorValue / 100) * 72;
 
-  //add new entry
-  graphHistory.push({
-    y1: yCoordinate,
-    y2: yCoordinate,
-  });
+    //change the last entry to the new Y coordinate to match the line so it doesn't skip up or down
+    if (this.graphHistory[this.graphHistory.length - 1] != undefined) {
+      this.graphHistory[this.graphHistory.length - 1].y2 = yCoordinate;
+    }
 
-  var svgImg = SvgBuilder.newInstance();
-  svgImg.width(72).height(72);
-
-  for (let index = 0; index < graphHistory.length; index++) {
-    const element: GraphHistoryEntry = graphHistory[index];
-    //setting the points
-    svgImg.line({
-      x1: index,
-      y1: element.y1,
-      x2: index + 1,
-      y2: element.y2,
-      stroke: "#FF0000",
-      "stroke-width": 1,
+    //add new entry
+    this.graphHistory.push({
+      y1: yCoordinate,
+      y2: yCoordinate,
     });
 
-    //filling color under the lines
-    svgImg.line({
-      x1: index,
-      y1: 72,
-      x2: index,
-      y2: element.y1,
-      stroke: "#FF0000",
-      "stroke-width": 1,
-    });
+    var svgImg = SvgBuilder.newInstance();
+    svgImg.width(72).height(72);
 
-    svgImg.line({
-      x1: index + 1,
-      y1: 72,
-      x2: index + 1,
-      y2: element.y2,
-      stroke: "#FF0000",
-      "stroke-width": 1,
-    });
+    for (let index = 0; index < this.graphHistory.length; index++) {
+      const element: GraphHistoryEntry = this.graphHistory[index];
+      //setting the points
+      svgImg.line({
+        x1: index,
+        y1: element.y1,
+        x2: index + 1,
+        y2: element.y2,
+        stroke: "#FF0000",
+        "stroke-width": 1,
+      });
+
+      //filling color under the lines
+      svgImg.line({
+        x1: index,
+        y1: 72,
+        x2: index,
+        y2: element.y1,
+        stroke: "#FF0000",
+        "stroke-width": 1,
+      });
+
+      svgImg.line({
+        x1: index + 1,
+        y1: 72,
+        x2: index + 1,
+        y2: element.y2,
+        stroke: "#FF0000",
+        "stroke-width": 1,
+      });
+    }
+
+    var logo = svgImg.render();
+    let svgImage = `data:image/svg, ${logo}`;
+    return svgImage;
   }
-
-  var logo = svgImg.render();
-  let svgImage = `data:image/svg, ${logo}`;
-  return svgImage;
 }
+
 @action({ UUID: "com.5e.hwinfo-reader.increment" })
 export class IncrementCounter extends SingletonAction<CounterSettings> {
   /**
@@ -95,6 +99,7 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
   }
 
   onWillAppear(ev: WillAppearEvent<CounterSettings>): void | Promise<void> {
+    let okay = new Graph();
     setInterval(async function () {
       let registryKeys: { registry: RegistryItem[] } =
         await streamDeck.settings.getGlobalSettings();
@@ -129,7 +134,7 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
               sensorValueValue = sensorValueValue.replace("�", "°");
             }
 
-            let svgImage = generateSvg(parseFloat(sensorValueValue));
+            let svgImage = okay.generateSvg(parseFloat(sensorValueValue));
             await ev.action.setImage(svgImage);
             await ev.action.setTitle(
               `${settings["title"]}\n` + sensorValueValue
@@ -137,7 +142,7 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
           }
         }
       }
-    }, 100);
+    }, 2000);
   }
 
   /**
