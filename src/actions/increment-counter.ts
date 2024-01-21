@@ -5,6 +5,7 @@ import {
   SingletonAction,
   TitleParametersDidChangeEvent,
   WillAppearEvent,
+  WillDisappearEvent,
 } from "@elgato/streamdeck";
 import Registry, { RegistryItem } from "winreg";
 import streamDeck, { LogLevel } from "@elgato/streamdeck";
@@ -86,6 +87,7 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
    * starting up, or the user navigating between pages / folders etc.. There is also an inverse of this event in the form of {@link streamDeck.client.onWillDisappear}. In this example,
    * we're setting the title to the "count" that is incremented in {@link IncrementCounter.onKeyDown}.
    */
+  intervals: any = {};
 
   async onPropertyInspectorDidAppear(
     ev: PropertyInspectorDidAppearEvent<CounterSettings>
@@ -98,9 +100,17 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
     });
   }
 
+  onWillDisappear(
+    ev: WillDisappearEvent<CounterSettings>
+  ): void | Promise<void> {
+    clearInterval(this.intervals[ev.action.id]);
+    this.intervals[ev.action.id] = undefined;
+  }
+
   onWillAppear(ev: WillAppearEvent<CounterSettings>): void | Promise<void> {
     let okay = new Graph();
-    setInterval(async function () {
+
+    this.intervals[ev.action.id] = setInterval(async () => {
       let registryKeys: { registry: RegistryItem[] } =
         await streamDeck.settings.getGlobalSettings();
       let settings = await ev.action.getSettings();
@@ -155,9 +165,8 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
     // Determine the current count from the settings.
     // let count = ev.payload.settings.count ?? 0;
     // count++;
-
-    logger.info(JSON.stringify(await ev.action.getSettings(), null, 2));
-
+    // logger.info(this.intervalId.toString());
+    // logger.info(JSON.stringify(await ev.action.getSettings(), null, 2));
     // // Update the current count in the action's settings, and change the title.
     // await ev.action.setSettings({ count });
     // await ev.action.setTitle(`${count}`);

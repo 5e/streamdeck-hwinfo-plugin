@@ -6706,7 +6706,9 @@ SvgBuilder.prototype.style = function line(attrs, content) {
 
 var svgBuilder = new SvgBuilder();
 
-const logger$1 = index.logger.createScope("Custom Scope");
+var SvgBuilder$1 = /*@__PURE__*/getDefaultExportFromCjs(svgBuilder);
+
+index.logger.createScope("Custom Scope");
 class Graph {
     graphHistory = [];
     generateSvg(sensorValue) {
@@ -6727,7 +6729,7 @@ class Graph {
             y1: yCoordinate,
             y2: yCoordinate,
         });
-        var svgImg = svgBuilder.newInstance();
+        var svgImg = SvgBuilder$1.newInstance();
         svgImg.width(72).height(72);
         for (let index = 0; index < this.graphHistory.length; index++) {
             const element = this.graphHistory[index];
@@ -6735,7 +6737,7 @@ class Graph {
             svgImg.line({
                 x1: index,
                 y1: element.y1,
-                x2: index + 1,
+                x2: index,
                 y2: element.y2,
                 stroke: "#FF0000",
                 "stroke-width": 1,
@@ -6783,6 +6785,7 @@ let IncrementCounter = (() => {
          * starting up, or the user navigating between pages / folders etc.. There is also an inverse of this event in the form of {@link streamDeck.client.onWillDisappear}. In this example,
          * we're setting the title to the "count" that is incremented in {@link IncrementCounter.onKeyDown}.
          */
+        intervals = {};
         async onPropertyInspectorDidAppear(ev) {
             let registryKeys = await index.settings.getGlobalSettings();
             await ev.action.sendToPropertyInspector({
@@ -6790,9 +6793,13 @@ let IncrementCounter = (() => {
                 payload: registryKeys["registry"],
             });
         }
+        onWillDisappear(ev) {
+            clearInterval(this.intervals[ev.action.id]);
+            this.intervals[ev.action.id] = undefined;
+        }
         onWillAppear(ev) {
             let okay = new Graph();
-            setInterval(async function () {
+            this.intervals[ev.action.id] = setInterval(async () => {
                 let registryKeys = await index.settings.getGlobalSettings();
                 let settings = await ev.action.getSettings();
                 //logger.info(JSON.stringify(settings, null, 2));
@@ -6838,7 +6845,8 @@ let IncrementCounter = (() => {
             // Determine the current count from the settings.
             // let count = ev.payload.settings.count ?? 0;
             // count++;
-            logger$1.info(JSON.stringify(await ev.action.getSettings(), null, 2));
+            // logger.info(this.intervalId.toString());
+            // logger.info(JSON.stringify(await ev.action.getSettings(), null, 2));
             // // Update the current count in the action's settings, and change the title.
             // await ev.action.setSettings({ count });
             // await ev.action.setTitle(`${count}`);
@@ -7835,7 +7843,7 @@ var registry = Registry;
 var Registry$1 = /*@__PURE__*/getDefaultExportFromCjs(registry);
 
 // We can enable "trace" logging so that all messages between the Stream Deck, and the plugin are recorded. When storing sensitive information
-index.logger.setLevel(LogLevel.TRACE);
+// streamDeck.logger.setLevel(LogLevel.TRACE);
 index.actions.registerAction(new IncrementCounter());
 const logger = index.logger.createScope("Plugin.Ts scope");
 let regKey = new Registry$1({
