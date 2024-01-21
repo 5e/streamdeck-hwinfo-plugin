@@ -9,7 +9,7 @@ import {
 import Registry, { RegistryItem } from "winreg";
 import streamDeck, { LogLevel } from "@elgato/streamdeck";
 //@ts-ignore
-import * as SvgBuilder from "svg-builder";
+import SvgBuilder from "svg-builder";
 const logger = streamDeck.logger.createScope("Custom Scope");
 
 class Graph {
@@ -47,7 +47,7 @@ class Graph {
       svgImg.line({
         x1: index,
         y1: element.y1,
-        x2: index + 1,
+        x2: index,
         y2: element.y2,
         stroke: "#FF0000",
         "stroke-width": 1,
