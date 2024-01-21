@@ -25,7 +25,7 @@ function generateSvg(sensorValue: number) {
   //if sensor value is at 100, it should correlate to the Y coordinate being 72, so we need to calculate the Y coordinate
   let yCoordinate = 72 - (sensorValue / 100) * 72;
 
-  //change the last entry to the new Y coordinate
+  //change the last entry to the new Y coordinate to match the line so it doesn't skip up or down
   if (graphHistory[graphHistory.length - 1] != undefined) {
     graphHistory[graphHistory.length - 1].y2 = yCoordinate;
   }
@@ -41,13 +41,33 @@ function generateSvg(sensorValue: number) {
 
   for (let index = 0; index < graphHistory.length; index++) {
     const element: GraphHistoryEntry = graphHistory[index];
+    //setting the points
     svgImg.line({
       x1: index,
       y1: element.y1,
       x2: index + 1,
       y2: element.y2,
       stroke: "#FF0000",
-      "stroke-width": 2,
+      "stroke-width": 1,
+    });
+
+    //filling color under the lines
+    svgImg.line({
+      x1: index,
+      y1: 72,
+      x2: index,
+      y2: element.y1,
+      stroke: "#FF0000",
+      "stroke-width": 1,
+    });
+
+    svgImg.line({
+      x1: index + 1,
+      y1: 72,
+      x2: index + 1,
+      y2: element.y2,
+      stroke: "#FF0000",
+      "stroke-width": 1,
     });
   }
 
@@ -117,7 +137,7 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
           }
         }
       }
-    }, 2000);
+    }, 100);
   }
 
   /**
