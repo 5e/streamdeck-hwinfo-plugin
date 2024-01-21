@@ -14,24 +14,8 @@
 
   <body>
     <div class="sdpi-wrapper">
-      <div type="tabs" class="sdpi-item">
-        <div class="sdpi-item-label empty"></div>
-        <div class="tabs">
-          <div
-            class="tab selected"
-            data-target="#tab1"
-            title="Show some inputs"
-          >
-            Inputs
-          </div>
-          <div class="tab" data-target="#tab2" title="Here's some text-areas">
-            Text
-          </div>
-        </div>
-      </div>
-      <hr class="tab-separator" />
       <form id="property-inspector">
-        <div id="tab1" class="tab-container">
+        <div>
           <div class="sdpi-item">
             <div data-localize class="sdpi-item-label" title="My name">
               Title
@@ -50,56 +34,34 @@
             <select
               data-localize
               class="sdpi-item-value select"
-              id="registryName"
               name="registryName"
+              id="registryName"
               value=""
             ></select>
           </div>
 
-          <div type="textarea" class="sdpi-item">
-            <div class="sdpi-item-label" data-localize title="My message">
-              Message
-            </div>
-            <div class="sdpi-item-value textarea">
-              <textarea
-                name="message"
-                type="textarea"
-                maxlength="50"
-                class="three-lines"
-              ></textarea>
-            </div>
-          </div>
-        </div>
-        <div id="tab2" class="tab-container">
-          <div class="sdpi-item">
-            <div data-localize class="sdpi-item-label" title="More">More</div>
+          <div type="color" class="sdpi-item" id="colorselection">
+            <div class="sdpi-item-label">Background</div>
             <input
-              data-localize
+              type="color"
               class="sdpi-item-value"
-              name="more"
-              type="text"
-              value=""
-              placeholder="More info"
+              name="backgroundColor"
+              value="#000000"
+            />
+          </div>
+
+          <div type="color" class="sdpi-item" id="colorselection">
+            <div class="sdpi-item-label">Graph</div>
+            <input
+              type="color"
+              class="sdpi-item-value"
+              name="graphColor"
+              value="#008000"
             />
           </div>
         </div>
       </form>
-      <div class="sdpi-item">
-        <div class="sdpi-item-label" data-localize title="My button">
-          Button
-        </div>
-        <button
-          class="sdpi-item-value"
-          value="Click Me"
-          data-localize
-          id="open-external"
-        >
-          Click Me
-        </button>
-      </div>
     </div>
-
-    <div class="sdpi-info-label hidden" style="top: -1000" value=""></div>
 
     <!-- Stream Deck Libs -->
     <script src="../libs/js/constants.js"></script>

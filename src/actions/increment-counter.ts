@@ -16,7 +16,11 @@ const logger = streamDeck.logger.createScope("Custom Scope");
 class Graph {
   graphHistory: GraphHistoryEntry[] = [];
 
-  generateSvg(sensorValue: number) {
+  generateSvg(
+    sensorValue: number,
+    graphColor: string,
+    backgroundColor: string
+  ) {
     //if graphistory has 72 entries, remove the first one and push the new one
     //we treat the 72 entries in the array as 72 pixels in the Y axis
     //if graph refreshes every 2 seconds, we have 144 seconds of history
@@ -41,6 +45,7 @@ class Graph {
 
     var svgImg = SvgBuilder.newInstance();
     svgImg.width(72).height(72);
+    svgImg.rect({ height: "72", width: "72", fill: backgroundColor });
 
     for (let index = 0; index < this.graphHistory.length; index++) {
       const element: GraphHistoryEntry = this.graphHistory[index];
@@ -50,7 +55,7 @@ class Graph {
         y1: element.y1,
         x2: index,
         y2: element.y2,
-        stroke: "#FF0000",
+        stroke: graphColor,
         "stroke-width": 1,
       });
 
@@ -60,7 +65,7 @@ class Graph {
         y1: 72,
         x2: index,
         y2: element.y1,
-        stroke: "#FF0000",
+        stroke: graphColor,
         "stroke-width": 1,
       });
 
@@ -69,7 +74,7 @@ class Graph {
         y1: 72,
         x2: index + 1,
         y2: element.y2,
-        stroke: "#FF0000",
+        stroke: graphColor,
         "stroke-width": 1,
       });
     }
@@ -118,6 +123,7 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
       if (settings["registryName"] == undefined) {
         return;
       }
+      logger.info(JSON.stringify(settings, null, 2));
       let registryName = settings["registryName"];
       //split at space and add celcius sign
 
@@ -144,7 +150,11 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
               sensorValueValue = sensorValueValue.replace("�", "°");
             }
 
-            let svgImage = okay.generateSvg(parseFloat(sensorValueValue));
+            let svgImage = okay.generateSvg(
+              parseFloat(sensorValueValue),
+              settings["graphColor"],
+              settings["backgroundColor"]
+            );
             await ev.action.setImage(svgImage);
             await ev.action.setTitle(
               `${settings["title"]}\n` + sensorValueValue
@@ -176,6 +186,8 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
 type CounterSettings = {
   registryName: string;
   title: string;
+  backgroundColor: string;
+  graphColor: string;
 };
 
 type GraphHistoryEntry = {

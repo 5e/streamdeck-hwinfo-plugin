@@ -6708,10 +6708,10 @@ var svgBuilder = new SvgBuilder();
 
 var SvgBuilder$1 = /*@__PURE__*/getDefaultExportFromCjs(svgBuilder);
 
-index.logger.createScope("Custom Scope");
+const logger$1 = index.logger.createScope("Custom Scope");
 class Graph {
     graphHistory = [];
-    generateSvg(sensorValue) {
+    generateSvg(sensorValue, graphColor, backgroundColor) {
         //if graphistory has 72 entries, remove the first one and push the new one
         //we treat the 72 entries in the array as 72 pixels in the Y axis
         //if graph refreshes every 2 seconds, we have 144 seconds of history
@@ -6731,6 +6731,7 @@ class Graph {
         });
         var svgImg = SvgBuilder$1.newInstance();
         svgImg.width(72).height(72);
+        svgImg.rect({ height: "72", width: "72", fill: backgroundColor });
         for (let index = 0; index < this.graphHistory.length; index++) {
             const element = this.graphHistory[index];
             //setting the points
@@ -6739,7 +6740,7 @@ class Graph {
                 y1: element.y1,
                 x2: index,
                 y2: element.y2,
-                stroke: "#FF0000",
+                stroke: graphColor,
                 "stroke-width": 1,
             });
             //filling color under the lines
@@ -6748,7 +6749,7 @@ class Graph {
                 y1: 72,
                 x2: index,
                 y2: element.y1,
-                stroke: "#FF0000",
+                stroke: graphColor,
                 "stroke-width": 1,
             });
             svgImg.line({
@@ -6756,7 +6757,7 @@ class Graph {
                 y1: 72,
                 x2: index + 1,
                 y2: element.y2,
-                stroke: "#FF0000",
+                stroke: graphColor,
                 "stroke-width": 1,
             });
         }
@@ -6795,7 +6796,7 @@ let IncrementCounter = (() => {
         }
         onWillDisappear(ev) {
             clearInterval(this.intervals[ev.action.id]);
-            this.intervals[ev.action.id] = undefined;
+            delete this.intervals[ev.action.id];
         }
         onWillAppear(ev) {
             let okay = new Graph();
@@ -6806,6 +6807,7 @@ let IncrementCounter = (() => {
                 if (settings["registryName"] == undefined) {
                     return;
                 }
+                logger$1.info(JSON.stringify(settings, null, 2));
                 let registryName = settings["registryName"];
                 //split at space and add celcius sign
                 for (let index = 0; index < registryKeys["registry"].length; index++) {
@@ -6827,7 +6829,7 @@ let IncrementCounter = (() => {
                             if (sensorValueValue.includes("�")) {
                                 sensorValueValue = sensorValueValue.replace("�", "°");
                             }
-                            let svgImage = okay.generateSvg(parseFloat(sensorValueValue));
+                            let svgImage = okay.generateSvg(parseFloat(sensorValueValue), settings["graphColor"], settings["backgroundColor"]);
                             await ev.action.setImage(svgImage);
                             await ev.action.setTitle(`${settings["title"]}\n` + sensorValueValue);
                         }
