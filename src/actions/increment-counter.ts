@@ -124,46 +124,38 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
       let registryKeys: { registry: RegistryItem[] } =
         await streamDeck.settings.getGlobalSettings();
       let settings = await ev.action.getSettings();
-      //logger.info(JSON.stringify(settings, null, 2));
       if (settings["registryName"] == undefined) {
         return;
       }
-      logger.info(JSON.stringify(settings, null, 2));
-      let registryName = settings["registryName"];
-      //split at space and add celcius sign
 
       for (let index = 0; index < registryKeys["registry"].length; index++) {
         const element: RegistryItem = registryKeys["registry"][index];
-        if (element["value"] == registryName) {
+        if (element["value"] == settings["registryName"]) {
           let sensorName = element["name"];
           //get last character which is the index number
           let index = sensorName[sensorName.length - 1];
-          let sensorValueName = "Value" + index;
+          let registrySensorValueName = "Value" + index;
           //find sensorValueName is registryKeys
           let sensorValue = registryKeys["registry"].find(
-            (item) => item.name === sensorValueName
-          );
+            (item) => item.name === registrySensorValueName
+          )?.value;
 
-          let sensorValueValue = sensorValue?.value;
-
-          if (sensorValueValue == undefined) {
+          if (sensorValue == undefined) {
             await ev.action.setTitle("ERROR");
           } else {
-            sensorValueValue = sensorValueValue.replace(/\s/g, "");
+            sensorValue = sensorValue.replace(/\s/g, "");
             //winreg returns a � instead of a °
-            if (sensorValueValue.includes("�")) {
-              sensorValueValue = sensorValueValue.replace("�", "°");
+            if (sensorValue.includes("�")) {
+              sensorValue = sensorValue.replace("�", "°");
             }
 
             let svgImage = graph.generateSvg(
-              parseFloat(sensorValueValue),
+              parseFloat(sensorValue),
               settings["graphColor"],
               settings["backgroundColor"]
             );
             await ev.action.setImage(svgImage);
-            await ev.action.setTitle(
-              `${settings["title"]}\n` + sensorValueValue
-            );
+            await ev.action.setTitle(`${settings["title"]}\n` + sensorValue);
           }
         }
       }
