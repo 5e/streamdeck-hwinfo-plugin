@@ -104,7 +104,7 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
     ev: WillDisappearEvent<CounterSettings>
   ): void | Promise<void> {
     clearInterval(this.intervals[ev.action.id]);
-    this.intervals[ev.action.id] = undefined;
+    delete this.intervals[ev.action.id];
   }
 
   onWillAppear(ev: WillAppearEvent<CounterSettings>): void | Promise<void> {
