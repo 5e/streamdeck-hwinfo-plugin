@@ -108,12 +108,17 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
   onWillDisappear(
     ev: WillDisappearEvent<CounterSettings>
   ): void | Promise<void> {
-    clearInterval(this.intervals[ev.action.id]);
-    delete this.intervals[ev.action.id];
+    // clearInterval(this.intervals[ev.action.id]);
+    // delete this.intervals[ev.action.id];
+    //s
   }
 
   onWillAppear(ev: WillAppearEvent<CounterSettings>): void | Promise<void> {
-    let okay = new Graph();
+    let graph = new Graph();
+    //ensures you don't have multiple intervals running for the same action
+    if (this.intervals[ev.action.id] != undefined) {
+      return;
+    }
 
     this.intervals[ev.action.id] = setInterval(async () => {
       let registryKeys: { registry: RegistryItem[] } =
@@ -150,7 +155,7 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
               sensorValueValue = sensorValueValue.replace("�", "°");
             }
 
-            let svgImage = okay.generateSvg(
+            let svgImage = graph.generateSvg(
               parseFloat(sensorValueValue),
               settings["graphColor"],
               settings["backgroundColor"]
