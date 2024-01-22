@@ -7832,7 +7832,7 @@ var registry = Registry;
 
 var Registry$1 = /*@__PURE__*/getDefaultExportFromCjs(registry);
 
-index.logger.setLevel(LogLevel.TRACE);
+//streamDeck.logger.setLevel(LogLevel.TRACE);
 index.actions.registerAction(new Sensor());
 const logger = index.logger.createScope("Plugin.Ts scope");
 let regKey = new Registry$1({
