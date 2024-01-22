@@ -1,18 +1,18 @@
 {
   "Name": "HWiNFO Reader",
-  "Version": "0.1.0",
+  "Version": "1.0.0",
   "Author": "5e",
   "Actions": [
     {
       "Name": "Show Sensor Value",
       "UUID": "com.5e.hwinfo-reader.sensor",
-      "Icon": "imgs/actions/counter/icon",
+      "Icon": "imgs/actions/sensor/icon",
       "UserTitleEnabled": false,
       "Tooltip": "Displays a sensor value from HWiNFO",
       "Controllers": ["Keypad"],
       "States": [
         {
-          "Image": "imgs/actions/counter/key",
+          "Image": "imgs/plugin/category-icon",
           "TitleAlignment": "middle"
         }
       ],
@@ -22,17 +22,14 @@
   "Category": "HWiNFO Reader",
   "CategoryIcon": "imgs/plugin/category-icon",
   "CodePath": "bin/plugin.js",
-  "Description": "read",
+  "Description": "Gathers sensor data from HWiNFO without using the time limited shared memory feature.",
   "Icon": "imgs/plugin/marketplace",
+  "URL": "https://github.com/5e/streamdeck-hwinfo-plugin",
   "SDKVersion": 2,
   "Software": {
     "MinimumVersion": "6.5"
   },
   "OS": [
-    {
-      "Platform": "mac",
-      "MinimumVersion": "10.15"
-    },
     {
       "Platform": "windows",
       "MinimumVersion": "10"
