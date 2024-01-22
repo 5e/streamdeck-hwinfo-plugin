@@ -16,7 +16,11 @@ const logger = streamDeck.logger.createScope("Custom Scope");
 class Graph {
   graphHistory: GraphHistoryEntry[] = [];
 
-  addSensorValue(sensorValue: number) {
+  addSensorValue(
+    sensorValue: number,
+    graphMinValue: number,
+    graphMaxValue: number
+  ) {
     //if graphistory has 72 entries, remove the first one and push the new one
     //we treat the 72 entries in the array as 72 pixels in the Y axis
     //if graph refreshes every 2 seconds, we have 144 seconds of history
@@ -25,8 +29,9 @@ class Graph {
       this.graphHistory.shift();
     }
 
-    //if sensor value is at 100, it should correlate to the Y coordinate being 72, so we need to calculate the Y coordinate
-    let yCoordinate = 144 - (sensorValue / 100) * 144;
+    let yCoordinate =
+      144 -
+      ((sensorValue - graphMinValue) / (graphMaxValue - graphMinValue)) * 144;
 
     //add new entry
     this.graphHistory.push({
@@ -94,11 +99,11 @@ class Graph {
 }
 
 @action({ UUID: "com.5e.hwinfo-reader.sensor" })
-export class Sensor extends SingletonAction<CounterSettings> {
+export class Sensor extends SingletonAction<SensorSettings> {
   intervals: any = {};
 
   async onPropertyInspectorDidAppear(
-    ev: PropertyInspectorDidAppearEvent<CounterSettings>
+    ev: PropertyInspectorDidAppearEvent<SensorSettings>
   ) {
     let registryKeys: { registry: RegistryItem[] } =
       await streamDeck.settings.getGlobalSettings();
@@ -109,14 +114,14 @@ export class Sensor extends SingletonAction<CounterSettings> {
   }
 
   onWillDisappear(
-    ev: WillDisappearEvent<CounterSettings>
+    ev: WillDisappearEvent<SensorSettings>
   ): void | Promise<void> {
     //ensures a queue of actions doesn't build up else after you switch screens these will all be executed at once
     clearInterval(this.intervals[ev.action.id]["graphInterval"]);
     delete this.intervals[ev.action.id]["graphInterval"];
   }
 
-  async onWillAppear(ev: WillAppearEvent<CounterSettings>) {
+  async onWillAppear(ev: WillAppearEvent<SensorSettings>) {
     if (!this.intervals[ev.action.id]) {
       this.intervals[ev.action.id] = {};
       this.intervals[ev.action.id]["graph"] = new Graph();
@@ -161,13 +166,15 @@ export class Sensor extends SingletonAction<CounterSettings> {
                 this.intervals[ev.action.id]["lastSensorValue"] = sensorValue;
 
                 this.intervals[ev.action.id]["graph"].addSensorValue(
-                  parseFloat(sensorValue)
+                  parseFloat(sensorValue),
+                  parseFloat(settings["graphMinValue"]),
+                  parseFloat(settings["graphMaxValue"])
                 );
               }
             }
           }
         },
-        200
+        2000
       );
     }
 
@@ -192,11 +199,11 @@ export class Sensor extends SingletonAction<CounterSettings> {
 
     this.intervals[ev.action.id]["graphInterval"] = setInterval(async () => {
       updateScreen();
-    }, 200);
+    }, 2000);
   }
 }
 
-type CounterSettings = {
+type SensorSettings = {
   registryName: string;
   title: string;
   backgroundColor: string;
@@ -204,6 +211,8 @@ type CounterSettings = {
   sensorFontSize: string;
   titleFontSize: string;
   fontName: string;
+  graphMinValue: string;
+  graphMaxValue: string;
 };
 
 type GraphHistoryEntry = {

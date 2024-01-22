@@ -6711,15 +6711,15 @@ var SvgBuilder$1 = /*@__PURE__*/getDefaultExportFromCjs(svgBuilder);
 index.logger.createScope("Custom Scope");
 class Graph {
     graphHistory = [];
-    addSensorValue(sensorValue) {
+    addSensorValue(sensorValue, graphMinValue, graphMaxValue) {
         //if graphistory has 72 entries, remove the first one and push the new one
         //we treat the 72 entries in the array as 72 pixels in the Y axis
         //if graph refreshes every 2 seconds, we have 144 seconds of history
         if (this.graphHistory.length >= 72) {
             this.graphHistory.shift();
         }
-        //if sensor value is at 100, it should correlate to the Y coordinate being 72, so we need to calculate the Y coordinate
-        let yCoordinate = 144 - (sensorValue / 100) * 144;
+        let yCoordinate = 144 -
+            ((sensorValue - graphMinValue) / (graphMaxValue - graphMinValue)) * 144;
         //add new entry
         this.graphHistory.push({
             y1: yCoordinate,
@@ -6824,11 +6824,11 @@ let Sensor = (() => {
                                     sensorValue = sensorValue.replace("�", "°");
                                 }
                                 this.intervals[ev.action.id]["lastSensorValue"] = sensorValue;
-                                this.intervals[ev.action.id]["graph"].addSensorValue(parseFloat(sensorValue));
+                                this.intervals[ev.action.id]["graph"].addSensorValue(parseFloat(sensorValue), parseFloat(settings["graphMinValue"]), parseFloat(settings["graphMaxValue"]));
                             }
                         }
                     }
-                }, 200);
+                }, 2000);
             }
             let updateScreen = async () => {
                 let settings = await ev.action.getSettings();
@@ -6839,7 +6839,7 @@ let Sensor = (() => {
             updateScreen();
             this.intervals[ev.action.id]["graphInterval"] = setInterval(async () => {
                 updateScreen();
-            }, 200);
+            }, 2000);
         }
     });
     return _classThis;
