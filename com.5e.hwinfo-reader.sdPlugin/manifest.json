@@ -1,10 +1,10 @@
 {
-  "Name": "hwinfo-reader",
+  "Name": "HWiNFO Reader",
   "Version": "0.1.0",
   "Author": "5e",
   "Actions": [
     {
-      "Name": "HWiNFO Reader",
+      "Name": "Show Sensor Value",
       "UUID": "com.5e.hwinfo-reader.increment",
       "Icon": "imgs/actions/counter/icon",
       "UserTitleEnabled": false,
@@ -19,7 +19,7 @@
       "PropertyInspectorPath": "pi/inspector.html"
     }
   ],
-  "Category": "hwinfo-reader",
+  "Category": "HWiNFO Reader",
   "CategoryIcon": "imgs/plugin/category-icon",
   "CodePath": "bin/plugin.js",
   "Description": "read",
