@@ -6760,8 +6760,9 @@ class Graph {
             fill: "white",
             "text-anchor": "middle",
         }, sensorValue);
-        var logo = svgImg.render();
-        let svgImage = `data:image/svg, ${logo}`;
+        let logo = svgImg.render();
+        let base64encoded = Buffer.from(logo).toString("base64");
+        let svgImage = `data:image/svg+xml;base64,${base64encoded}`;
         return svgImage;
     }
 }
@@ -6818,10 +6819,8 @@ let Sensor = (() => {
                             if (sensorValue != undefined) {
                                 //replace everything after a "." until a space
                                 sensorValue = sensorValue.replace(/\..*?\s/g, "");
-                                //winreg returns a � instead of a °
+                                // //winreg returns a � instead of a °
                                 sensorValue = sensorValue.replace("�", "°");
-                                //replace % sign with &percnt as it breaks setImage method
-                                sensorValue = sensorValue.replace("%", "&#37;");
                                 this.intervals[ev.action.id]["lastSensorValue"] = sensorValue;
                                 this.intervals[ev.action.id]["graph"].addSensorValue(parseFloat(sensorValue), parseFloat(settings["graphMinValue"]), parseFloat(settings["graphMaxValue"]));
                             }
