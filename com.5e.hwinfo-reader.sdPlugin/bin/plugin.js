@@ -7832,16 +7832,14 @@ var registry = Registry;
 
 var Registry$1 = /*@__PURE__*/getDefaultExportFromCjs(registry);
 
-// We can enable "trace" logging so that all messages between the Stream Deck, and the plugin are recorded. When storing sensitive information
 index.logger.setLevel(LogLevel.TRACE);
 index.actions.registerAction(new Sensor());
 const logger = index.logger.createScope("Plugin.Ts scope");
 let regKey = new Registry$1({
-    // new operator is optional
     hive: Registry$1.HKCU, // open registry hive HKEY_CURRENT_USER
-    key: "\\Software\\HWiNFO64\\VSB", // key containing autostart programs
+    key: "\\Software\\HWiNFO64\\VSB",
 });
-//keep a local copy of the registry keys so the actions can access it
+//keep a local copy of the registry keys so the action can access it
 setInterval(async function () {
     let arrayOfKeys = [];
     regKey.values(async function (err, items) {
