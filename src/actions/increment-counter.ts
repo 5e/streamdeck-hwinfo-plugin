@@ -50,19 +50,9 @@ class Graph {
       //setting the points
       svgImg.line({
         x1: index,
-        y1: element.y1,
-        x2: index,
-        y2: element.y2,
-        stroke: graphColor,
-        "stroke-width": 1,
-      });
-
-      //filling color under the lines
-      svgImg.line({
-        x1: index,
         y1: 72,
         x2: index,
-        y2: element.y1,
+        y2: element.y2,
         stroke: graphColor,
         "stroke-width": 1,
       });
