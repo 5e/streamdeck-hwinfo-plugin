@@ -6720,10 +6720,6 @@ class Graph {
         }
         //if sensor value is at 100, it should correlate to the Y coordinate being 72, so we need to calculate the Y coordinate
         let yCoordinate = 72 - (sensorValue / 100) * 72;
-        //change the last entry to the new Y coordinate to match the line so it doesn't skip up or down
-        if (this.graphHistory[this.graphHistory.length - 1] != undefined) {
-            this.graphHistory[this.graphHistory.length - 1].y2 = yCoordinate;
-        }
         //add new entry
         this.graphHistory.push({
             y1: yCoordinate,
@@ -6741,14 +6737,6 @@ class Graph {
                 x1: index,
                 y1: 72,
                 x2: index,
-                y2: element.y2,
-                stroke: graphColor,
-                "stroke-width": 1,
-            });
-            svgImg.line({
-                x1: index + 1,
-                y1: 72,
-                x2: index + 1,
                 y2: element.y2,
                 stroke: graphColor,
                 "stroke-width": 1,
@@ -6840,7 +6828,7 @@ let Sensor = (() => {
                             }
                         }
                     }
-                }, 2000);
+                }, 200);
             }
             let updateScreen = async () => {
                 let settings = await ev.action.getSettings();
@@ -6851,7 +6839,7 @@ let Sensor = (() => {
             updateScreen();
             this.intervals[ev.action.id]["graphInterval"] = setInterval(async () => {
                 updateScreen();
-            }, 2000);
+            }, 200);
         }
     });
     return _classThis;
