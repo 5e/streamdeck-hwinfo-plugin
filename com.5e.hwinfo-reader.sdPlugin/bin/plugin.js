@@ -6712,10 +6712,7 @@ index.logger.createScope("Custom Scope");
 class Graph {
     graphHistory = [];
     addSensorValue(sensorValue, graphMinValue, graphMaxValue) {
-        //if graphistory has 72 entries, remove the first one and push the new one
-        //we treat the 72 entries in the array as 72 pixels in the Y axis
-        //if graph refreshes every 2 seconds, we have 144 seconds of history
-        if (this.graphHistory.length >= 72) {
+        if (this.graphHistory.length >= 73) {
             this.graphHistory.shift();
         }
         let yCoordinate = 144 -
