@@ -1,12 +1,12 @@
 import streamDeck, { LogLevel } from "@elgato/streamdeck";
 
-import { IncrementCounter } from "./actions/increment-counter";
+import { Sensor } from "./actions/sensor";
 import Registry from "winreg";
 
 // We can enable "trace" logging so that all messages between the Stream Deck, and the plugin are recorded. When storing sensitive information
 streamDeck.logger.setLevel(LogLevel.TRACE);
 
-streamDeck.actions.registerAction(new IncrementCounter());
+streamDeck.actions.registerAction(new Sensor());
 const logger = streamDeck.logger.createScope("Plugin.Ts scope");
 
 let regKey = new Registry({

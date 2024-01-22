@@ -21,7 +21,7 @@ $PI.onConnected((jsn) => {
 	);
 });
 
-$PI.onSendToPropertyInspector("com.5e.hwinfo-reader.increment", function (event) {
+$PI.onSendToPropertyInspector("com.5e.hwinfo-reader.sensor", function (event) {
 	let registryArray = event['payload']['payload'];
 	let selectElement = document.getElementById('registryName');
 	//clear all options in select

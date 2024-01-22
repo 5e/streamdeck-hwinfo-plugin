@@ -6777,8 +6777,8 @@ class Graph {
         return svgImage;
     }
 }
-let IncrementCounter = (() => {
-    let _classDecorators = [action({ UUID: "com.5e.hwinfo-reader.increment" })];
+let Sensor = (() => {
+    let _classDecorators = [action({ UUID: "com.5e.hwinfo-reader.sensor" })];
     let _classDescriptor;
     let _classExtraInitializers = [];
     let _classThis;
@@ -6792,11 +6792,6 @@ let IncrementCounter = (() => {
             if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
             __runInitializers(_classThis, _classExtraInitializers);
         }
-        /**
-         * The {@link SingletonAction.onWillAppear} event is useful for setting the visual representation of an action when it become visible. This could be due to the Stream Deck first
-         * starting up, or the user navigating between pages / folders etc.. There is also an inverse of this event in the form of {@link streamDeck.client.onWillDisappear}. In this example,
-         * we're setting the title to the "count" that is incremented in {@link IncrementCounter.onKeyDown}.
-         */
         intervals = {};
         async onPropertyInspectorDidAppear(ev) {
             let registryKeys = await index.settings.getGlobalSettings();
@@ -6857,22 +6852,6 @@ let IncrementCounter = (() => {
             this.intervals[ev.action.id]["graphInterval"] = setInterval(async () => {
                 updateScreen();
             }, 2000);
-        }
-        /**
-         * Listens for the {@link SingletonAction.onKeyDown} event which is emitted by Stream Deck when an action is pressed. Stream Deck provides various events for tracking interaction
-         * with devices including key down/up, dial rotations, and device connectivity, etc. When triggered, {@link ev} object contains information about the event including any payloads
-         * and action information where applicable. In this example, our action will display a counter that increments by one each press. We track the current count on the action's persisted
-         * settings using `setSettings` and `getSettings`.
-         */
-        async onKeyDown(ev) {
-            // Determine the current count from the settings.
-            // let count = ev.payload.settings.count ?? 0;
-            // count++;
-            // logger.info(this.intervalId.toString());
-            // logger.info(JSON.stringify(await ev.action.getSettings(), null, 2));
-            // // Update the current count in the action's settings, and change the title.
-            // await ev.action.setSettings({ count });
-            // await ev.action.setTitle(`${count}`);
         }
     });
     return _classThis;
@@ -7867,7 +7846,7 @@ var Registry$1 = /*@__PURE__*/getDefaultExportFromCjs(registry);
 
 // We can enable "trace" logging so that all messages between the Stream Deck, and the plugin are recorded. When storing sensitive information
 index.logger.setLevel(LogLevel.TRACE);
-index.actions.registerAction(new IncrementCounter());
+index.actions.registerAction(new Sensor());
 const logger = index.logger.createScope("Plugin.Ts scope");
 let regKey = new Registry$1({
     // new operator is optional

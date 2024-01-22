@@ -5,7 +5,7 @@
   "Actions": [
     {
       "Name": "Show Sensor Value",
-      "UUID": "com.5e.hwinfo-reader.increment",
+      "UUID": "com.5e.hwinfo-reader.sensor",
       "Icon": "imgs/actions/counter/icon",
       "UserTitleEnabled": false,
       "Tooltip": "Displays a sensor value from HWiNFO",
