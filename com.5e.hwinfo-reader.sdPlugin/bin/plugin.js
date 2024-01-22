@@ -6825,7 +6825,8 @@ let IncrementCounter = (() => {
                             let sensorValue = registryKeys["registry"].find((item) => item.name === registrySensorValueName)?.value;
                             this.intervals[ev.action.id]["lastSensorValue"] = sensorValue;
                             if (sensorValue != undefined) {
-                                sensorValue = sensorValue.replace(/\s/g, "");
+                                //replace everything after a "." until a space
+                                sensorValue = sensorValue.replace(/\..*?\s/g, "");
                                 //winreg returns a � instead of a °
                                 if (sensorValue.includes("�")) {
                                     sensorValue = sensorValue.replace("�", "°");
