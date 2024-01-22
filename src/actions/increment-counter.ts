@@ -40,7 +40,15 @@ class Graph {
     });
   }
 
-  generateSvg(graphColor: string, backgroundColor: string) {
+  generateSvg(
+    graphColor: string,
+    backgroundColor: string,
+    title: string,
+    sensorValue: string,
+    titleFontSize: string,
+    sensorFontSize: string,
+    fontName: string
+  ) {
     var svgImg = SvgBuilder.newInstance();
     svgImg.width(72).height(72);
     svgImg.rect({ height: "72", width: "72", fill: backgroundColor });
@@ -66,6 +74,32 @@ class Graph {
         "stroke-width": 1,
       });
     }
+
+    svgImg.text(
+      {
+        x: 36,
+        y: 21,
+        "font-family": fontName,
+        "font-size": titleFontSize,
+        stroke: "grey",
+        fill: "grey",
+        "text-anchor": "middle",
+      },
+      title
+    );
+
+    svgImg.text(
+      {
+        x: 36,
+        y: 58,
+        "font-family": fontName,
+        "font-size": sensorFontSize,
+        stroke: "white",
+        fill: "white",
+        "text-anchor": "middle",
+      },
+      sensorValue
+    );
 
     var logo = svgImg.render();
     let svgImage = `data:image/svg, ${logo}`;
@@ -162,15 +196,14 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
         ev.action.setImage(
           this.intervals[ev.action.id]["graph"].generateSvg(
             settings["graphColor"],
-            settings["backgroundColor"]
+            settings["backgroundColor"],
+            settings["title"],
+            this.intervals[ev.action.id]["lastSensorValue"],
+            settings["titleFontSize"],
+            settings["sensorFontSize"],
+            settings["fontName"]
           )
         );
-        ev.action.setTitle(
-          `${settings["title"]}\n` +
-            this.intervals[ev.action.id]["lastSensorValue"]
-        );
-      } else {
-        ev.action.setTitle("ERROR");
       }
     };
 
@@ -204,6 +237,9 @@ type CounterSettings = {
   title: string;
   backgroundColor: string;
   graphColor: string;
+  sensorFontSize: string;
+  titleFontSize: string;
+  fontName: string;
 };
 
 type GraphHistoryEntry = {

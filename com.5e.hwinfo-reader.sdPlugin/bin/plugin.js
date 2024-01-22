@@ -6730,7 +6730,7 @@ class Graph {
             y2: yCoordinate,
         });
     }
-    generateSvg(graphColor, backgroundColor) {
+    generateSvg(graphColor, backgroundColor, title, sensorValue, titleFontSize, sensorFontSize, fontName) {
         var svgImg = SvgBuilder$1.newInstance();
         svgImg.width(72).height(72);
         svgImg.rect({ height: "72", width: "72", fill: backgroundColor });
@@ -6739,18 +6739,9 @@ class Graph {
             //setting the points
             svgImg.line({
                 x1: index,
-                y1: element.y1,
-                x2: index,
-                y2: element.y2,
-                stroke: graphColor,
-                "stroke-width": 1,
-            });
-            //filling color under the lines
-            svgImg.line({
-                x1: index,
                 y1: 72,
                 x2: index,
-                y2: element.y1,
+                y2: element.y2,
                 stroke: graphColor,
                 "stroke-width": 1,
             });
@@ -6763,6 +6754,24 @@ class Graph {
                 "stroke-width": 1,
             });
         }
+        svgImg.text({
+            x: 36,
+            y: 21,
+            "font-family": fontName,
+            "font-size": titleFontSize,
+            stroke: "grey",
+            fill: "grey",
+            "text-anchor": "middle",
+        }, title);
+        svgImg.text({
+            x: 36,
+            y: 58,
+            "font-family": fontName,
+            "font-size": sensorFontSize,
+            stroke: "white",
+            fill: "white",
+            "text-anchor": "middle",
+        }, sensorValue);
         var logo = svgImg.render();
         let svgImage = `data:image/svg, ${logo}`;
         return svgImage;
@@ -6841,12 +6850,7 @@ let IncrementCounter = (() => {
             let updateScreen = async () => {
                 let settings = await ev.action.getSettings();
                 if (this.intervals[ev.action.id]["lastSensorValue"] != undefined) {
-                    ev.action.setImage(this.intervals[ev.action.id]["graph"].generateSvg(settings["graphColor"], settings["backgroundColor"]));
-                    ev.action.setTitle(`${settings["title"]}\n` +
-                        this.intervals[ev.action.id]["lastSensorValue"]);
-                }
-                else {
-                    ev.action.setTitle("ERROR");
+                    ev.action.setImage(this.intervals[ev.action.id]["graph"].generateSvg(settings["graphColor"], settings["backgroundColor"], settings["title"], this.intervals[ev.action.id]["lastSensorValue"], settings["titleFontSize"], settings["sensorFontSize"], settings["fontName"]));
                 }
             };
             updateScreen();
