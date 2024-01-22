@@ -6708,10 +6708,10 @@ var svgBuilder = new SvgBuilder();
 
 var SvgBuilder$1 = /*@__PURE__*/getDefaultExportFromCjs(svgBuilder);
 
-const logger$1 = index.logger.createScope("Custom Scope");
+index.logger.createScope("Custom Scope");
 class Graph {
     graphHistory = [];
-    generateSvg(sensorValue, graphColor, backgroundColor) {
+    addSensorValue(sensorValue) {
         //if graphistory has 72 entries, remove the first one and push the new one
         //we treat the 72 entries in the array as 72 pixels in the Y axis
         //if graph refreshes every 2 seconds, we have 144 seconds of history
@@ -6729,6 +6729,8 @@ class Graph {
             y1: yCoordinate,
             y2: yCoordinate,
         });
+    }
+    generateSvg(graphColor, backgroundColor) {
         var svgImg = SvgBuilder$1.newInstance();
         svgImg.width(72).height(72);
         svgImg.rect({ height: "72", width: "72", fill: backgroundColor });
@@ -6795,46 +6797,60 @@ let IncrementCounter = (() => {
             });
         }
         onWillDisappear(ev) {
-            clearInterval(this.intervals[ev.action.id]);
-            delete this.intervals[ev.action.id];
+            //ensures a queue of actions doesn't build up else after you switch screens these will all be executed at once
+            clearInterval(this.intervals[ev.action.id]["graphInterval"]);
+            delete this.intervals[ev.action.id]["graphInterval"];
         }
-        onWillAppear(ev) {
-            let okay = new Graph();
-            this.intervals[ev.action.id] = setInterval(async () => {
-                let registryKeys = await index.settings.getGlobalSettings();
-                let settings = await ev.action.getSettings();
-                //logger.info(JSON.stringify(settings, null, 2));
-                if (settings["registryName"] == undefined) {
-                    return;
-                }
-                logger$1.info(JSON.stringify(settings, null, 2));
-                let registryName = settings["registryName"];
-                //split at space and add celcius sign
-                for (let index = 0; index < registryKeys["registry"].length; index++) {
-                    const element = registryKeys["registry"][index];
-                    if (element["value"] == registryName) {
-                        let sensorName = element["name"];
-                        //get last character which is the index number
-                        let index = sensorName[sensorName.length - 1];
-                        let sensorValueName = "Value" + index;
-                        //find sensorValueName is registryKeys
-                        let sensorValue = registryKeys["registry"].find((item) => item.name === sensorValueName);
-                        let sensorValueValue = sensorValue?.value;
-                        if (sensorValueValue == undefined) {
-                            await ev.action.setTitle("ERROR");
-                        }
-                        else {
-                            sensorValueValue = sensorValueValue.replace(/\s/g, "");
-                            //winreg returns a � instead of a °
-                            if (sensorValueValue.includes("�")) {
-                                sensorValueValue = sensorValueValue.replace("�", "°");
+        async onWillAppear(ev) {
+            if (!this.intervals[ev.action.id]) {
+                this.intervals[ev.action.id] = {};
+                this.intervals[ev.action.id]["graph"] = new Graph();
+            }
+            //ensures you don't have multiple intervals running for the same action
+            if (this.intervals[ev.action.id]["sensorPollInterval"] == undefined) {
+                this.intervals[ev.action.id]["sensorPollInterval"] = setInterval(async () => {
+                    let registryKeys = await index.settings.getGlobalSettings();
+                    let settings = await ev.action.getSettings();
+                    if (settings["registryName"] == undefined) {
+                        return;
+                    }
+                    for (let index = 0; index < registryKeys["registry"].length; index++) {
+                        const element = registryKeys["registry"][index];
+                        if (element["value"] == settings["registryName"]) {
+                            let sensorName = element["name"];
+                            //get last character which is the index number
+                            let index = sensorName[sensorName.length - 1];
+                            let registrySensorValueName = "Value" + index;
+                            //find sensorValueName is registryKeys
+                            let sensorValue = registryKeys["registry"].find((item) => item.name === registrySensorValueName)?.value;
+                            this.intervals[ev.action.id]["lastSensorValue"] = sensorValue;
+                            if (sensorValue != undefined) {
+                                sensorValue = sensorValue.replace(/\s/g, "");
+                                //winreg returns a � instead of a °
+                                if (sensorValue.includes("�")) {
+                                    sensorValue = sensorValue.replace("�", "°");
+                                }
+                                this.intervals[ev.action.id]["lastSensorValue"] = sensorValue;
+                                this.intervals[ev.action.id]["graph"].addSensorValue(parseFloat(sensorValue));
                             }
-                            let svgImage = okay.generateSvg(parseFloat(sensorValueValue), settings["graphColor"], settings["backgroundColor"]);
-                            await ev.action.setImage(svgImage);
-                            await ev.action.setTitle(`${settings["title"]}\n` + sensorValueValue);
                         }
                     }
+                }, 2000);
+            }
+            let updateScreen = async () => {
+                let settings = await ev.action.getSettings();
+                if (this.intervals[ev.action.id]["lastSensorValue"] != undefined) {
+                    ev.action.setImage(this.intervals[ev.action.id]["graph"].generateSvg(settings["graphColor"], settings["backgroundColor"]));
+                    ev.action.setTitle(`${settings["title"]}\n` +
+                        this.intervals[ev.action.id]["lastSensorValue"]);
                 }
+                else {
+                    ev.action.setTitle("ERROR");
+                }
+            };
+            updateScreen();
+            this.intervals[ev.action.id]["graphInterval"] = setInterval(async () => {
+                updateScreen();
             }, 2000);
         }
         /**
@@ -7845,7 +7861,7 @@ var registry = Registry;
 var Registry$1 = /*@__PURE__*/getDefaultExportFromCjs(registry);
 
 // We can enable "trace" logging so that all messages between the Stream Deck, and the plugin are recorded. When storing sensitive information
-// streamDeck.logger.setLevel(LogLevel.TRACE);
+index.logger.setLevel(LogLevel.TRACE);
 index.actions.registerAction(new IncrementCounter());
 const logger = index.logger.createScope("Plugin.Ts scope");
 let regKey = new Registry$1({

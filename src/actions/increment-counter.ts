@@ -16,11 +16,7 @@ const logger = streamDeck.logger.createScope("Custom Scope");
 class Graph {
   graphHistory: GraphHistoryEntry[] = [];
 
-  generateSvg(
-    sensorValue: number,
-    graphColor: string,
-    backgroundColor: string
-  ) {
+  addSensorValue(sensorValue: number) {
     //if graphistory has 72 entries, remove the first one and push the new one
     //we treat the 72 entries in the array as 72 pixels in the Y axis
     //if graph refreshes every 2 seconds, we have 144 seconds of history
@@ -42,7 +38,9 @@ class Graph {
       y1: yCoordinate,
       y2: yCoordinate,
     });
+  }
 
+  generateSvg(graphColor: string, backgroundColor: string) {
     var svgImg = SvgBuilder.newInstance();
     svgImg.width(72).height(72);
     svgImg.rect({ height: "72", width: "72", fill: backgroundColor });
@@ -108,57 +106,87 @@ export class IncrementCounter extends SingletonAction<CounterSettings> {
   onWillDisappear(
     ev: WillDisappearEvent<CounterSettings>
   ): void | Promise<void> {
-    // clearInterval(this.intervals[ev.action.id]);
-    // delete this.intervals[ev.action.id];
-    //s
+    //ensures a queue of actions doesn't build up else after you switch screens these will all be executed at once
+    clearInterval(this.intervals[ev.action.id]["graphInterval"]);
+    delete this.intervals[ev.action.id]["graphInterval"];
   }
 
-  onWillAppear(ev: WillAppearEvent<CounterSettings>): void | Promise<void> {
-    let graph = new Graph();
-    //ensures you don't have multiple intervals running for the same action
-    if (this.intervals[ev.action.id] != undefined) {
-      return;
+  async onWillAppear(ev: WillAppearEvent<CounterSettings>) {
+    if (!this.intervals[ev.action.id]) {
+      this.intervals[ev.action.id] = {};
+      this.intervals[ev.action.id]["graph"] = new Graph();
     }
 
-    this.intervals[ev.action.id] = setInterval(async () => {
-      let registryKeys: { registry: RegistryItem[] } =
-        await streamDeck.settings.getGlobalSettings();
-      let settings = await ev.action.getSettings();
-      if (settings["registryName"] == undefined) {
-        return;
-      }
-
-      for (let index = 0; index < registryKeys["registry"].length; index++) {
-        const element: RegistryItem = registryKeys["registry"][index];
-        if (element["value"] == settings["registryName"]) {
-          let sensorName = element["name"];
-          //get last character which is the index number
-          let index = sensorName[sensorName.length - 1];
-          let registrySensorValueName = "Value" + index;
-          //find sensorValueName is registryKeys
-          let sensorValue = registryKeys["registry"].find(
-            (item) => item.name === registrySensorValueName
-          )?.value;
-
-          if (sensorValue == undefined) {
-            await ev.action.setTitle("ERROR");
-          } else {
-            sensorValue = sensorValue.replace(/\s/g, "");
-            //winreg returns a � instead of a °
-            if (sensorValue.includes("�")) {
-              sensorValue = sensorValue.replace("�", "°");
-            }
-
-            let svgImage = graph.generateSvg(
-              parseFloat(sensorValue),
-              settings["graphColor"],
-              settings["backgroundColor"]
-            );
-            await ev.action.setImage(svgImage);
-            await ev.action.setTitle(`${settings["title"]}\n` + sensorValue);
+    //ensures you don't have multiple intervals running for the same action
+    if (this.intervals[ev.action.id]["sensorPollInterval"] == undefined) {
+      this.intervals[ev.action.id]["sensorPollInterval"] = setInterval(
+        async () => {
+          let registryKeys: { registry: RegistryItem[] } =
+            await streamDeck.settings.getGlobalSettings();
+          let settings = await ev.action.getSettings();
+          if (settings["registryName"] == undefined) {
+            return;
           }
-        }
+
+          for (
+            let index = 0;
+            index < registryKeys["registry"].length;
+            index++
+          ) {
+            const element: RegistryItem = registryKeys["registry"][index];
+            if (element["value"] == settings["registryName"]) {
+              let sensorName = element["name"];
+              //get last character which is the index number
+              let index = sensorName[sensorName.length - 1];
+              let registrySensorValueName = "Value" + index;
+              //find sensorValueName is registryKeys
+              let sensorValue = registryKeys["registry"].find(
+                (item) => item.name === registrySensorValueName
+              )?.value;
+
+              this.intervals[ev.action.id]["lastSensorValue"] = sensorValue;
+              if (sensorValue != undefined) {
+                sensorValue = sensorValue.replace(/\s/g, "");
+                //winreg returns a � instead of a °
+                if (sensorValue.includes("�")) {
+                  sensorValue = sensorValue.replace("�", "°");
+                }
+
+                this.intervals[ev.action.id]["lastSensorValue"] = sensorValue;
+
+                this.intervals[ev.action.id]["graph"].addSensorValue(
+                  parseFloat(sensorValue)
+                );
+              }
+            }
+          }
+        },
+        2000
+      );
+    }
+
+    let updateScreen = async () => {
+      let settings = await ev.action.getSettings();
+      if (this.intervals[ev.action.id]["lastSensorValue"] != undefined) {
+        ev.action.setImage(
+          this.intervals[ev.action.id]["graph"].generateSvg(
+            settings["graphColor"],
+            settings["backgroundColor"]
+          )
+        );
+        ev.action.setTitle(
+          `${settings["title"]}\n` +
+            this.intervals[ev.action.id]["lastSensorValue"]
+        );
+      } else {
+        ev.action.setTitle("ERROR");
       }
+    };
+
+    updateScreen();
+
+    this.intervals[ev.action.id]["graphInterval"] = setInterval(async () => {
+      updateScreen();
     }, 2000);
   }
 
