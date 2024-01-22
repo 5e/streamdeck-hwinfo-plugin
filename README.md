@@ -27,8 +27,8 @@ Alternative to the [hwinfo-streamdeck](https://github.com/shayne/hwinfo-streamde
 - Font weight
 - Choose where the title and sensor text should appear
 - ~~Change Y scale of the graph, so it's not always 0 to 100 as some sensor values may be over 100 such as wattage.~~ Done
-- Change speed of polling, currently checks for sensor values every 2 seconds
-- Change graph timescale (e.g. only show last 30 seconds on the screen, currently shows 72 seconds)
+- Change speed of polling
+- Change graph timescale
 
 ## Current known issues
 
