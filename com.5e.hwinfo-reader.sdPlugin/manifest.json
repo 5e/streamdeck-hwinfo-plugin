@@ -22,7 +22,7 @@
   "Category": "HWiNFO Reader",
   "CategoryIcon": "imgs/plugin/category-icon",
   "CodePath": "bin/plugin.js",
-  "Description": "Gathers sensor data from HWiNFO without using the time limited shared memory feature.",
+  "Description": "Gathers sensor data from HWiNFO without using the time limited shared memory feature. This plugin is not affiliated with HWiNFO. This plugin is open-source at: https://github.com/5e/streamdeck-hwinfo-plugin",
   "Icon": "imgs/plugin/marketplace",
   "URL": "https://github.com/5e/streamdeck-hwinfo-plugin",
   "SDKVersion": 2,
