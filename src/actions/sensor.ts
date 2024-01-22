@@ -169,7 +169,7 @@ export class Sensor extends SingletonAction<SensorSettings> {
             }
           }
         },
-        2000
+        1000
       );
     }
 
@@ -194,7 +194,7 @@ export class Sensor extends SingletonAction<SensorSettings> {
 
     this.intervals[ev.action.id]["graphInterval"] = setInterval(async () => {
       updateScreen();
-    }, 2000);
+    }, 1000);
   }
 }
 

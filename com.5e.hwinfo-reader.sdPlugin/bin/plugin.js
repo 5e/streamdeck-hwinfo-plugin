@@ -6826,7 +6826,7 @@ let Sensor = (() => {
                             }
                         }
                     }
-                }, 2000);
+                }, 1000);
             }
             let updateScreen = async () => {
                 let settings = await ev.action.getSettings();
@@ -6837,7 +6837,7 @@ let Sensor = (() => {
             updateScreen();
             this.intervals[ev.action.id]["graphInterval"] = setInterval(async () => {
                 updateScreen();
-            }, 2000);
+            }, 1000);
         }
     });
     return _classThis;
