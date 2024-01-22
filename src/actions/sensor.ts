@@ -154,14 +154,14 @@ export class Sensor extends SingletonAction<SensorSettings> {
                 (item) => item.name === registrySensorValueName
               )?.value;
 
-              this.intervals[ev.action.id]["lastSensorValue"] = sensorValue;
               if (sensorValue != undefined) {
                 //replace everything after a "." until a space
                 sensorValue = sensorValue.replace(/\..*?\s/g, "");
                 //winreg returns a � instead of a °
-                if (sensorValue.includes("�")) {
-                  sensorValue = sensorValue.replace("�", "°");
-                }
+                sensorValue = sensorValue.replace("�", "°");
+
+                //replace % sign with &percnt as it breaks setImage method
+                sensorValue = sensorValue.replace("%", "&#37;");
 
                 this.intervals[ev.action.id]["lastSensorValue"] = sensorValue;
 
@@ -170,6 +170,8 @@ export class Sensor extends SingletonAction<SensorSettings> {
                   parseFloat(settings["graphMinValue"]),
                   parseFloat(settings["graphMaxValue"])
                 );
+              } else {
+                this.intervals[ev.action.id]["lastSensorValue"] = sensorValue;
               }
             }
           }

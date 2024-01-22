@@ -6815,16 +6815,18 @@ let Sensor = (() => {
                             let registrySensorValueName = "Value" + index;
                             //find sensorValueName is registryKeys
                             let sensorValue = registryKeys["registry"].find((item) => item.name === registrySensorValueName)?.value;
-                            this.intervals[ev.action.id]["lastSensorValue"] = sensorValue;
                             if (sensorValue != undefined) {
                                 //replace everything after a "." until a space
                                 sensorValue = sensorValue.replace(/\..*?\s/g, "");
                                 //winreg returns a � instead of a °
-                                if (sensorValue.includes("�")) {
-                                    sensorValue = sensorValue.replace("�", "°");
-                                }
+                                sensorValue = sensorValue.replace("�", "°");
+                                //replace % sign with &percnt as it breaks setImage method
+                                sensorValue = sensorValue.replace("%", "&#37;");
                                 this.intervals[ev.action.id]["lastSensorValue"] = sensorValue;
                                 this.intervals[ev.action.id]["graph"].addSensorValue(parseFloat(sensorValue), parseFloat(settings["graphMinValue"]), parseFloat(settings["graphMaxValue"]));
+                            }
+                            else {
+                                this.intervals[ev.action.id]["lastSensorValue"] = sensorValue;
                             }
                         }
                     }
