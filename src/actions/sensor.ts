@@ -26,7 +26,7 @@ class Graph {
     }
 
     //if sensor value is at 100, it should correlate to the Y coordinate being 72, so we need to calculate the Y coordinate
-    let yCoordinate = 72 - (sensorValue / 100) * 72;
+    let yCoordinate = 144 - (sensorValue / 100) * 144;
 
     //add new entry
     this.graphHistory.push({
@@ -45,26 +45,26 @@ class Graph {
     fontName: string
   ) {
     var svgImg = SvgBuilder.newInstance();
-    svgImg.width(72).height(72);
-    svgImg.rect({ height: "72", width: "72", fill: backgroundColor });
+    svgImg.width(144).height(144);
+    svgImg.rect({ height: "144", width: "144", fill: backgroundColor });
 
     for (let index = 0; index < this.graphHistory.length; index++) {
       const element: GraphHistoryEntry = this.graphHistory[index];
       //setting the points
       svgImg.line({
-        x1: index,
-        y1: 72,
-        x2: index,
+        x1: index * 2,
+        y1: 144,
+        x2: index * 2,
         y2: element.y2,
         stroke: graphColor,
-        "stroke-width": 1,
+        "stroke-width": 2,
       });
     }
 
     svgImg.text(
       {
-        x: 36,
-        y: 21,
+        x: 72,
+        y: 42,
         "font-family": fontName,
         "font-size": titleFontSize,
         stroke: "grey",
@@ -76,8 +76,8 @@ class Graph {
 
     svgImg.text(
       {
-        x: 36,
-        y: 58,
+        x: 72,
+        y: 116,
         "font-family": fontName,
         "font-size": sensorFontSize,
         stroke: "white",
