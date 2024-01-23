@@ -6,12 +6,15 @@ Alternative to the [hwinfo-streamdeck](https://github.com/shayne/hwinfo-streamde
 
 ## Instructions for HWiNFO
 
-- Open HWiNFO and go into the settings - then main settings
+![HWiNFO settings](https://i.imgur.com/R3sWtKd.png)
+
+- Open HWiNFO in Sensor Only mode then go into the settings
 - Use these recommended settings
 
 ![Recommended settings](https://i.imgur.com/26AaLVl.png)
 
-- Go to HWiNFO Sensor settings and choose the HWiNFO Gadget tab
+- Start HWiNFO
+- On the sensors screen open the settings and choose the HWiNFO Gadget tab
 - Enable "enable reporting to Gadget"
 - Choose what sensors you would like to monitor by pressing "Report value in Gadget"
 
