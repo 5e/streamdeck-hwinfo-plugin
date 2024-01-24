@@ -6,7 +6,7 @@ Alternative to the [hwinfo-streamdeck](https://github.com/shayne/hwinfo-streamde
 
 ## Download
 
-You can download and install the plugin from the 'Release' folder, or download the plugin from the Elgato marketplace.
+You can download and install the plugin from the [Releases](https://github.com/5e/streamdeck-hwinfo-plugin/releases) page (the .sdPlugin file), or download the plugin from the Elgato marketplace (Submitted, awaiting approval).
 
 ## Instructions for HWiNFO
 
