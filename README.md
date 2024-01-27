@@ -1,17 +1,24 @@
-# streamdeck-hwinfo-plugin
+# HWiNFO Reader
 
-Alternative to the [hwinfo-streamdeck](https://github.com/shayne/hwinfo-streamdeck) plugin, without needing to use the time limited 'Shared Memory Support' feature. This plugin takes advantage of the new 'HWiNFO Gadgets' feature and is small in size (just 165KB 🌟)
+Alternative to the [hwinfo-streamdeck](https://github.com/shayne/hwinfo-streamdeck) plugin, without needing to use the time limited 'Shared Memory Support' feature. This plugin takes advantage of the new 'HWiNFO Gadgets' feature and is small in size (just 165KB 🌟). It is built using the new [Elgato Beta SDK](https://github.com/elgatosf/streamdeck).
 
 ![Photo of plugin](https://i.imgur.com/WIhrBl2.png)
 
+## Download
+
+You can download and install the plugin from the [Releases](https://github.com/5e/streamdeck-hwinfo-plugin/releases) page (the .sdPlugin file), or download the plugin from the Elgato marketplace (Submitted, awaiting approval).
+
 ## Instructions for HWiNFO
 
-- Open HWiNFO and go into the settings - then main settings
+![HWiNFO settings](https://i.imgur.com/R3sWtKd.png)
+
+- Open HWiNFO in Sensor Only mode then go into the settings
 - Use these recommended settings
 
 ![Recommended settings](https://i.imgur.com/26AaLVl.png)
 
-- Go to HWiNFO Sensor settings and choose the HWiNFO Gadget tab
+- Start HWiNFO
+- On the sensors screen open the settings and choose the HWiNFO Gadget tab
 - Enable "enable reporting to Gadget"
 - Choose what sensors you would like to monitor by pressing "Report value in Gadget"
 
