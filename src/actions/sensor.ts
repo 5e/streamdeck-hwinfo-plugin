@@ -129,6 +129,11 @@ export class Sensor extends SingletonAction<SensorSettings> {
         async () => {
           let registryKeys: { registry: RegistryItem[] } =
             await streamDeck.settings.getGlobalSettings();
+
+          if (registryKeys["registry"] == undefined) {
+            return;
+          }
+
           let settings = await ev.action.getSettings();
           if (settings["registryName"] == undefined) {
             return;

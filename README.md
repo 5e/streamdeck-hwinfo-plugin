@@ -1,6 +1,6 @@
 # streamdeck-hwinfo-plugin
 
-Alternative to the [hwinfo-streamdeck](https://github.com/shayne/hwinfo-streamdeck) plugin, without needing to use the time limited 'Shared Memory Support' feature. This plugin takes advantage of the new 'HWiNFO Gadgets' feature and is small in size (just 283KB 🌟)
+Alternative to the [hwinfo-streamdeck](https://github.com/shayne/hwinfo-streamdeck) plugin, without needing to use the time limited 'Shared Memory Support' feature. This plugin takes advantage of the new 'HWiNFO Gadgets' feature and is small in size (just 165KB 🌟)
 
 ![Photo of plugin](https://i.imgur.com/WIhrBl2.png)
 
