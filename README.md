@@ -1,7 +1,7 @@
 # HWiNFO Reader
 
 <a href="https://marketplace.elgato.com/product/hwinfo-reader-ea8cc86d-1a3b-45de-893d-592d174089c9">
-    <img src="https://elgato-download-count.5egt.workers.dev/">
+    <img src="https://elgato-download-count.5egt.workers.dev/?">
 </a>
 
 Alternative to the [hwinfo-streamdeck](https://github.com/shayne/hwinfo-streamdeck) plugin, without needing to use the time limited 'Shared Memory Support' feature. This plugin takes advantage of the new 'HWiNFO Gadgets' feature and is small in size (just 165KB 🌟). It is built using the new [Elgato Beta SDK](https://github.com/elgatosf/streamdeck).
