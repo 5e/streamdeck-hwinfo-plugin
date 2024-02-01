@@ -28,10 +28,15 @@ $PI.onSendToPropertyInspector("com.5e.hwinfo-reader.sensor", function (event) {
 	selectElement.innerHTML = "";
 	let option = document.createElement("option");
 	option.value = undefined;
-	option.text = "Select a sensor";
 	option.selected = true;
-	option.hidden = true;
-	//append the option to the select element
+
+	if (registryArray.length == 0) {
+		option.text = "You have not enabled sensors in HWiNFO Gadget, press help for setup instructions.";
+		option.hidden = false;
+	} else {
+		option.text = `Select a sensor`;
+		option.hidden = true;
+	}
 	selectElement.appendChild(option);
 	// Create new options and append them to the select element
 	for (let index = 0; index < registryArray.length; index++) {
