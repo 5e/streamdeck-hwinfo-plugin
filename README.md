@@ -43,4 +43,4 @@ You can download and install the plugin from the [Releases](https://github.com/5
 
 ## Current known issues
 
-- Enabling HWiNFO gadget on two sensors with the exact same name (very unlikely scenario) may cause issues of the Stream Deck plugin showing the wrong value.
+- Enabling HWiNFO gadget on two sensors with the exact same name (very unlikely scenario) may cause issues of the Stream Deck plugin showing the wrong value. A temporary fix to this is to rename the sensor name in HWiNFO (right click on sensor and press rename) and then re-select the correct sensor in the settings of the plugin.
