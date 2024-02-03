@@ -139,6 +139,8 @@ export class Sensor extends SingletonAction<SensorSettings> {
             return;
           }
 
+          let found = false;
+
           for (
             let index = 0;
             index < registryKeys["registry"].length;
@@ -156,6 +158,7 @@ export class Sensor extends SingletonAction<SensorSettings> {
               )?.value;
 
               if (sensorValue != undefined) {
+                found = true;
                 //replace everything after a "." until a space
                 sensorValue = sensorValue.replace(/\..*?\s/g, "");
                 // //winreg returns a � instead of a °
@@ -168,10 +171,13 @@ export class Sensor extends SingletonAction<SensorSettings> {
                   parseFloat(settings["graphMinValue"]),
                   parseFloat(settings["graphMaxValue"])
                 );
-              } else {
-                this.intervals[ev.action.id]["lastSensorValue"] = sensorValue;
               }
             }
+          }
+
+          if (found == false) {
+            //sensor was not found, must have been deleted from HWiNFO Gadgets
+            this.intervals[ev.action.id]["lastSensorValue"] = undefined;
           }
         },
         1000
@@ -187,6 +193,18 @@ export class Sensor extends SingletonAction<SensorSettings> {
             settings["backgroundColor"],
             settings["title"],
             this.intervals[ev.action.id]["lastSensorValue"],
+            settings["titleFontSize"],
+            settings["sensorFontSize"],
+            settings["fontName"]
+          )
+        );
+      } else {
+        ev.action.setImage(
+          this.intervals[ev.action.id]["graph"].generateSvg(
+            settings["graphColor"],
+            settings["backgroundColor"],
+            settings["title"],
+            "ERROR",
             settings["titleFontSize"],
             settings["sensorFontSize"],
             settings["fontName"]
