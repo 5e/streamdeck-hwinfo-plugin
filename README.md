@@ -4,7 +4,7 @@
     <img src="https://elgato-download-count.5egt.workers.dev/?">
 </a>
 
-Alternative to the [hwinfo-streamdeck](https://github.com/shayne/hwinfo-streamdeck) plugin, without needing to use the time limited 'Shared Memory Support' feature. This plugin takes advantage of the new 'HWiNFO Gadgets' feature and is small in size (just 165KB 🌟). It is built using the new [Elgato Beta SDK](https://github.com/elgatosf/streamdeck).
+Alternative to the [hwinfo-streamdeck](https://github.com/shayne/hwinfo-streamdeck) plugin, without needing to use the time limited 'Shared Memory Support' feature. This plugin takes advantage of the new 'HWiNFO Gadgets' feature and is tiny in size. It is built using the new [Elgato Beta SDK](https://github.com/elgatosf/streamdeck).
 
 ![Photo of plugin](https://i.imgur.com/WIhrBl2.png)
 
