@@ -148,7 +148,7 @@ export class Sensor extends SingletonAction<SensorSettings> {
             if (element["value"] == settings["registryName"]) {
               let sensorName = element["name"];
               //get last character which is the index number
-              let index = sensorName[sensorName.length - 1];
+              let index = sensorName.match(/\d+$/)?.[0];
               let registrySensorValueName = "Value" + index;
               //find sensorValueName is registryKeys
               let sensorValue = registryKeys["registry"].find(
