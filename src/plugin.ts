@@ -3,7 +3,7 @@ import streamDeck, { LogLevel } from "@elgato/streamdeck";
 import { Sensor } from "./actions/sensor";
 import Registry from "winreg";
 
-streamDeck.logger.setLevel(LogLevel.ERROR);
+streamDeck.logger.setLevel(LogLevel.DEBUG);
 
 streamDeck.actions.registerAction(new Sensor());
 const logger = streamDeck.logger.createScope("Plugin.Ts scope");
