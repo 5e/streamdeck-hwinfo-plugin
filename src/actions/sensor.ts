@@ -131,6 +131,7 @@ export class Sensor extends SingletonAction<SensorSettings> {
         settings: { ...ev.payload.settings },
       };
     } else {
+      this.buttons[ev.action.id]["settings"] = { ...ev.payload.settings };
       if (this.buttons[ev.action.id]["graphInterval"] == undefined) {
         this.buttons[ev.action.id]["graphInterval"] = setInterval(async () => {
           updateScreen();
