@@ -6824,14 +6824,14 @@ let Sensor = (() => {
                         let index = sensorName.match(/\d+$/)?.[0];
                         let registrySensorValueName = "Value" + index;
                         let registrySensorRawValueName = "ValueRaw" + index;
-                        //e.g. 1,600.0 MHz or 16.5 °C
+                        //e.g. 1,600.0 MHz or 16.5 °C or 16,0 °C
                         let sensorValue = this.getGlobalSettingsCopy["registry"].find((item) => item.name === registrySensorValueName)?.value;
-                        //e.g. 1600.0 or 16.5
+                        //e.g. 1600.0 or 1599,6 or 16.5
                         let rawSensorValue = this.getGlobalSettingsCopy["registry"].find((item) => item.name === registrySensorRawValueName)?.value;
                         if (sensorValue != undefined && rawSensorValue != undefined) {
                             found = true;
-                            //remove everything after full stop, we don't want to display decimal places
-                            let formattedSensorValue = rawSensorValue.replace(/\..*/g, "");
+                            //remove everything after full stop or a comma, we don't want to display decimal places
+                            let formattedSensorValue = rawSensorValue.replace(/[\.,].*/g, "");
                             //get all characters after a space to get the unit e.g. MHz or °C
                             let sensorValueUnit = sensorValue.replace(/.*\s/g, "");
                             formattedSensorValue = formattedSensorValue + sensorValueUnit;
