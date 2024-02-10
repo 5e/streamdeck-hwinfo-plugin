@@ -129,16 +129,14 @@ export class Sensor extends SingletonAction<SensorSettings> {
     };
 
     let updateScreen = async () => {
-      //   let settings = await ev.action.getSettings();
       let settings = this.buttons[ev.action.id]["settings"];
 
-      if (settings["graphType"] == undefined) {
-        return;
-      }
-
-      if (settings["graphType"] == "Gauge") {
+      if (
+        settings["graphType"] == undefined ||
+        settings["graphType"] == "Graph"
+      ) {
         ev.action.setImage(
-          this.buttons[ev.action.id]["graph"].generateArcSvg(
+          this.buttons[ev.action.id]["graph"].generateSvg(
             settings["graphColor"],
             settings["backgroundColor"],
             settings["title"],
@@ -150,7 +148,7 @@ export class Sensor extends SingletonAction<SensorSettings> {
         );
       } else {
         ev.action.setImage(
-          this.buttons[ev.action.id]["graph"].generateSvg(
+          this.buttons[ev.action.id]["graph"].generateArcSvg(
             settings["graphColor"],
             settings["backgroundColor"],
             settings["title"],
