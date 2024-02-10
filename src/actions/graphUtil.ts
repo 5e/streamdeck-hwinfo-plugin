@@ -105,7 +105,7 @@ export class Graph {
     if (this.graphHistory.length > 0) {
       //unfortunately dash offset is rendered from right to left, very band-aid fix
       let dashOffset =
-        -271 + this.graphHistory[this.graphHistory.length - 1].gaugePixels;
+        -273 + this.graphHistory[this.graphHistory.length - 1].gaugePixels;
 
       svgBuilder += `<path id="arc1" fill="none" stroke="#626464" stroke-width="20" d="M 117.96266658713867 112.56725658119235 A 60 60 0 1 0 26.037333412861322 112.56725658119235"></path>
     <path id="arc1" fill="none" stroke="${graphColor}" stroke-dashoffset="${dashOffset}" stroke-dasharray="${
