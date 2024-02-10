@@ -14,13 +14,18 @@ export class Graph {
     let yCoordinate =
       144 -
       ((sensorValue - graphMinValue) / (graphMaxValue - graphMinValue)) * 144;
+
+    /*
+	  If the arc takes 272 pixels to fill, that means graphMaxValue should equal to 272 pixels and graphMinValue should equal to 0 pixels
+	  Calculate the amount of pixels to fill using rawSensorValue
+	  */
+    let gaugePixels =
+      272 * ((sensorValue - graphMinValue) / (graphMaxValue - graphMinValue));
     //add new entry
     this.graphHistory.push({
       y1: yCoordinate,
       y2: yCoordinate,
-      rawValue: sensorValue,
-      graphMinValue: graphMinValue,
-      graphMaxValue: graphMaxValue,
+      gaugePixels: gaugePixels,
     });
   }
 
@@ -98,22 +103,14 @@ export class Graph {
 	<rect height="144" width="144" fill="${backgroundColor}"></rect>`;
 
     if (this.graphHistory.length > 0) {
-      /*
-	  If the arc takes 272 pixels to fill, that means graphMaxValue should equal to 272 pixels and graphMinValue should equal to 0 pixels
-	  Calculate the amount of pixels to fill using rawSensorValue
-	  */
-      let lastValue =
-        272 *
-        ((this.graphHistory[this.graphHistory.length - 1].rawValue -
-          this.graphHistory[this.graphHistory.length - 1].graphMinValue) /
-          (this.graphHistory[this.graphHistory.length - 1].graphMaxValue -
-            this.graphHistory[this.graphHistory.length - 1].graphMinValue));
-
       //unfortunately dash offset is rendered from right to left, very band-aid fix
-      let dashOffset = -271 + lastValue;
+      let dashOffset =
+        -271 + this.graphHistory[this.graphHistory.length - 1].gaugePixels;
 
       svgBuilder += `<path id="arc1" fill="none" stroke="#626464" stroke-width="20" d="M 117.96266658713867 112.56725658119235 A 60 60 0 1 0 26.037333412861322 112.56725658119235"></path>
-    <path id="arc1" fill="none" stroke="${graphColor}" stroke-dashoffset="${dashOffset}" stroke-dasharray="${lastValue} 1000" stroke-width="20" d="M 117.96266658713867 112.56725658119235 A 60 60 0 1 0 26.037333412861322 112.56725658119235"></path>
+    <path id="arc1" fill="none" stroke="${graphColor}" stroke-dashoffset="${dashOffset}" stroke-dasharray="${
+        this.graphHistory[this.graphHistory.length - 1].gaugePixels
+      } 1000" stroke-width="20" d="M 117.96266658713867 112.56725658119235 A 60 60 0 1 0 26.037333412861322 112.56725658119235"></path>
 	`;
 
       svgBuilder += `<text
@@ -147,7 +144,5 @@ export class Graph {
 type GraphHistoryEntry = {
   y1: number;
   y2: number;
-  rawValue: number;
-  graphMinValue: number;
-  graphMaxValue: number;
+  gaugePixels: number;
 };
