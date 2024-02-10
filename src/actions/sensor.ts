@@ -60,6 +60,10 @@ export class Sensor extends SingletonAction<SensorSettings> {
         return;
       }
 
+      if (this.getGlobalSettingsCopy["registry"] == undefined) {
+        return;
+      }
+
       let found = false;
 
       for (
