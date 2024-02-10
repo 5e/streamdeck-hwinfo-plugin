@@ -131,17 +131,36 @@ export class Sensor extends SingletonAction<SensorSettings> {
     let updateScreen = async () => {
       //   let settings = await ev.action.getSettings();
       let settings = this.buttons[ev.action.id]["settings"];
-      ev.action.setImage(
-        this.buttons[ev.action.id]["graph"].generateSvg(
-          settings["graphColor"],
-          settings["backgroundColor"],
-          settings["title"],
-          this.buttons[ev.action.id]["lastSensorValue"] ?? "ERROR",
-          settings["titleFontSize"],
-          settings["sensorFontSize"],
-          settings["fontName"]
-        )
-      );
+
+      if (settings["graphType"] == undefined) {
+        return;
+      }
+
+      if (settings["graphType"] == "Gauge") {
+        ev.action.setImage(
+          this.buttons[ev.action.id]["graph"].generateArcSvg(
+            settings["graphColor"],
+            settings["backgroundColor"],
+            settings["title"],
+            this.buttons[ev.action.id]["lastSensorValue"] ?? "ERROR",
+            settings["titleFontSize"],
+            settings["sensorFontSize"],
+            settings["fontName"]
+          )
+        );
+      } else {
+        ev.action.setImage(
+          this.buttons[ev.action.id]["graph"].generateSvg(
+            settings["graphColor"],
+            settings["backgroundColor"],
+            settings["title"],
+            this.buttons[ev.action.id]["lastSensorValue"] ?? "ERROR",
+            settings["titleFontSize"],
+            settings["sensorFontSize"],
+            settings["fontName"]
+          )
+        );
+      }
     };
 
     if (!this.buttons[ev.action.id]) {
@@ -179,6 +198,7 @@ type SensorSettings = {
   fontName: string;
   graphMinValue: string;
   graphMaxValue: string;
+  graphType: string;
 };
 
 type Button = {
