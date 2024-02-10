@@ -80,12 +80,12 @@ export class Sensor extends SingletonAction<SensorSettings> {
           let registrySensorValueName = "Value" + index;
           let registrySensorRawValueName = "ValueRaw" + index;
 
-          //e.g. 1,600.0 MHz or 16.5 °C or 16,0 °C
+          //e.g. 1,600.0 MHz or 16.5 °C or 16,0 °C or No
           let sensorValue = this.getGlobalSettingsCopy["registry"].find(
             (item) => item.name === registrySensorValueName
           )?.value;
 
-          //e.g. 1600.0 or 1599,6 or 16.5
+          //e.g. 1600.0 or 1599,6 or 16.5 or No
           let rawSensorValue = this.getGlobalSettingsCopy["registry"].find(
             (item) => item.name === registrySensorRawValueName
           )?.value;
@@ -95,12 +95,21 @@ export class Sensor extends SingletonAction<SensorSettings> {
 
             //remove everything after full stop or a comma, we don't want to display decimal places
             let formattedSensorValue = rawSensorValue.replace(/[\.,].*/g, "");
-            //get all characters after a space to get the unit e.g. MHz or °C
-            let sensorValueUnit = sensorValue.replace(/.*\s/g, "");
+
+            //use sensorValue to get the unit of the sensor value by getting everything after a space, if there is no space then it should return nothing (fixes for values such as Yes and No)
+            let sensorValueUnit = sensorValue.includes(" ")
+              ? sensorValue.replace(/.*\s/g, "")
+              : "";
 
             formattedSensorValue = formattedSensorValue + sensorValueUnit;
             //winreg returns a � instead of a °
             formattedSensorValue = formattedSensorValue.replace("�", "°");
+
+            if (rawSensorValue == "No") {
+              rawSensorValue = "0";
+            } else if (rawSensorValue == "Yes") {
+              rawSensorValue = "100";
+            }
 
             this.buttons[ev.action.id]["lastSensorValue"] =
               formattedSensorValue;
