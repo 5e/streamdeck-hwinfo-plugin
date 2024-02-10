@@ -78,21 +78,34 @@ export class Sensor extends SingletonAction<SensorSettings> {
           //get last character which is the index number
           let index = sensorName.match(/\d+$/)?.[0];
           let registrySensorValueName = "Value" + index;
-          //find sensorValueName is registryKeys
+          let registrySensorRawValueName = "ValueRaw" + index;
+
+          //e.g. 1,600.0 MHz or 16.5 °C
           let sensorValue = this.getGlobalSettingsCopy["registry"].find(
             (item) => item.name === registrySensorValueName
           )?.value;
 
-          if (sensorValue != undefined) {
-            found = true;
-            //replace everything after a "." until a space
-            sensorValue = sensorValue.replace(/\..*?\s/g, "");
-            // //winreg returns a � instead of a °
-            sensorValue = sensorValue.replace("�", "°");
+          //e.g. 1600.0 or 16.5
+          let rawSensorValue = this.getGlobalSettingsCopy["registry"].find(
+            (item) => item.name === registrySensorRawValueName
+          )?.value;
 
-            this.buttons[ev.action.id]["lastSensorValue"] = sensorValue;
+          if (sensorValue != undefined && rawSensorValue != undefined) {
+            found = true;
+
+            //remove everything after full stop, we don't want to display decimal places
+            let formattedSensorValue = rawSensorValue.replace(/\..*/g, "");
+            //get all characters after a space to get the unit e.g. MHz or °C
+            let sensorValueUnit = sensorValue.replace(/.*\s/g, "");
+
+            formattedSensorValue = formattedSensorValue + sensorValueUnit;
+            //winreg returns a � instead of a °
+            formattedSensorValue = formattedSensorValue.replace("�", "°");
+
+            this.buttons[ev.action.id]["lastSensorValue"] =
+              formattedSensorValue;
             this.buttons[ev.action.id]["graph"].addSensorValue(
-              parseFloat(sensorValue),
+              parseFloat(rawSensorValue),
               parseFloat(settings["graphMinValue"]),
               parseFloat(settings["graphMaxValue"])
             );

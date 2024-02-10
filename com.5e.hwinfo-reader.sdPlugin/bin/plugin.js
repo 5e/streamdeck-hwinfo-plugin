@@ -1,7 +1,7892 @@
-import{EventEmitter as e}from"node:events";import t from"stream";import n from"zlib";import i from"buffer";import s from"crypto";import r from"events";import o from"https";import a from"http";import c from"net";import h from"tls";import l from"url";import d,{existsSync as u,readFileSync as p}from"node:fs";import f,{join as m}from"node:path";import{cwd as g}from"node:process";import{EOL as _}from"node:os";import y from"util";import v from"path";import w from"child_process";function b(e){return e&&e.__esModule&&Object.prototype.hasOwnProperty.call(e,"default")?e.default:e}var E={exports:{}},S={BINARY_TYPES:["nodebuffer","arraybuffer","fragments"],EMPTY_BUFFER:Buffer.alloc(0),GUID:"258EAFA5-E914-47DA-95CA-C5AB0DC85B11",kForOnEventAttribute:Symbol("kIsForOnEventAttribute"),kListener:Symbol("kListener"),kStatusCode:Symbol("status-code"),kWebSocket:Symbol("websocket"),NOOP:()=>{}};const{EMPTY_BUFFER:x}=S,k=Buffer[Symbol.species];function R(e,t,n,i,s){for(let r=0;r<s;r++)n[i+r]=e[r]^t[3&r]}function D(e,t){for(let n=0;n<e.length;n++)e[n]^=t[3&n]}if(E.exports={concat:function(e,t){if(0===e.length)return x;if(1===e.length)return e[0];const n=Buffer.allocUnsafe(t);let i=0;for(let t=0;t<e.length;t++){const s=e[t];n.set(s,i),i+=s.length}return i<t?new k(n.buffer,n.byteOffset,i):n},mask:R,toArrayBuffer:function(e){return e.length===e.buffer.byteLength?e.buffer:e.buffer.slice(e.byteOffset,e.byteOffset+e.length)},toBuffer:function e(t){if(e.readOnly=!0,Buffer.isBuffer(t))return t;let n;return t instanceof ArrayBuffer?n=new k(t):ArrayBuffer.isView(t)?n=new k(t.buffer,t.byteOffset,t.byteLength):(n=Buffer.from(t),e.readOnly=!1),n},unmask:D},!process.env.WS_NO_BUFFER_UTIL)try{const e=require("bufferutil");E.exports.mask=function(t,n,i,s,r){r<48?R(t,n,i,s,r):e.mask(t,n,i,s,r)},E.exports.unmask=function(t,n){t.length<32?D(t,n):e.unmask(t,n)}}catch(e){}var O=E.exports;const C=Symbol("kDone"),T=Symbol("kRun");const L=n,I=O,P=class{constructor(e){this[C]=()=>{this.pending--,this[T]()},this.concurrency=e||1/0,this.jobs=[],this.pending=0}add(e){this.jobs.push(e),this[T]()}[T](){if(this.pending!==this.concurrency&&this.jobs.length){const e=this.jobs.shift();this.pending++,e(this[C])}}},{kStatusCode:N}=S,U=Buffer[Symbol.species],A=Buffer.from([0,0,255,255]),G=Symbol("permessage-deflate"),B=Symbol("total-length"),F=Symbol("callback"),$=Symbol("buffers"),M=Symbol("error");let j;var W=class{constructor(e,t,n){if(this._maxPayload=0|n,this._options=e||{},this._threshold=void 0!==this._options.threshold?this._options.threshold:1024,this._isServer=!!t,this._deflate=null,this._inflate=null,this.params=null,!j){const e=void 0!==this._options.concurrencyLimit?this._options.concurrencyLimit:10;j=new P(e)}}static get extensionName(){return"permessage-deflate"}offer(){const e={};return this._options.serverNoContextTakeover&&(e.server_no_context_takeover=!0),this._options.clientNoContextTakeover&&(e.client_no_context_takeover=!0),this._options.serverMaxWindowBits&&(e.server_max_window_bits=this._options.serverMaxWindowBits),this._options.clientMaxWindowBits?e.client_max_window_bits=this._options.clientMaxWindowBits:null==this._options.clientMaxWindowBits&&(e.client_max_window_bits=!0),e}accept(e){return e=this.normalizeParams(e),this.params=this._isServer?this.acceptAsServer(e):this.acceptAsClient(e),this.params}cleanup(){if(this._inflate&&(this._inflate.close(),this._inflate=null),this._deflate){const e=this._deflate[F];this._deflate.close(),this._deflate=null,e&&e(new Error("The deflate stream was closed while data was being processed"))}}acceptAsServer(e){const t=this._options,n=e.find((e=>!(!1===t.serverNoContextTakeover&&e.server_no_context_takeover||e.server_max_window_bits&&(!1===t.serverMaxWindowBits||"number"==typeof t.serverMaxWindowBits&&t.serverMaxWindowBits>e.server_max_window_bits)||"number"==typeof t.clientMaxWindowBits&&!e.client_max_window_bits)));if(!n)throw new Error("None of the extension offers can be accepted");return t.serverNoContextTakeover&&(n.server_no_context_takeover=!0),t.clientNoContextTakeover&&(n.client_no_context_takeover=!0),"number"==typeof t.serverMaxWindowBits&&(n.server_max_window_bits=t.serverMaxWindowBits),"number"==typeof t.clientMaxWindowBits?n.client_max_window_bits=t.clientMaxWindowBits:!0!==n.client_max_window_bits&&!1!==t.clientMaxWindowBits||delete n.client_max_window_bits,n}acceptAsClient(e){const t=e[0];if(!1===this._options.clientNoContextTakeover&&t.client_no_context_takeover)throw new Error('Unexpected parameter "client_no_context_takeover"');if(t.client_max_window_bits){if(!1===this._options.clientMaxWindowBits||"number"==typeof this._options.clientMaxWindowBits&&t.client_max_window_bits>this._options.clientMaxWindowBits)throw new Error('Unexpected or invalid parameter "client_max_window_bits"')}else"number"==typeof this._options.clientMaxWindowBits&&(t.client_max_window_bits=this._options.clientMaxWindowBits);return t}normalizeParams(e){return e.forEach((e=>{Object.keys(e).forEach((t=>{let n=e[t];if(n.length>1)throw new Error(`Parameter "${t}" must have only a single value`);if(n=n[0],"client_max_window_bits"===t){if(!0!==n){const e=+n;if(!Number.isInteger(e)||e<8||e>15)throw new TypeError(`Invalid value for parameter "${t}": ${n}`);n=e}else if(!this._isServer)throw new TypeError(`Invalid value for parameter "${t}": ${n}`)}else if("server_max_window_bits"===t){const e=+n;if(!Number.isInteger(e)||e<8||e>15)throw new TypeError(`Invalid value for parameter "${t}": ${n}`);n=e}else{if("client_no_context_takeover"!==t&&"server_no_context_takeover"!==t)throw new Error(`Unknown parameter "${t}"`);if(!0!==n)throw new TypeError(`Invalid value for parameter "${t}": ${n}`)}e[t]=n}))})),e}decompress(e,t,n){j.add((i=>{this._decompress(e,t,((e,t)=>{i(),n(e,t)}))}))}compress(e,t,n){j.add((i=>{this._compress(e,t,((e,t)=>{i(),n(e,t)}))}))}_decompress(e,t,n){const i=this._isServer?"client":"server";if(!this._inflate){const e=`${i}_max_window_bits`,t="number"!=typeof this.params[e]?L.Z_DEFAULT_WINDOWBITS:this.params[e];this._inflate=L.createInflateRaw({...this._options.zlibInflateOptions,windowBits:t}),this._inflate[G]=this,this._inflate[B]=0,this._inflate[$]=[],this._inflate.on("error",H),this._inflate.on("data",q)}this._inflate[F]=n,this._inflate.write(e),t&&this._inflate.write(A),this._inflate.flush((()=>{const e=this._inflate[M];if(e)return this._inflate.close(),this._inflate=null,void n(e);const s=I.concat(this._inflate[$],this._inflate[B]);this._inflate._readableState.endEmitted?(this._inflate.close(),this._inflate=null):(this._inflate[B]=0,this._inflate[$]=[],t&&this.params[`${i}_no_context_takeover`]&&this._inflate.reset()),n(null,s)}))}_compress(e,t,n){const i=this._isServer?"server":"client";if(!this._deflate){const e=`${i}_max_window_bits`,t="number"!=typeof this.params[e]?L.Z_DEFAULT_WINDOWBITS:this.params[e];this._deflate=L.createDeflateRaw({...this._options.zlibDeflateOptions,windowBits:t}),this._deflate[B]=0,this._deflate[$]=[],this._deflate.on("data",V)}this._deflate[F]=n,this._deflate.write(e),this._deflate.flush(L.Z_SYNC_FLUSH,(()=>{if(!this._deflate)return;let e=I.concat(this._deflate[$],this._deflate[B]);t&&(e=new U(e.buffer,e.byteOffset,e.length-4)),this._deflate[F]=null,this._deflate[B]=0,this._deflate[$]=[],t&&this.params[`${i}_no_context_takeover`]&&this._deflate.reset(),n(null,e)}))}};function V(e){this[$].push(e),this[B]+=e.length}function q(e){this[B]+=e.length,this[G]._maxPayload<1||this[B]<=this[G]._maxPayload?this[$].push(e):(this[M]=new RangeError("Max payload size exceeded"),this[M].code="WS_ERR_UNSUPPORTED_MESSAGE_LENGTH",this[M][N]=1009,this.removeListener("data",q),this.reset())}function H(e){this[G]._inflate=null,e[N]=1007,this[F](e)}var z={exports:{}};const{isUtf8:K}=i;function Y(e){const t=e.length;let n=0;for(;n<t;)if(0==(128&e[n]))n++;else if(192==(224&e[n])){if(n+1===t||128!=(192&e[n+1])||192==(254&e[n]))return!1;n+=2}else if(224==(240&e[n])){if(n+2>=t||128!=(192&e[n+1])||128!=(192&e[n+2])||224===e[n]&&128==(224&e[n+1])||237===e[n]&&160==(224&e[n+1]))return!1;n+=3}else{if(240!=(248&e[n]))return!1;if(n+3>=t||128!=(192&e[n+1])||128!=(192&e[n+2])||128!=(192&e[n+3])||240===e[n]&&128==(240&e[n+1])||244===e[n]&&e[n+1]>143||e[n]>244)return!1;n+=4}return!0}if(z.exports={isValidStatusCode:function(e){return e>=1e3&&e<=1014&&1004!==e&&1005!==e&&1006!==e||e>=3e3&&e<=4999},isValidUTF8:Y,tokenChars:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,1,0,0,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0]},K)z.exports.isValidUTF8=function(e){return e.length<24?Y(e):K(e)};else if(!process.env.WS_NO_UTF_8_VALIDATE)try{const e=require("utf-8-validate");z.exports.isValidUTF8=function(t){return t.length<32?Y(t):e(t)}}catch(e){}var Z=z.exports;const{Writable:X}=t,Q=W,{BINARY_TYPES:J,EMPTY_BUFFER:ee,kStatusCode:te,kWebSocket:ne}=S,{concat:ie,toArrayBuffer:se,unmask:re}=O,{isValidStatusCode:oe,isValidUTF8:ae}=Z,ce=Buffer[Symbol.species],he=Promise.resolve(),le="function"==typeof queueMicrotask?queueMicrotask:function(e){he.then(e).catch(pe)};var de=class extends X{constructor(e={}){super(),this._allowSynchronousEvents=!!e.allowSynchronousEvents,this._binaryType=e.binaryType||J[0],this._extensions=e.extensions||{},this._isServer=!!e.isServer,this._maxPayload=0|e.maxPayload,this._skipUTF8Validation=!!e.skipUTF8Validation,this[ne]=void 0,this._bufferedBytes=0,this._buffers=[],this._compressed=!1,this._payloadLength=0,this._mask=void 0,this._fragmented=0,this._masked=!1,this._fin=!1,this._opcode=0,this._totalPayloadLength=0,this._messageLength=0,this._fragments=[],this._errored=!1,this._loop=!1,this._state=0}_write(e,t,n){if(8===this._opcode&&0==this._state)return n();this._bufferedBytes+=e.length,this._buffers.push(e),this.startLoop(n)}consume(e){if(this._bufferedBytes-=e,e===this._buffers[0].length)return this._buffers.shift();if(e<this._buffers[0].length){const t=this._buffers[0];return this._buffers[0]=new ce(t.buffer,t.byteOffset+e,t.length-e),new ce(t.buffer,t.byteOffset,e)}const t=Buffer.allocUnsafe(e);do{const n=this._buffers[0],i=t.length-e;e>=n.length?t.set(this._buffers.shift(),i):(t.set(new Uint8Array(n.buffer,n.byteOffset,e),i),this._buffers[0]=new ce(n.buffer,n.byteOffset+e,n.length-e)),e-=n.length}while(e>0);return t}startLoop(e){this._loop=!0;do{switch(this._state){case 0:this.getInfo(e);break;case 1:this.getPayloadLength16(e);break;case 2:this.getPayloadLength64(e);break;case 3:this.getMask();break;case 4:this.getData(e);break;case 5:case 6:return void(this._loop=!1)}}while(this._loop);this._errored||e()}getInfo(e){if(this._bufferedBytes<2)return void(this._loop=!1);const t=this.consume(2);if(0!=(48&t[0])){return void e(this.createError(RangeError,"RSV2 and RSV3 must be clear",!0,1002,"WS_ERR_UNEXPECTED_RSV_2_3"))}const n=64==(64&t[0]);if(!n||this._extensions[Q.extensionName]){if(this._fin=128==(128&t[0]),this._opcode=15&t[0],this._payloadLength=127&t[1],0===this._opcode){if(n){return void e(this.createError(RangeError,"RSV1 must be clear",!0,1002,"WS_ERR_UNEXPECTED_RSV_1"))}if(!this._fragmented){return void e(this.createError(RangeError,"invalid opcode 0",!0,1002,"WS_ERR_INVALID_OPCODE"))}this._opcode=this._fragmented}else if(1===this._opcode||2===this._opcode){if(this._fragmented){return void e(this.createError(RangeError,`invalid opcode ${this._opcode}`,!0,1002,"WS_ERR_INVALID_OPCODE"))}this._compressed=n}else{if(!(this._opcode>7&&this._opcode<11)){return void e(this.createError(RangeError,`invalid opcode ${this._opcode}`,!0,1002,"WS_ERR_INVALID_OPCODE"))}if(!this._fin){return void e(this.createError(RangeError,"FIN must be set",!0,1002,"WS_ERR_EXPECTED_FIN"))}if(n){return void e(this.createError(RangeError,"RSV1 must be clear",!0,1002,"WS_ERR_UNEXPECTED_RSV_1"))}if(this._payloadLength>125||8===this._opcode&&1===this._payloadLength){return void e(this.createError(RangeError,`invalid payload length ${this._payloadLength}`,!0,1002,"WS_ERR_INVALID_CONTROL_PAYLOAD_LENGTH"))}}if(this._fin||this._fragmented||(this._fragmented=this._opcode),this._masked=128==(128&t[1]),this._isServer){if(!this._masked){return void e(this.createError(RangeError,"MASK must be set",!0,1002,"WS_ERR_EXPECTED_MASK"))}}else if(this._masked){return void e(this.createError(RangeError,"MASK must be clear",!0,1002,"WS_ERR_UNEXPECTED_MASK"))}126===this._payloadLength?this._state=1:127===this._payloadLength?this._state=2:this.haveLength(e)}else{e(this.createError(RangeError,"RSV1 must be clear",!0,1002,"WS_ERR_UNEXPECTED_RSV_1"))}}getPayloadLength16(e){this._bufferedBytes<2?this._loop=!1:(this._payloadLength=this.consume(2).readUInt16BE(0),this.haveLength(e))}getPayloadLength64(e){if(this._bufferedBytes<8)return void(this._loop=!1);const t=this.consume(8),n=t.readUInt32BE(0);if(n>Math.pow(2,21)-1){e(this.createError(RangeError,"Unsupported WebSocket frame: payload length > 2^53 - 1",!1,1009,"WS_ERR_UNSUPPORTED_DATA_PAYLOAD_LENGTH"))}else this._payloadLength=n*Math.pow(2,32)+t.readUInt32BE(4),this.haveLength(e)}haveLength(e){if(this._payloadLength&&this._opcode<8&&(this._totalPayloadLength+=this._payloadLength,this._totalPayloadLength>this._maxPayload&&this._maxPayload>0)){e(this.createError(RangeError,"Max payload size exceeded",!1,1009,"WS_ERR_UNSUPPORTED_MESSAGE_LENGTH"))}else this._masked?this._state=3:this._state=4}getMask(){this._bufferedBytes<4?this._loop=!1:(this._mask=this.consume(4),this._state=4)}getData(e){let t=ee;if(this._payloadLength){if(this._bufferedBytes<this._payloadLength)return void(this._loop=!1);t=this.consume(this._payloadLength),this._masked&&0!=(this._mask[0]|this._mask[1]|this._mask[2]|this._mask[3])&&re(t,this._mask)}if(this._opcode>7)this.controlMessage(t,e);else{if(this._compressed)return this._state=5,void this.decompress(t,e);t.length&&(this._messageLength=this._totalPayloadLength,this._fragments.push(t)),this.dataMessage(e)}}decompress(e,t){this._extensions[Q.extensionName].decompress(e,this._fin,((e,n)=>{if(e)return t(e);if(n.length){if(this._messageLength+=n.length,this._messageLength>this._maxPayload&&this._maxPayload>0){const e=this.createError(RangeError,"Max payload size exceeded",!1,1009,"WS_ERR_UNSUPPORTED_MESSAGE_LENGTH");return void t(e)}this._fragments.push(n)}this.dataMessage(t),0===this._state&&this.startLoop(t)}))}dataMessage(e){if(!this._fin)return void(this._state=0);const t=this._messageLength,n=this._fragments;if(this._totalPayloadLength=0,this._messageLength=0,this._fragmented=0,this._fragments=[],2===this._opcode){let i;i="nodebuffer"===this._binaryType?ie(n,t):"arraybuffer"===this._binaryType?se(ie(n,t)):n,5===this._state||this._allowSynchronousEvents?(this.emit("message",i,!0),this._state=0):(this._state=6,le((()=>{this.emit("message",i,!0),this._state=0,this.startLoop(e)})))}else{const i=ie(n,t);if(!this._skipUTF8Validation&&!ae(i)){const t=this.createError(Error,"invalid UTF-8 sequence",!0,1007,"WS_ERR_INVALID_UTF8");return void e(t)}5===this._state||this._allowSynchronousEvents?(this.emit("message",i,!1),this._state=0):(this._state=6,le((()=>{this.emit("message",i,!1),this._state=0,this.startLoop(e)})))}}controlMessage(e,t){if(8!==this._opcode)this._allowSynchronousEvents?(this.emit(9===this._opcode?"ping":"pong",e),this._state=0):(this._state=6,le((()=>{this.emit(9===this._opcode?"ping":"pong",e),this._state=0,this.startLoop(t)})));else{if(0===e.length)this._loop=!1,this.emit("conclude",1005,ee),this.end();else{const n=e.readUInt16BE(0);if(!oe(n)){const e=this.createError(RangeError,`invalid status code ${n}`,!0,1002,"WS_ERR_INVALID_CLOSE_CODE");return void t(e)}const i=new ce(e.buffer,e.byteOffset+2,e.length-2);if(!this._skipUTF8Validation&&!ae(i)){const e=this.createError(Error,"invalid UTF-8 sequence",!0,1007,"WS_ERR_INVALID_UTF8");return void t(e)}this._loop=!1,this.emit("conclude",n,i),this.end()}this._state=0}}createError(e,t,n,i,s){this._loop=!1,this._errored=!0;const r=new e(n?`Invalid WebSocket frame: ${t}`:t);return Error.captureStackTrace(r,this.createError),r.code=s,r[te]=i,r}};function ue(e){throw e}function pe(e){process.nextTick(ue,e)}const{randomFillSync:fe}=s,me=W,{EMPTY_BUFFER:ge}=S,{isValidStatusCode:_e}=Z,{mask:ye,toBuffer:ve}=O,we=Symbol("kByteLength"),be=Buffer.alloc(4);var Ee=class e{constructor(e,t,n){this._extensions=t||{},n&&(this._generateMask=n,this._maskBuffer=Buffer.alloc(4)),this._socket=e,this._firstFragment=!0,this._compress=!1,this._bufferedBytes=0,this._deflating=!1,this._queue=[]}static frame(e,t){let n,i,s=!1,r=2,o=!1;t.mask&&(n=t.maskBuffer||be,t.generateMask?t.generateMask(n):fe(n,0,4),o=0==(n[0]|n[1]|n[2]|n[3]),r=6),"string"==typeof e?i=t.mask&&!o||void 0===t[we]?(e=Buffer.from(e)).length:t[we]:(i=e.length,s=t.mask&&t.readOnly&&!o);let a=i;i>=65536?(r+=8,a=127):i>125&&(r+=2,a=126);const c=Buffer.allocUnsafe(s?i+r:r);return c[0]=t.fin?128|t.opcode:t.opcode,t.rsv1&&(c[0]|=64),c[1]=a,126===a?c.writeUInt16BE(i,2):127===a&&(c[2]=c[3]=0,c.writeUIntBE(i,4,6)),t.mask?(c[1]|=128,c[r-4]=n[0],c[r-3]=n[1],c[r-2]=n[2],c[r-1]=n[3],o?[c,e]:s?(ye(e,n,c,r,i),[c]):(ye(e,n,e,0,i),[c,e])):[c,e]}close(t,n,i,s){let r;if(void 0===t)r=ge;else{if("number"!=typeof t||!_e(t))throw new TypeError("First argument must be a valid error code number");if(void 0!==n&&n.length){const e=Buffer.byteLength(n);if(e>123)throw new RangeError("The message must not be greater than 123 bytes");r=Buffer.allocUnsafe(2+e),r.writeUInt16BE(t,0),"string"==typeof n?r.write(n,2):r.set(n,2)}else r=Buffer.allocUnsafe(2),r.writeUInt16BE(t,0)}const o={[we]:r.length,fin:!0,generateMask:this._generateMask,mask:i,maskBuffer:this._maskBuffer,opcode:8,readOnly:!1,rsv1:!1};this._deflating?this.enqueue([this.dispatch,r,!1,o,s]):this.sendFrame(e.frame(r,o),s)}ping(t,n,i){let s,r;if("string"==typeof t?(s=Buffer.byteLength(t),r=!1):(s=(t=ve(t)).length,r=ve.readOnly),s>125)throw new RangeError("The data size must not be greater than 125 bytes");const o={[we]:s,fin:!0,generateMask:this._generateMask,mask:n,maskBuffer:this._maskBuffer,opcode:9,readOnly:r,rsv1:!1};this._deflating?this.enqueue([this.dispatch,t,!1,o,i]):this.sendFrame(e.frame(t,o),i)}pong(t,n,i){let s,r;if("string"==typeof t?(s=Buffer.byteLength(t),r=!1):(s=(t=ve(t)).length,r=ve.readOnly),s>125)throw new RangeError("The data size must not be greater than 125 bytes");const o={[we]:s,fin:!0,generateMask:this._generateMask,mask:n,maskBuffer:this._maskBuffer,opcode:10,readOnly:r,rsv1:!1};this._deflating?this.enqueue([this.dispatch,t,!1,o,i]):this.sendFrame(e.frame(t,o),i)}send(t,n,i){const s=this._extensions[me.extensionName];let r,o,a=n.binary?2:1,c=n.compress;if("string"==typeof t?(r=Buffer.byteLength(t),o=!1):(r=(t=ve(t)).length,o=ve.readOnly),this._firstFragment?(this._firstFragment=!1,c&&s&&s.params[s._isServer?"server_no_context_takeover":"client_no_context_takeover"]&&(c=r>=s._threshold),this._compress=c):(c=!1,a=0),n.fin&&(this._firstFragment=!0),s){const e={[we]:r,fin:n.fin,generateMask:this._generateMask,mask:n.mask,maskBuffer:this._maskBuffer,opcode:a,readOnly:o,rsv1:c};this._deflating?this.enqueue([this.dispatch,t,this._compress,e,i]):this.dispatch(t,this._compress,e,i)}else this.sendFrame(e.frame(t,{[we]:r,fin:n.fin,generateMask:this._generateMask,mask:n.mask,maskBuffer:this._maskBuffer,opcode:a,readOnly:o,rsv1:!1}),i)}dispatch(t,n,i,s){if(!n)return void this.sendFrame(e.frame(t,i),s);const r=this._extensions[me.extensionName];this._bufferedBytes+=i[we],this._deflating=!0,r.compress(t,i.fin,((t,n)=>{if(this._socket.destroyed){const e=new Error("The socket was closed while data was being compressed");"function"==typeof s&&s(e);for(let t=0;t<this._queue.length;t++){const n=this._queue[t],i=n[n.length-1];"function"==typeof i&&i(e)}}else this._bufferedBytes-=i[we],this._deflating=!1,i.readOnly=!1,this.sendFrame(e.frame(n,i),s),this.dequeue()}))}dequeue(){for(;!this._deflating&&this._queue.length;){const e=this._queue.shift();this._bufferedBytes-=e[3][we],Reflect.apply(e[0],this,e.slice(1))}}enqueue(e){this._bufferedBytes+=e[3][we],this._queue.push(e)}sendFrame(e,t){2===e.length?(this._socket.cork(),this._socket.write(e[0]),this._socket.write(e[1],t),this._socket.uncork()):this._socket.write(e[0],t)}};const{kForOnEventAttribute:Se,kListener:xe}=S,ke=Symbol("kCode"),Re=Symbol("kData"),De=Symbol("kError"),Oe=Symbol("kMessage"),Ce=Symbol("kReason"),Te=Symbol("kTarget"),Le=Symbol("kType"),Ie=Symbol("kWasClean");let Pe=class{constructor(e){this[Te]=null,this[Le]=e}get target(){return this[Te]}get type(){return this[Le]}};Object.defineProperty(Pe.prototype,"target",{enumerable:!0}),Object.defineProperty(Pe.prototype,"type",{enumerable:!0});class Ne extends Pe{constructor(e,t={}){super(e),this[ke]=void 0===t.code?0:t.code,this[Ce]=void 0===t.reason?"":t.reason,this[Ie]=void 0!==t.wasClean&&t.wasClean}get code(){return this[ke]}get reason(){return this[Ce]}get wasClean(){return this[Ie]}}Object.defineProperty(Ne.prototype,"code",{enumerable:!0}),Object.defineProperty(Ne.prototype,"reason",{enumerable:!0}),Object.defineProperty(Ne.prototype,"wasClean",{enumerable:!0});class Ue extends Pe{constructor(e,t={}){super(e),this[De]=void 0===t.error?null:t.error,this[Oe]=void 0===t.message?"":t.message}get error(){return this[De]}get message(){return this[Oe]}}Object.defineProperty(Ue.prototype,"error",{enumerable:!0}),Object.defineProperty(Ue.prototype,"message",{enumerable:!0});class Ae extends Pe{constructor(e,t={}){super(e),this[Re]=void 0===t.data?null:t.data}get data(){return this[Re]}}Object.defineProperty(Ae.prototype,"data",{enumerable:!0});const Ge={addEventListener(e,t,n={}){for(const i of this.listeners(e))if(!n[Se]&&i[xe]===t&&!i[Se])return;let i;if("message"===e)i=function(e,n){const i=new Ae("message",{data:n?e:e.toString()});i[Te]=this,Fe(t,this,i)};else if("close"===e)i=function(e,n){const i=new Ne("close",{code:e,reason:n.toString(),wasClean:this._closeFrameReceived&&this._closeFrameSent});i[Te]=this,Fe(t,this,i)};else if("error"===e)i=function(e){const n=new Ue("error",{error:e,message:e.message});n[Te]=this,Fe(t,this,n)};else{if("open"!==e)return;i=function(){const e=new Pe("open");e[Te]=this,Fe(t,this,e)}}i[Se]=!!n[Se],i[xe]=t,n.once?this.once(e,i):this.on(e,i)},removeEventListener(e,t){for(const n of this.listeners(e))if(n[xe]===t&&!n[Se]){this.removeListener(e,n);break}}};var Be={CloseEvent:Ne,ErrorEvent:Ue,Event:Pe,EventTarget:Ge,MessageEvent:Ae};function Fe(e,t,n){"object"==typeof e&&e.handleEvent?e.handleEvent.call(e,n):e.call(t,n)}const{tokenChars:$e}=Z;function Me(e,t,n){void 0===e[t]?e[t]=[n]:e[t].push(n)}var je={format:function(e){return Object.keys(e).map((t=>{let n=e[t];return Array.isArray(n)||(n=[n]),n.map((e=>[t].concat(Object.keys(e).map((t=>{let n=e[t];return Array.isArray(n)||(n=[n]),n.map((e=>!0===e?t:`${t}=${e}`)).join("; ")}))).join("; "))).join(", ")})).join(", ")},parse:function(e){const t=Object.create(null);let n,i,s=Object.create(null),r=!1,o=!1,a=!1,c=-1,h=-1,l=-1,d=0;for(;d<e.length;d++)if(h=e.charCodeAt(d),void 0===n)if(-1===l&&1===$e[h])-1===c&&(c=d);else if(0===d||32!==h&&9!==h){if(59!==h&&44!==h)throw new SyntaxError(`Unexpected character at index ${d}`);{if(-1===c)throw new SyntaxError(`Unexpected character at index ${d}`);-1===l&&(l=d);const i=e.slice(c,l);44===h?(Me(t,i,s),s=Object.create(null)):n=i,c=l=-1}}else-1===l&&-1!==c&&(l=d);else if(void 0===i)if(-1===l&&1===$e[h])-1===c&&(c=d);else if(32===h||9===h)-1===l&&-1!==c&&(l=d);else if(59===h||44===h){if(-1===c)throw new SyntaxError(`Unexpected character at index ${d}`);-1===l&&(l=d),Me(s,e.slice(c,l),!0),44===h&&(Me(t,n,s),s=Object.create(null),n=void 0),c=l=-1}else{if(61!==h||-1===c||-1!==l)throw new SyntaxError(`Unexpected character at index ${d}`);i=e.slice(c,d),c=l=-1}else if(o){if(1!==$e[h])throw new SyntaxError(`Unexpected character at index ${d}`);-1===c?c=d:r||(r=!0),o=!1}else if(a)if(1===$e[h])-1===c&&(c=d);else if(34===h&&-1!==c)a=!1,l=d;else{if(92!==h)throw new SyntaxError(`Unexpected character at index ${d}`);o=!0}else if(34===h&&61===e.charCodeAt(d-1))a=!0;else if(-1===l&&1===$e[h])-1===c&&(c=d);else if(-1===c||32!==h&&9!==h){if(59!==h&&44!==h)throw new SyntaxError(`Unexpected character at index ${d}`);{if(-1===c)throw new SyntaxError(`Unexpected character at index ${d}`);-1===l&&(l=d);let o=e.slice(c,l);r&&(o=o.replace(/\\/g,""),r=!1),Me(s,i,o),44===h&&(Me(t,n,s),s=Object.create(null),n=void 0),i=void 0,c=l=-1}}else-1===l&&(l=d);if(-1===c||a||32===h||9===h)throw new SyntaxError("Unexpected end of input");-1===l&&(l=d);const u=e.slice(c,l);return void 0===n?Me(t,u,s):(void 0===i?Me(s,u,!0):Me(s,i,r?u.replace(/\\/g,""):u),Me(t,n,s)),t}};const We=r,Ve=o,qe=a,He=c,ze=h,{randomBytes:Ke,createHash:Ye}=s,{URL:Ze}=l,Xe=W,Qe=de,Je=Ee,{BINARY_TYPES:et,EMPTY_BUFFER:tt,GUID:nt,kForOnEventAttribute:it,kListener:st,kStatusCode:rt,kWebSocket:ot,NOOP:at}=S,{EventTarget:{addEventListener:ct,removeEventListener:ht}}=Be,{format:lt,parse:dt}=je,{toBuffer:ut}=O,pt=Symbol("kAborted"),ft=[8,13],mt=["CONNECTING","OPEN","CLOSING","CLOSED"],gt=/^[!#$%&'*+\-.0-9A-Z^_`|a-z~]+$/;class _t extends We{constructor(e,t,n){super(),this._binaryType=et[0],this._closeCode=1006,this._closeFrameReceived=!1,this._closeFrameSent=!1,this._closeMessage=tt,this._closeTimer=null,this._extensions={},this._paused=!1,this._protocol="",this._readyState=_t.CONNECTING,this._receiver=null,this._sender=null,this._socket=null,null!==e?(this._bufferedAmount=0,this._isServer=!1,this._redirects=0,void 0===t?t=[]:Array.isArray(t)||("object"==typeof t&&null!==t?(n=t,t=[]):t=[t]),yt(this,e,t,n)):(this._autoPong=n.autoPong,this._isServer=!0)}get binaryType(){return this._binaryType}set binaryType(e){et.includes(e)&&(this._binaryType=e,this._receiver&&(this._receiver._binaryType=e))}get bufferedAmount(){return this._socket?this._socket._writableState.length+this._sender._bufferedBytes:this._bufferedAmount}get extensions(){return Object.keys(this._extensions).join()}get isPaused(){return this._paused}get onclose(){return null}get onerror(){return null}get onopen(){return null}get onmessage(){return null}get protocol(){return this._protocol}get readyState(){return this._readyState}get url(){return this._url}setSocket(e,t,n){const i=new Qe({allowSynchronousEvents:n.allowSynchronousEvents,binaryType:this.binaryType,extensions:this._extensions,isServer:this._isServer,maxPayload:n.maxPayload,skipUTF8Validation:n.skipUTF8Validation});this._sender=new Je(e,this._extensions,n.generateMask),this._receiver=i,this._socket=e,i[ot]=this,e[ot]=this,i.on("conclude",xt),i.on("drain",kt),i.on("error",Rt),i.on("message",Ot),i.on("ping",Ct),i.on("pong",Tt),e.setTimeout&&e.setTimeout(0),e.setNoDelay&&e.setNoDelay(),t.length>0&&e.unshift(t),e.on("close",It),e.on("data",Pt),e.on("end",Nt),e.on("error",Ut),this._readyState=_t.OPEN,this.emit("open")}emitClose(){if(!this._socket)return this._readyState=_t.CLOSED,void this.emit("close",this._closeCode,this._closeMessage);this._extensions[Xe.extensionName]&&this._extensions[Xe.extensionName].cleanup(),this._receiver.removeAllListeners(),this._readyState=_t.CLOSED,this.emit("close",this._closeCode,this._closeMessage)}close(e,t){if(this.readyState!==_t.CLOSED)if(this.readyState!==_t.CONNECTING)this.readyState!==_t.CLOSING?(this._readyState=_t.CLOSING,this._sender.close(e,t,!this._isServer,(e=>{e||(this._closeFrameSent=!0,(this._closeFrameReceived||this._receiver._writableState.errorEmitted)&&this._socket.end())})),this._closeTimer=setTimeout(this._socket.destroy.bind(this._socket),3e4)):this._closeFrameSent&&(this._closeFrameReceived||this._receiver._writableState.errorEmitted)&&this._socket.end();else{const e="WebSocket was closed before the connection was established";Et(this,this._req,e)}}pause(){this.readyState!==_t.CONNECTING&&this.readyState!==_t.CLOSED&&(this._paused=!0,this._socket.pause())}ping(e,t,n){if(this.readyState===_t.CONNECTING)throw new Error("WebSocket is not open: readyState 0 (CONNECTING)");"function"==typeof e?(n=e,e=t=void 0):"function"==typeof t&&(n=t,t=void 0),"number"==typeof e&&(e=e.toString()),this.readyState===_t.OPEN?(void 0===t&&(t=!this._isServer),this._sender.ping(e||tt,t,n)):St(this,e,n)}pong(e,t,n){if(this.readyState===_t.CONNECTING)throw new Error("WebSocket is not open: readyState 0 (CONNECTING)");"function"==typeof e?(n=e,e=t=void 0):"function"==typeof t&&(n=t,t=void 0),"number"==typeof e&&(e=e.toString()),this.readyState===_t.OPEN?(void 0===t&&(t=!this._isServer),this._sender.pong(e||tt,t,n)):St(this,e,n)}resume(){this.readyState!==_t.CONNECTING&&this.readyState!==_t.CLOSED&&(this._paused=!1,this._receiver._writableState.needDrain||this._socket.resume())}send(e,t,n){if(this.readyState===_t.CONNECTING)throw new Error("WebSocket is not open: readyState 0 (CONNECTING)");if("function"==typeof t&&(n=t,t={}),"number"==typeof e&&(e=e.toString()),this.readyState!==_t.OPEN)return void St(this,e,n);const i={binary:"string"!=typeof e,mask:!this._isServer,compress:!0,fin:!0,...t};this._extensions[Xe.extensionName]||(i.compress=!1),this._sender.send(e||tt,i,n)}terminate(){if(this.readyState!==_t.CLOSED)if(this.readyState!==_t.CONNECTING)this._socket&&(this._readyState=_t.CLOSING,this._socket.destroy());else{const e="WebSocket was closed before the connection was established";Et(this,this._req,e)}}}function yt(e,t,n,i){const s={allowSynchronousEvents:!1,autoPong:!0,protocolVersion:ft[1],maxPayload:104857600,skipUTF8Validation:!1,perMessageDeflate:!0,followRedirects:!1,maxRedirects:10,...i,createConnection:void 0,socketPath:void 0,hostname:void 0,protocol:void 0,timeout:void 0,method:"GET",host:void 0,path:void 0,port:void 0};if(e._autoPong=s.autoPong,!ft.includes(s.protocolVersion))throw new RangeError(`Unsupported protocol version: ${s.protocolVersion} (supported versions: ${ft.join(", ")})`);let r;if(t instanceof Ze)r=t;else try{r=new Ze(t)}catch(e){throw new SyntaxError(`Invalid URL: ${t}`)}"http:"===r.protocol?r.protocol="ws:":"https:"===r.protocol&&(r.protocol="wss:"),e._url=r.href;const o="wss:"===r.protocol,a="ws+unix:"===r.protocol;let c;if("ws:"===r.protocol||o||a?a&&!r.pathname?c="The URL's pathname is empty":r.hash&&(c="The URL contains a fragment identifier"):c='The URL\'s protocol must be one of "ws:", "wss:", "http:", "https", or "ws+unix:"',c){const t=new SyntaxError(c);if(0===e._redirects)throw t;return void vt(e,t)}const h=o?443:80,l=Ke(16).toString("base64"),d=o?Ve.request:qe.request,u=new Set;let p,f;if(s.createConnection=o?bt:wt,s.defaultPort=s.defaultPort||h,s.port=r.port||h,s.host=r.hostname.startsWith("[")?r.hostname.slice(1,-1):r.hostname,s.headers={...s.headers,"Sec-WebSocket-Version":s.protocolVersion,"Sec-WebSocket-Key":l,Connection:"Upgrade",Upgrade:"websocket"},s.path=r.pathname+r.search,s.timeout=s.handshakeTimeout,s.perMessageDeflate&&(p=new Xe(!0!==s.perMessageDeflate?s.perMessageDeflate:{},!1,s.maxPayload),s.headers["Sec-WebSocket-Extensions"]=lt({[Xe.extensionName]:p.offer()})),n.length){for(const e of n){if("string"!=typeof e||!gt.test(e)||u.has(e))throw new SyntaxError("An invalid or duplicated subprotocol was specified");u.add(e)}s.headers["Sec-WebSocket-Protocol"]=n.join(",")}if(s.origin&&(s.protocolVersion<13?s.headers["Sec-WebSocket-Origin"]=s.origin:s.headers.Origin=s.origin),(r.username||r.password)&&(s.auth=`${r.username}:${r.password}`),a){const e=s.path.split(":");s.socketPath=e[0],s.path=e[1]}if(s.followRedirects){if(0===e._redirects){e._originalIpc=a,e._originalSecure=o,e._originalHostOrSocketPath=a?s.socketPath:r.host;const t=i&&i.headers;if(i={...i,headers:{}},t)for(const[e,n]of Object.entries(t))i.headers[e.toLowerCase()]=n}else if(0===e.listenerCount("redirect")){const t=a?!!e._originalIpc&&s.socketPath===e._originalHostOrSocketPath:!e._originalIpc&&r.host===e._originalHostOrSocketPath;(!t||e._originalSecure&&!o)&&(delete s.headers.authorization,delete s.headers.cookie,t||delete s.headers.host,s.auth=void 0)}s.auth&&!i.headers.authorization&&(i.headers.authorization="Basic "+Buffer.from(s.auth).toString("base64")),f=e._req=d(s),e._redirects&&e.emit("redirect",e.url,f)}else f=e._req=d(s);s.timeout&&f.on("timeout",(()=>{Et(e,f,"Opening handshake has timed out")})),f.on("error",(t=>{null===f||f[pt]||(f=e._req=null,vt(e,t))})),f.on("response",(r=>{const o=r.headers.location,a=r.statusCode;if(o&&s.followRedirects&&a>=300&&a<400){if(++e._redirects>s.maxRedirects)return void Et(e,f,"Maximum redirects exceeded");let r;f.abort();try{r=new Ze(o,t)}catch(t){const n=new SyntaxError(`Invalid URL: ${o}`);return void vt(e,n)}yt(e,r,n,i)}else e.emit("unexpected-response",f,r)||Et(e,f,`Unexpected server response: ${r.statusCode}`)})),f.on("upgrade",((t,n,i)=>{if(e.emit("upgrade",t),e.readyState!==_t.CONNECTING)return;if(f=e._req=null,"websocket"!==t.headers.upgrade.toLowerCase())return void Et(e,n,"Invalid Upgrade header");const r=Ye("sha1").update(l+nt).digest("base64");if(t.headers["sec-websocket-accept"]!==r)return void Et(e,n,"Invalid Sec-WebSocket-Accept header");const o=t.headers["sec-websocket-protocol"];let a;if(void 0!==o?u.size?u.has(o)||(a="Server sent an invalid subprotocol"):a="Server sent a subprotocol but none was requested":u.size&&(a="Server sent no subprotocol"),a)return void Et(e,n,a);o&&(e._protocol=o);const c=t.headers["sec-websocket-extensions"];if(void 0!==c){if(!p){return void Et(e,n,"Server sent a Sec-WebSocket-Extensions header but no extension was requested")}let t;try{t=dt(c)}catch(t){return void Et(e,n,"Invalid Sec-WebSocket-Extensions header")}const i=Object.keys(t);if(1!==i.length||i[0]!==Xe.extensionName){return void Et(e,n,"Server indicated an extension that was not requested")}try{p.accept(t[Xe.extensionName])}catch(t){return void Et(e,n,"Invalid Sec-WebSocket-Extensions header")}e._extensions[Xe.extensionName]=p}e.setSocket(n,i,{allowSynchronousEvents:s.allowSynchronousEvents,generateMask:s.generateMask,maxPayload:s.maxPayload,skipUTF8Validation:s.skipUTF8Validation})})),s.finishRequest?s.finishRequest(f,e):f.end()}function vt(e,t){e._readyState=_t.CLOSING,e.emit("error",t),e.emitClose()}function wt(e){return e.path=e.socketPath,He.connect(e)}function bt(e){return e.path=void 0,e.servername||""===e.servername||(e.servername=He.isIP(e.host)?"":e.host),ze.connect(e)}function Et(e,t,n){e._readyState=_t.CLOSING;const i=new Error(n);Error.captureStackTrace(i,Et),t.setHeader?(t[pt]=!0,t.abort(),t.socket&&!t.socket.destroyed&&t.socket.destroy(),process.nextTick(vt,e,i)):(t.destroy(i),t.once("error",e.emit.bind(e,"error")),t.once("close",e.emitClose.bind(e)))}function St(e,t,n){if(t){const n=ut(t).length;e._socket?e._sender._bufferedBytes+=n:e._bufferedAmount+=n}if(n){const t=new Error(`WebSocket is not open: readyState ${e.readyState} (${mt[e.readyState]})`);process.nextTick(n,t)}}function xt(e,t){const n=this[ot];n._closeFrameReceived=!0,n._closeMessage=t,n._closeCode=e,void 0!==n._socket[ot]&&(n._socket.removeListener("data",Pt),process.nextTick(Lt,n._socket),1005===e?n.close():n.close(e,t))}function kt(){const e=this[ot];e.isPaused||e._socket.resume()}function Rt(e){const t=this[ot];void 0!==t._socket[ot]&&(t._socket.removeListener("data",Pt),process.nextTick(Lt,t._socket),t.close(e[rt])),t.emit("error",e)}function Dt(){this[ot].emitClose()}function Ot(e,t){this[ot].emit("message",e,t)}function Ct(e){const t=this[ot];t._autoPong&&t.pong(e,!this._isServer,at),t.emit("ping",e)}function Tt(e){this[ot].emit("pong",e)}function Lt(e){e.resume()}function It(){const e=this[ot];let t;this.removeListener("close",It),this.removeListener("data",Pt),this.removeListener("end",Nt),e._readyState=_t.CLOSING,this._readableState.endEmitted||e._closeFrameReceived||e._receiver._writableState.errorEmitted||null===(t=e._socket.read())||e._receiver.write(t),e._receiver.end(),this[ot]=void 0,clearTimeout(e._closeTimer),e._receiver._writableState.finished||e._receiver._writableState.errorEmitted?e.emitClose():(e._receiver.on("error",Dt),e._receiver.on("finish",Dt))}function Pt(e){this[ot]._receiver.write(e)||this.pause()}function Nt(){const e=this[ot];e._readyState=_t.CLOSING,e._receiver.end(),this.end()}function Ut(){const e=this[ot];this.removeListener("error",Ut),this.on("error",at),e&&(e._readyState=_t.CLOSING,this.destroy())}Object.defineProperty(_t,"CONNECTING",{enumerable:!0,value:mt.indexOf("CONNECTING")}),Object.defineProperty(_t.prototype,"CONNECTING",{enumerable:!0,value:mt.indexOf("CONNECTING")}),Object.defineProperty(_t,"OPEN",{enumerable:!0,value:mt.indexOf("OPEN")}),Object.defineProperty(_t.prototype,"OPEN",{enumerable:!0,value:mt.indexOf("OPEN")}),Object.defineProperty(_t,"CLOSING",{enumerable:!0,value:mt.indexOf("CLOSING")}),Object.defineProperty(_t.prototype,"CLOSING",{enumerable:!0,value:mt.indexOf("CLOSING")}),Object.defineProperty(_t,"CLOSED",{enumerable:!0,value:mt.indexOf("CLOSED")}),Object.defineProperty(_t.prototype,"CLOSED",{enumerable:!0,value:mt.indexOf("CLOSED")}),["binaryType","bufferedAmount","extensions","isPaused","protocol","readyState","url"].forEach((e=>{Object.defineProperty(_t.prototype,e,{enumerable:!0})})),["open","error","close","message"].forEach((e=>{Object.defineProperty(_t.prototype,`on${e}`,{enumerable:!0,get(){for(const t of this.listeners(e))if(t[it])return t[st];return null},set(t){for(const t of this.listeners(e))if(t[it]){this.removeListener(e,t);break}"function"==typeof t&&this.addEventListener(e,t,{[it]:!0})}})})),_t.prototype.addEventListener=ct,_t.prototype.removeEventListener=ht;var At=b(_t);
+import { EventEmitter as EventEmitter$1 } from 'node:events';
+import require$$0$2 from 'stream';
+import require$$0 from 'zlib';
+import require$$0$1 from 'buffer';
+import require$$1 from 'crypto';
+import require$$0$3 from 'events';
+import require$$1$1 from 'https';
+import require$$2 from 'http';
+import require$$3 from 'net';
+import require$$4 from 'tls';
+import require$$7 from 'url';
+import fs, { existsSync, readFileSync } from 'node:fs';
+import path$2, { join } from 'node:path';
+import { cwd } from 'node:process';
+import { EOL } from 'node:os';
+import require$$0$4 from 'util';
+import require$$1$2 from 'path';
+import require$$2$1 from 'child_process';
+
+function getDefaultExportFromCjs (x) {
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+}
+
+var bufferUtil$1 = {exports: {}};
+
+var constants = {
+  BINARY_TYPES: ['nodebuffer', 'arraybuffer', 'fragments'],
+  EMPTY_BUFFER: Buffer.alloc(0),
+  GUID: '258EAFA5-E914-47DA-95CA-C5AB0DC85B11',
+  kForOnEventAttribute: Symbol('kIsForOnEventAttribute'),
+  kListener: Symbol('kListener'),
+  kStatusCode: Symbol('status-code'),
+  kWebSocket: Symbol('websocket'),
+  NOOP: () => {}
+};
+
+var unmask$1;
+var mask;
+
+const { EMPTY_BUFFER: EMPTY_BUFFER$3 } = constants;
+
+const FastBuffer$2 = Buffer[Symbol.species];
+
+/**
+ * Merges an array of buffers into a new buffer.
+ *
+ * @param {Buffer[]} list The array of buffers to concat
+ * @param {Number} totalLength The total length of buffers in the list
+ * @return {Buffer} The resulting buffer
+ * @public
+ */
+function concat$1(list, totalLength) {
+  if (list.length === 0) return EMPTY_BUFFER$3;
+  if (list.length === 1) return list[0];
+
+  const target = Buffer.allocUnsafe(totalLength);
+  let offset = 0;
+
+  for (let i = 0; i < list.length; i++) {
+    const buf = list[i];
+    target.set(buf, offset);
+    offset += buf.length;
+  }
+
+  if (offset < totalLength) {
+    return new FastBuffer$2(target.buffer, target.byteOffset, offset);
+  }
+
+  return target;
+}
+
+/**
+ * Masks a buffer using the given mask.
+ *
+ * @param {Buffer} source The buffer to mask
+ * @param {Buffer} mask The mask to use
+ * @param {Buffer} output The buffer where to store the result
+ * @param {Number} offset The offset at which to start writing
+ * @param {Number} length The number of bytes to mask.
+ * @public
+ */
+function _mask(source, mask, output, offset, length) {
+  for (let i = 0; i < length; i++) {
+    output[offset + i] = source[i] ^ mask[i & 3];
+  }
+}
+
+/**
+ * Unmasks a buffer using the given mask.
+ *
+ * @param {Buffer} buffer The buffer to unmask
+ * @param {Buffer} mask The mask to use
+ * @public
+ */
+function _unmask(buffer, mask) {
+  for (let i = 0; i < buffer.length; i++) {
+    buffer[i] ^= mask[i & 3];
+  }
+}
+
+/**
+ * Converts a buffer to an `ArrayBuffer`.
+ *
+ * @param {Buffer} buf The buffer to convert
+ * @return {ArrayBuffer} Converted buffer
+ * @public
+ */
+function toArrayBuffer$1(buf) {
+  if (buf.length === buf.buffer.byteLength) {
+    return buf.buffer;
+  }
+
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.length);
+}
+
+/**
+ * Converts `data` to a `Buffer`.
+ *
+ * @param {*} data The data to convert
+ * @return {Buffer} The buffer
+ * @throws {TypeError}
+ * @public
+ */
+function toBuffer$2(data) {
+  toBuffer$2.readOnly = true;
+
+  if (Buffer.isBuffer(data)) return data;
+
+  let buf;
+
+  if (data instanceof ArrayBuffer) {
+    buf = new FastBuffer$2(data);
+  } else if (ArrayBuffer.isView(data)) {
+    buf = new FastBuffer$2(data.buffer, data.byteOffset, data.byteLength);
+  } else {
+    buf = Buffer.from(data);
+    toBuffer$2.readOnly = false;
+  }
+
+  return buf;
+}
+
+bufferUtil$1.exports = {
+  concat: concat$1,
+  mask: _mask,
+  toArrayBuffer: toArrayBuffer$1,
+  toBuffer: toBuffer$2,
+  unmask: _unmask
+};
+
+/* istanbul ignore else  */
+if (!process.env.WS_NO_BUFFER_UTIL) {
+  try {
+    const bufferUtil = require('bufferutil');
+
+    mask = bufferUtil$1.exports.mask = function (source, mask, output, offset, length) {
+      if (length < 48) _mask(source, mask, output, offset, length);
+      else bufferUtil.mask(source, mask, output, offset, length);
+    };
+
+    unmask$1 = bufferUtil$1.exports.unmask = function (buffer, mask) {
+      if (buffer.length < 32) _unmask(buffer, mask);
+      else bufferUtil.unmask(buffer, mask);
+    };
+  } catch (e) {
+    // Continue regardless of the error.
+  }
+}
+
+var bufferUtilExports = bufferUtil$1.exports;
+
+const kDone = Symbol('kDone');
+const kRun = Symbol('kRun');
+
+/**
+ * A very simple job queue with adjustable concurrency. Adapted from
+ * https://github.com/STRML/async-limiter
+ */
+let Limiter$1 = class Limiter {
+  /**
+   * Creates a new `Limiter`.
+   *
+   * @param {Number} [concurrency=Infinity] The maximum number of jobs allowed
+   *     to run concurrently
+   */
+  constructor(concurrency) {
+    this[kDone] = () => {
+      this.pending--;
+      this[kRun]();
+    };
+    this.concurrency = concurrency || Infinity;
+    this.jobs = [];
+    this.pending = 0;
+  }
+
+  /**
+   * Adds a job to the queue.
+   *
+   * @param {Function} job The job to run
+   * @public
+   */
+  add(job) {
+    this.jobs.push(job);
+    this[kRun]();
+  }
+
+  /**
+   * Removes a job from the queue and runs it if possible.
+   *
+   * @private
+   */
+  [kRun]() {
+    if (this.pending === this.concurrency) return;
+
+    if (this.jobs.length) {
+      const job = this.jobs.shift();
+
+      this.pending++;
+      job(this[kDone]);
+    }
+  }
+};
+
+var limiter = Limiter$1;
+
+const zlib = require$$0;
+
+const bufferUtil = bufferUtilExports;
+const Limiter = limiter;
+const { kStatusCode: kStatusCode$2 } = constants;
+
+const FastBuffer$1 = Buffer[Symbol.species];
+const TRAILER = Buffer.from([0x00, 0x00, 0xff, 0xff]);
+const kPerMessageDeflate = Symbol('permessage-deflate');
+const kTotalLength = Symbol('total-length');
+const kCallback = Symbol('callback');
+const kBuffers = Symbol('buffers');
+const kError$1 = Symbol('error');
+
+//
+// We limit zlib concurrency, which prevents severe memory fragmentation
+// as documented in https://github.com/nodejs/node/issues/8871#issuecomment-250915913
+// and https://github.com/websockets/ws/issues/1202
+//
+// Intentionally global; it's the global thread pool that's an issue.
+//
+let zlibLimiter;
+
+/**
+ * permessage-deflate implementation.
+ */
+let PerMessageDeflate$3 = class PerMessageDeflate {
+  /**
+   * Creates a PerMessageDeflate instance.
+   *
+   * @param {Object} [options] Configuration options
+   * @param {(Boolean|Number)} [options.clientMaxWindowBits] Advertise support
+   *     for, or request, a custom client window size
+   * @param {Boolean} [options.clientNoContextTakeover=false] Advertise/
+   *     acknowledge disabling of client context takeover
+   * @param {Number} [options.concurrencyLimit=10] The number of concurrent
+   *     calls to zlib
+   * @param {(Boolean|Number)} [options.serverMaxWindowBits] Request/confirm the
+   *     use of a custom server window size
+   * @param {Boolean} [options.serverNoContextTakeover=false] Request/accept
+   *     disabling of server context takeover
+   * @param {Number} [options.threshold=1024] Size (in bytes) below which
+   *     messages should not be compressed if context takeover is disabled
+   * @param {Object} [options.zlibDeflateOptions] Options to pass to zlib on
+   *     deflate
+   * @param {Object} [options.zlibInflateOptions] Options to pass to zlib on
+   *     inflate
+   * @param {Boolean} [isServer=false] Create the instance in either server or
+   *     client mode
+   * @param {Number} [maxPayload=0] The maximum allowed message length
+   */
+  constructor(options, isServer, maxPayload) {
+    this._maxPayload = maxPayload | 0;
+    this._options = options || {};
+    this._threshold =
+      this._options.threshold !== undefined ? this._options.threshold : 1024;
+    this._isServer = !!isServer;
+    this._deflate = null;
+    this._inflate = null;
+
+    this.params = null;
+
+    if (!zlibLimiter) {
+      const concurrency =
+        this._options.concurrencyLimit !== undefined
+          ? this._options.concurrencyLimit
+          : 10;
+      zlibLimiter = new Limiter(concurrency);
+    }
+  }
+
+  /**
+   * @type {String}
+   */
+  static get extensionName() {
+    return 'permessage-deflate';
+  }
+
+  /**
+   * Create an extension negotiation offer.
+   *
+   * @return {Object} Extension parameters
+   * @public
+   */
+  offer() {
+    const params = {};
+
+    if (this._options.serverNoContextTakeover) {
+      params.server_no_context_takeover = true;
+    }
+    if (this._options.clientNoContextTakeover) {
+      params.client_no_context_takeover = true;
+    }
+    if (this._options.serverMaxWindowBits) {
+      params.server_max_window_bits = this._options.serverMaxWindowBits;
+    }
+    if (this._options.clientMaxWindowBits) {
+      params.client_max_window_bits = this._options.clientMaxWindowBits;
+    } else if (this._options.clientMaxWindowBits == null) {
+      params.client_max_window_bits = true;
+    }
+
+    return params;
+  }
+
+  /**
+   * Accept an extension negotiation offer/response.
+   *
+   * @param {Array} configurations The extension negotiation offers/reponse
+   * @return {Object} Accepted configuration
+   * @public
+   */
+  accept(configurations) {
+    configurations = this.normalizeParams(configurations);
+
+    this.params = this._isServer
+      ? this.acceptAsServer(configurations)
+      : this.acceptAsClient(configurations);
+
+    return this.params;
+  }
+
+  /**
+   * Releases all resources used by the extension.
+   *
+   * @public
+   */
+  cleanup() {
+    if (this._inflate) {
+      this._inflate.close();
+      this._inflate = null;
+    }
+
+    if (this._deflate) {
+      const callback = this._deflate[kCallback];
+
+      this._deflate.close();
+      this._deflate = null;
+
+      if (callback) {
+        callback(
+          new Error(
+            'The deflate stream was closed while data was being processed'
+          )
+        );
+      }
+    }
+  }
+
+  /**
+   *  Accept an extension negotiation offer.
+   *
+   * @param {Array} offers The extension negotiation offers
+   * @return {Object} Accepted configuration
+   * @private
+   */
+  acceptAsServer(offers) {
+    const opts = this._options;
+    const accepted = offers.find((params) => {
+      if (
+        (opts.serverNoContextTakeover === false &&
+          params.server_no_context_takeover) ||
+        (params.server_max_window_bits &&
+          (opts.serverMaxWindowBits === false ||
+            (typeof opts.serverMaxWindowBits === 'number' &&
+              opts.serverMaxWindowBits > params.server_max_window_bits))) ||
+        (typeof opts.clientMaxWindowBits === 'number' &&
+          !params.client_max_window_bits)
+      ) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (!accepted) {
+      throw new Error('None of the extension offers can be accepted');
+    }
+
+    if (opts.serverNoContextTakeover) {
+      accepted.server_no_context_takeover = true;
+    }
+    if (opts.clientNoContextTakeover) {
+      accepted.client_no_context_takeover = true;
+    }
+    if (typeof opts.serverMaxWindowBits === 'number') {
+      accepted.server_max_window_bits = opts.serverMaxWindowBits;
+    }
+    if (typeof opts.clientMaxWindowBits === 'number') {
+      accepted.client_max_window_bits = opts.clientMaxWindowBits;
+    } else if (
+      accepted.client_max_window_bits === true ||
+      opts.clientMaxWindowBits === false
+    ) {
+      delete accepted.client_max_window_bits;
+    }
+
+    return accepted;
+  }
+
+  /**
+   * Accept the extension negotiation response.
+   *
+   * @param {Array} response The extension negotiation response
+   * @return {Object} Accepted configuration
+   * @private
+   */
+  acceptAsClient(response) {
+    const params = response[0];
+
+    if (
+      this._options.clientNoContextTakeover === false &&
+      params.client_no_context_takeover
+    ) {
+      throw new Error('Unexpected parameter "client_no_context_takeover"');
+    }
+
+    if (!params.client_max_window_bits) {
+      if (typeof this._options.clientMaxWindowBits === 'number') {
+        params.client_max_window_bits = this._options.clientMaxWindowBits;
+      }
+    } else if (
+      this._options.clientMaxWindowBits === false ||
+      (typeof this._options.clientMaxWindowBits === 'number' &&
+        params.client_max_window_bits > this._options.clientMaxWindowBits)
+    ) {
+      throw new Error(
+        'Unexpected or invalid parameter "client_max_window_bits"'
+      );
+    }
+
+    return params;
+  }
+
+  /**
+   * Normalize parameters.
+   *
+   * @param {Array} configurations The extension negotiation offers/reponse
+   * @return {Array} The offers/response with normalized parameters
+   * @private
+   */
+  normalizeParams(configurations) {
+    configurations.forEach((params) => {
+      Object.keys(params).forEach((key) => {
+        let value = params[key];
+
+        if (value.length > 1) {
+          throw new Error(`Parameter "${key}" must have only a single value`);
+        }
+
+        value = value[0];
+
+        if (key === 'client_max_window_bits') {
+          if (value !== true) {
+            const num = +value;
+            if (!Number.isInteger(num) || num < 8 || num > 15) {
+              throw new TypeError(
+                `Invalid value for parameter "${key}": ${value}`
+              );
+            }
+            value = num;
+          } else if (!this._isServer) {
+            throw new TypeError(
+              `Invalid value for parameter "${key}": ${value}`
+            );
+          }
+        } else if (key === 'server_max_window_bits') {
+          const num = +value;
+          if (!Number.isInteger(num) || num < 8 || num > 15) {
+            throw new TypeError(
+              `Invalid value for parameter "${key}": ${value}`
+            );
+          }
+          value = num;
+        } else if (
+          key === 'client_no_context_takeover' ||
+          key === 'server_no_context_takeover'
+        ) {
+          if (value !== true) {
+            throw new TypeError(
+              `Invalid value for parameter "${key}": ${value}`
+            );
+          }
+        } else {
+          throw new Error(`Unknown parameter "${key}"`);
+        }
+
+        params[key] = value;
+      });
+    });
+
+    return configurations;
+  }
+
+  /**
+   * Decompress data. Concurrency limited.
+   *
+   * @param {Buffer} data Compressed data
+   * @param {Boolean} fin Specifies whether or not this is the last fragment
+   * @param {Function} callback Callback
+   * @public
+   */
+  decompress(data, fin, callback) {
+    zlibLimiter.add((done) => {
+      this._decompress(data, fin, (err, result) => {
+        done();
+        callback(err, result);
+      });
+    });
+  }
+
+  /**
+   * Compress data. Concurrency limited.
+   *
+   * @param {(Buffer|String)} data Data to compress
+   * @param {Boolean} fin Specifies whether or not this is the last fragment
+   * @param {Function} callback Callback
+   * @public
+   */
+  compress(data, fin, callback) {
+    zlibLimiter.add((done) => {
+      this._compress(data, fin, (err, result) => {
+        done();
+        callback(err, result);
+      });
+    });
+  }
+
+  /**
+   * Decompress data.
+   *
+   * @param {Buffer} data Compressed data
+   * @param {Boolean} fin Specifies whether or not this is the last fragment
+   * @param {Function} callback Callback
+   * @private
+   */
+  _decompress(data, fin, callback) {
+    const endpoint = this._isServer ? 'client' : 'server';
+
+    if (!this._inflate) {
+      const key = `${endpoint}_max_window_bits`;
+      const windowBits =
+        typeof this.params[key] !== 'number'
+          ? zlib.Z_DEFAULT_WINDOWBITS
+          : this.params[key];
+
+      this._inflate = zlib.createInflateRaw({
+        ...this._options.zlibInflateOptions,
+        windowBits
+      });
+      this._inflate[kPerMessageDeflate] = this;
+      this._inflate[kTotalLength] = 0;
+      this._inflate[kBuffers] = [];
+      this._inflate.on('error', inflateOnError);
+      this._inflate.on('data', inflateOnData);
+    }
+
+    this._inflate[kCallback] = callback;
+
+    this._inflate.write(data);
+    if (fin) this._inflate.write(TRAILER);
+
+    this._inflate.flush(() => {
+      const err = this._inflate[kError$1];
+
+      if (err) {
+        this._inflate.close();
+        this._inflate = null;
+        callback(err);
+        return;
+      }
+
+      const data = bufferUtil.concat(
+        this._inflate[kBuffers],
+        this._inflate[kTotalLength]
+      );
+
+      if (this._inflate._readableState.endEmitted) {
+        this._inflate.close();
+        this._inflate = null;
+      } else {
+        this._inflate[kTotalLength] = 0;
+        this._inflate[kBuffers] = [];
+
+        if (fin && this.params[`${endpoint}_no_context_takeover`]) {
+          this._inflate.reset();
+        }
+      }
+
+      callback(null, data);
+    });
+  }
+
+  /**
+   * Compress data.
+   *
+   * @param {(Buffer|String)} data Data to compress
+   * @param {Boolean} fin Specifies whether or not this is the last fragment
+   * @param {Function} callback Callback
+   * @private
+   */
+  _compress(data, fin, callback) {
+    const endpoint = this._isServer ? 'server' : 'client';
+
+    if (!this._deflate) {
+      const key = `${endpoint}_max_window_bits`;
+      const windowBits =
+        typeof this.params[key] !== 'number'
+          ? zlib.Z_DEFAULT_WINDOWBITS
+          : this.params[key];
+
+      this._deflate = zlib.createDeflateRaw({
+        ...this._options.zlibDeflateOptions,
+        windowBits
+      });
+
+      this._deflate[kTotalLength] = 0;
+      this._deflate[kBuffers] = [];
+
+      this._deflate.on('data', deflateOnData);
+    }
+
+    this._deflate[kCallback] = callback;
+
+    this._deflate.write(data);
+    this._deflate.flush(zlib.Z_SYNC_FLUSH, () => {
+      if (!this._deflate) {
+        //
+        // The deflate stream was closed while data was being processed.
+        //
+        return;
+      }
+
+      let data = bufferUtil.concat(
+        this._deflate[kBuffers],
+        this._deflate[kTotalLength]
+      );
+
+      if (fin) {
+        data = new FastBuffer$1(data.buffer, data.byteOffset, data.length - 4);
+      }
+
+      //
+      // Ensure that the callback will not be called again in
+      // `PerMessageDeflate#cleanup()`.
+      //
+      this._deflate[kCallback] = null;
+
+      this._deflate[kTotalLength] = 0;
+      this._deflate[kBuffers] = [];
+
+      if (fin && this.params[`${endpoint}_no_context_takeover`]) {
+        this._deflate.reset();
+      }
+
+      callback(null, data);
+    });
+  }
+};
+
+var permessageDeflate = PerMessageDeflate$3;
+
+/**
+ * The listener of the `zlib.DeflateRaw` stream `'data'` event.
+ *
+ * @param {Buffer} chunk A chunk of data
+ * @private
+ */
+function deflateOnData(chunk) {
+  this[kBuffers].push(chunk);
+  this[kTotalLength] += chunk.length;
+}
+
+/**
+ * The listener of the `zlib.InflateRaw` stream `'data'` event.
+ *
+ * @param {Buffer} chunk A chunk of data
+ * @private
+ */
+function inflateOnData(chunk) {
+  this[kTotalLength] += chunk.length;
+
+  if (
+    this[kPerMessageDeflate]._maxPayload < 1 ||
+    this[kTotalLength] <= this[kPerMessageDeflate]._maxPayload
+  ) {
+    this[kBuffers].push(chunk);
+    return;
+  }
+
+  this[kError$1] = new RangeError('Max payload size exceeded');
+  this[kError$1].code = 'WS_ERR_UNSUPPORTED_MESSAGE_LENGTH';
+  this[kError$1][kStatusCode$2] = 1009;
+  this.removeListener('data', inflateOnData);
+  this.reset();
+}
+
+/**
+ * The listener of the `zlib.InflateRaw` stream `'error'` event.
+ *
+ * @param {Error} err The emitted error
+ * @private
+ */
+function inflateOnError(err) {
+  //
+  // There is no need to call `Zlib#close()` as the handle is automatically
+  // closed when an error is emitted.
+  //
+  this[kPerMessageDeflate]._inflate = null;
+  err[kStatusCode$2] = 1007;
+  this[kCallback](err);
+}
+
+var validation = {exports: {}};
+
+var isValidUTF8_1;
+
+const { isUtf8 } = require$$0$1;
+
+//
+// Allowed token characters:
+//
+// '!', '#', '$', '%', '&', ''', '*', '+', '-',
+// '.', 0-9, A-Z, '^', '_', '`', a-z, '|', '~'
+//
+// tokenChars[32] === 0 // ' '
+// tokenChars[33] === 1 // '!'
+// tokenChars[34] === 0 // '"'
+// ...
+//
+// prettier-ignore
+const tokenChars$1 = [
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0 - 15
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 16 - 31
+  0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, // 32 - 47
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, // 48 - 63
+  0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 64 - 79
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, // 80 - 95
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 96 - 111
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0 // 112 - 127
+];
+
+/**
+ * Checks if a status code is allowed in a close frame.
+ *
+ * @param {Number} code The status code
+ * @return {Boolean} `true` if the status code is valid, else `false`
+ * @public
+ */
+function isValidStatusCode$2(code) {
+  return (
+    (code >= 1000 &&
+      code <= 1014 &&
+      code !== 1004 &&
+      code !== 1005 &&
+      code !== 1006) ||
+    (code >= 3000 && code <= 4999)
+  );
+}
+
+/**
+ * Checks if a given buffer contains only correct UTF-8.
+ * Ported from https://www.cl.cam.ac.uk/%7Emgk25/ucs/utf8_check.c by
+ * Markus Kuhn.
+ *
+ * @param {Buffer} buf The buffer to check
+ * @return {Boolean} `true` if `buf` contains only correct UTF-8, else `false`
+ * @public
+ */
+function _isValidUTF8(buf) {
+  const len = buf.length;
+  let i = 0;
+
+  while (i < len) {
+    if ((buf[i] & 0x80) === 0) {
+      // 0xxxxxxx
+      i++;
+    } else if ((buf[i] & 0xe0) === 0xc0) {
+      // 110xxxxx 10xxxxxx
+      if (
+        i + 1 === len ||
+        (buf[i + 1] & 0xc0) !== 0x80 ||
+        (buf[i] & 0xfe) === 0xc0 // Overlong
+      ) {
+        return false;
+      }
+
+      i += 2;
+    } else if ((buf[i] & 0xf0) === 0xe0) {
+      // 1110xxxx 10xxxxxx 10xxxxxx
+      if (
+        i + 2 >= len ||
+        (buf[i + 1] & 0xc0) !== 0x80 ||
+        (buf[i + 2] & 0xc0) !== 0x80 ||
+        (buf[i] === 0xe0 && (buf[i + 1] & 0xe0) === 0x80) || // Overlong
+        (buf[i] === 0xed && (buf[i + 1] & 0xe0) === 0xa0) // Surrogate (U+D800 - U+DFFF)
+      ) {
+        return false;
+      }
+
+      i += 3;
+    } else if ((buf[i] & 0xf8) === 0xf0) {
+      // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+      if (
+        i + 3 >= len ||
+        (buf[i + 1] & 0xc0) !== 0x80 ||
+        (buf[i + 2] & 0xc0) !== 0x80 ||
+        (buf[i + 3] & 0xc0) !== 0x80 ||
+        (buf[i] === 0xf0 && (buf[i + 1] & 0xf0) === 0x80) || // Overlong
+        (buf[i] === 0xf4 && buf[i + 1] > 0x8f) ||
+        buf[i] > 0xf4 // > U+10FFFF
+      ) {
+        return false;
+      }
+
+      i += 4;
+    } else {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+validation.exports = {
+  isValidStatusCode: isValidStatusCode$2,
+  isValidUTF8: _isValidUTF8,
+  tokenChars: tokenChars$1
+};
+
+if (isUtf8) {
+  isValidUTF8_1 = validation.exports.isValidUTF8 = function (buf) {
+    return buf.length < 24 ? _isValidUTF8(buf) : isUtf8(buf);
+  };
+} /* istanbul ignore else  */ else if (!process.env.WS_NO_UTF_8_VALIDATE) {
+  try {
+    const isValidUTF8 = require('utf-8-validate');
+
+    isValidUTF8_1 = validation.exports.isValidUTF8 = function (buf) {
+      return buf.length < 32 ? _isValidUTF8(buf) : isValidUTF8(buf);
+    };
+  } catch (e) {
+    // Continue regardless of the error.
+  }
+}
+
+var validationExports = validation.exports;
+
+const { Writable } = require$$0$2;
+
+const PerMessageDeflate$2 = permessageDeflate;
+const {
+  BINARY_TYPES: BINARY_TYPES$1,
+  EMPTY_BUFFER: EMPTY_BUFFER$2,
+  kStatusCode: kStatusCode$1,
+  kWebSocket: kWebSocket$1
+} = constants;
+const { concat, toArrayBuffer, unmask } = bufferUtilExports;
+const { isValidStatusCode: isValidStatusCode$1, isValidUTF8 } = validationExports;
+
+const FastBuffer = Buffer[Symbol.species];
+const promise = Promise.resolve();
+
+//
+// `queueMicrotask()` is not available in Node.js < 11.
+//
+const queueTask =
+  typeof queueMicrotask === 'function' ? queueMicrotask : queueMicrotaskShim;
+
+const GET_INFO = 0;
+const GET_PAYLOAD_LENGTH_16 = 1;
+const GET_PAYLOAD_LENGTH_64 = 2;
+const GET_MASK = 3;
+const GET_DATA = 4;
+const INFLATING = 5;
+const DEFER_EVENT = 6;
+
+/**
+ * HyBi Receiver implementation.
+ *
+ * @extends Writable
+ */
+let Receiver$1 = class Receiver extends Writable {
+  /**
+   * Creates a Receiver instance.
+   *
+   * @param {Object} [options] Options object
+   * @param {Boolean} [options.allowSynchronousEvents=false] Specifies whether
+   *     any of the `'message'`, `'ping'`, and `'pong'` events can be emitted
+   *     multiple times in the same tick
+   * @param {String} [options.binaryType=nodebuffer] The type for binary data
+   * @param {Object} [options.extensions] An object containing the negotiated
+   *     extensions
+   * @param {Boolean} [options.isServer=false] Specifies whether to operate in
+   *     client or server mode
+   * @param {Number} [options.maxPayload=0] The maximum allowed message length
+   * @param {Boolean} [options.skipUTF8Validation=false] Specifies whether or
+   *     not to skip UTF-8 validation for text and close messages
+   */
+  constructor(options = {}) {
+    super();
+
+    this._allowSynchronousEvents = !!options.allowSynchronousEvents;
+    this._binaryType = options.binaryType || BINARY_TYPES$1[0];
+    this._extensions = options.extensions || {};
+    this._isServer = !!options.isServer;
+    this._maxPayload = options.maxPayload | 0;
+    this._skipUTF8Validation = !!options.skipUTF8Validation;
+    this[kWebSocket$1] = undefined;
+
+    this._bufferedBytes = 0;
+    this._buffers = [];
+
+    this._compressed = false;
+    this._payloadLength = 0;
+    this._mask = undefined;
+    this._fragmented = 0;
+    this._masked = false;
+    this._fin = false;
+    this._opcode = 0;
+
+    this._totalPayloadLength = 0;
+    this._messageLength = 0;
+    this._fragments = [];
+
+    this._errored = false;
+    this._loop = false;
+    this._state = GET_INFO;
+  }
+
+  /**
+   * Implements `Writable.prototype._write()`.
+   *
+   * @param {Buffer} chunk The chunk of data to write
+   * @param {String} encoding The character encoding of `chunk`
+   * @param {Function} cb Callback
+   * @private
+   */
+  _write(chunk, encoding, cb) {
+    if (this._opcode === 0x08 && this._state == GET_INFO) return cb();
+
+    this._bufferedBytes += chunk.length;
+    this._buffers.push(chunk);
+    this.startLoop(cb);
+  }
+
+  /**
+   * Consumes `n` bytes from the buffered data.
+   *
+   * @param {Number} n The number of bytes to consume
+   * @return {Buffer} The consumed bytes
+   * @private
+   */
+  consume(n) {
+    this._bufferedBytes -= n;
+
+    if (n === this._buffers[0].length) return this._buffers.shift();
+
+    if (n < this._buffers[0].length) {
+      const buf = this._buffers[0];
+      this._buffers[0] = new FastBuffer(
+        buf.buffer,
+        buf.byteOffset + n,
+        buf.length - n
+      );
+
+      return new FastBuffer(buf.buffer, buf.byteOffset, n);
+    }
+
+    const dst = Buffer.allocUnsafe(n);
+
+    do {
+      const buf = this._buffers[0];
+      const offset = dst.length - n;
+
+      if (n >= buf.length) {
+        dst.set(this._buffers.shift(), offset);
+      } else {
+        dst.set(new Uint8Array(buf.buffer, buf.byteOffset, n), offset);
+        this._buffers[0] = new FastBuffer(
+          buf.buffer,
+          buf.byteOffset + n,
+          buf.length - n
+        );
+      }
+
+      n -= buf.length;
+    } while (n > 0);
+
+    return dst;
+  }
+
+  /**
+   * Starts the parsing loop.
+   *
+   * @param {Function} cb Callback
+   * @private
+   */
+  startLoop(cb) {
+    this._loop = true;
+
+    do {
+      switch (this._state) {
+        case GET_INFO:
+          this.getInfo(cb);
+          break;
+        case GET_PAYLOAD_LENGTH_16:
+          this.getPayloadLength16(cb);
+          break;
+        case GET_PAYLOAD_LENGTH_64:
+          this.getPayloadLength64(cb);
+          break;
+        case GET_MASK:
+          this.getMask();
+          break;
+        case GET_DATA:
+          this.getData(cb);
+          break;
+        case INFLATING:
+        case DEFER_EVENT:
+          this._loop = false;
+          return;
+      }
+    } while (this._loop);
+
+    if (!this._errored) cb();
+  }
+
+  /**
+   * Reads the first two bytes of a frame.
+   *
+   * @param {Function} cb Callback
+   * @private
+   */
+  getInfo(cb) {
+    if (this._bufferedBytes < 2) {
+      this._loop = false;
+      return;
+    }
+
+    const buf = this.consume(2);
+
+    if ((buf[0] & 0x30) !== 0x00) {
+      const error = this.createError(
+        RangeError,
+        'RSV2 and RSV3 must be clear',
+        true,
+        1002,
+        'WS_ERR_UNEXPECTED_RSV_2_3'
+      );
+
+      cb(error);
+      return;
+    }
+
+    const compressed = (buf[0] & 0x40) === 0x40;
+
+    if (compressed && !this._extensions[PerMessageDeflate$2.extensionName]) {
+      const error = this.createError(
+        RangeError,
+        'RSV1 must be clear',
+        true,
+        1002,
+        'WS_ERR_UNEXPECTED_RSV_1'
+      );
+
+      cb(error);
+      return;
+    }
+
+    this._fin = (buf[0] & 0x80) === 0x80;
+    this._opcode = buf[0] & 0x0f;
+    this._payloadLength = buf[1] & 0x7f;
+
+    if (this._opcode === 0x00) {
+      if (compressed) {
+        const error = this.createError(
+          RangeError,
+          'RSV1 must be clear',
+          true,
+          1002,
+          'WS_ERR_UNEXPECTED_RSV_1'
+        );
+
+        cb(error);
+        return;
+      }
+
+      if (!this._fragmented) {
+        const error = this.createError(
+          RangeError,
+          'invalid opcode 0',
+          true,
+          1002,
+          'WS_ERR_INVALID_OPCODE'
+        );
+
+        cb(error);
+        return;
+      }
+
+      this._opcode = this._fragmented;
+    } else if (this._opcode === 0x01 || this._opcode === 0x02) {
+      if (this._fragmented) {
+        const error = this.createError(
+          RangeError,
+          `invalid opcode ${this._opcode}`,
+          true,
+          1002,
+          'WS_ERR_INVALID_OPCODE'
+        );
+
+        cb(error);
+        return;
+      }
+
+      this._compressed = compressed;
+    } else if (this._opcode > 0x07 && this._opcode < 0x0b) {
+      if (!this._fin) {
+        const error = this.createError(
+          RangeError,
+          'FIN must be set',
+          true,
+          1002,
+          'WS_ERR_EXPECTED_FIN'
+        );
+
+        cb(error);
+        return;
+      }
+
+      if (compressed) {
+        const error = this.createError(
+          RangeError,
+          'RSV1 must be clear',
+          true,
+          1002,
+          'WS_ERR_UNEXPECTED_RSV_1'
+        );
+
+        cb(error);
+        return;
+      }
+
+      if (
+        this._payloadLength > 0x7d ||
+        (this._opcode === 0x08 && this._payloadLength === 1)
+      ) {
+        const error = this.createError(
+          RangeError,
+          `invalid payload length ${this._payloadLength}`,
+          true,
+          1002,
+          'WS_ERR_INVALID_CONTROL_PAYLOAD_LENGTH'
+        );
+
+        cb(error);
+        return;
+      }
+    } else {
+      const error = this.createError(
+        RangeError,
+        `invalid opcode ${this._opcode}`,
+        true,
+        1002,
+        'WS_ERR_INVALID_OPCODE'
+      );
+
+      cb(error);
+      return;
+    }
+
+    if (!this._fin && !this._fragmented) this._fragmented = this._opcode;
+    this._masked = (buf[1] & 0x80) === 0x80;
+
+    if (this._isServer) {
+      if (!this._masked) {
+        const error = this.createError(
+          RangeError,
+          'MASK must be set',
+          true,
+          1002,
+          'WS_ERR_EXPECTED_MASK'
+        );
+
+        cb(error);
+        return;
+      }
+    } else if (this._masked) {
+      const error = this.createError(
+        RangeError,
+        'MASK must be clear',
+        true,
+        1002,
+        'WS_ERR_UNEXPECTED_MASK'
+      );
+
+      cb(error);
+      return;
+    }
+
+    if (this._payloadLength === 126) this._state = GET_PAYLOAD_LENGTH_16;
+    else if (this._payloadLength === 127) this._state = GET_PAYLOAD_LENGTH_64;
+    else this.haveLength(cb);
+  }
+
+  /**
+   * Gets extended payload length (7+16).
+   *
+   * @param {Function} cb Callback
+   * @private
+   */
+  getPayloadLength16(cb) {
+    if (this._bufferedBytes < 2) {
+      this._loop = false;
+      return;
+    }
+
+    this._payloadLength = this.consume(2).readUInt16BE(0);
+    this.haveLength(cb);
+  }
+
+  /**
+   * Gets extended payload length (7+64).
+   *
+   * @param {Function} cb Callback
+   * @private
+   */
+  getPayloadLength64(cb) {
+    if (this._bufferedBytes < 8) {
+      this._loop = false;
+      return;
+    }
+
+    const buf = this.consume(8);
+    const num = buf.readUInt32BE(0);
+
+    //
+    // The maximum safe integer in JavaScript is 2^53 - 1. An error is returned
+    // if payload length is greater than this number.
+    //
+    if (num > Math.pow(2, 53 - 32) - 1) {
+      const error = this.createError(
+        RangeError,
+        'Unsupported WebSocket frame: payload length > 2^53 - 1',
+        false,
+        1009,
+        'WS_ERR_UNSUPPORTED_DATA_PAYLOAD_LENGTH'
+      );
+
+      cb(error);
+      return;
+    }
+
+    this._payloadLength = num * Math.pow(2, 32) + buf.readUInt32BE(4);
+    this.haveLength(cb);
+  }
+
+  /**
+   * Payload length has been read.
+   *
+   * @param {Function} cb Callback
+   * @private
+   */
+  haveLength(cb) {
+    if (this._payloadLength && this._opcode < 0x08) {
+      this._totalPayloadLength += this._payloadLength;
+      if (this._totalPayloadLength > this._maxPayload && this._maxPayload > 0) {
+        const error = this.createError(
+          RangeError,
+          'Max payload size exceeded',
+          false,
+          1009,
+          'WS_ERR_UNSUPPORTED_MESSAGE_LENGTH'
+        );
+
+        cb(error);
+        return;
+      }
+    }
+
+    if (this._masked) this._state = GET_MASK;
+    else this._state = GET_DATA;
+  }
+
+  /**
+   * Reads mask bytes.
+   *
+   * @private
+   */
+  getMask() {
+    if (this._bufferedBytes < 4) {
+      this._loop = false;
+      return;
+    }
+
+    this._mask = this.consume(4);
+    this._state = GET_DATA;
+  }
+
+  /**
+   * Reads data bytes.
+   *
+   * @param {Function} cb Callback
+   * @private
+   */
+  getData(cb) {
+    let data = EMPTY_BUFFER$2;
+
+    if (this._payloadLength) {
+      if (this._bufferedBytes < this._payloadLength) {
+        this._loop = false;
+        return;
+      }
+
+      data = this.consume(this._payloadLength);
+
+      if (
+        this._masked &&
+        (this._mask[0] | this._mask[1] | this._mask[2] | this._mask[3]) !== 0
+      ) {
+        unmask(data, this._mask);
+      }
+    }
+
+    if (this._opcode > 0x07) {
+      this.controlMessage(data, cb);
+      return;
+    }
+
+    if (this._compressed) {
+      this._state = INFLATING;
+      this.decompress(data, cb);
+      return;
+    }
+
+    if (data.length) {
+      //
+      // This message is not compressed so its length is the sum of the payload
+      // length of all fragments.
+      //
+      this._messageLength = this._totalPayloadLength;
+      this._fragments.push(data);
+    }
+
+    this.dataMessage(cb);
+  }
+
+  /**
+   * Decompresses data.
+   *
+   * @param {Buffer} data Compressed data
+   * @param {Function} cb Callback
+   * @private
+   */
+  decompress(data, cb) {
+    const perMessageDeflate = this._extensions[PerMessageDeflate$2.extensionName];
+
+    perMessageDeflate.decompress(data, this._fin, (err, buf) => {
+      if (err) return cb(err);
+
+      if (buf.length) {
+        this._messageLength += buf.length;
+        if (this._messageLength > this._maxPayload && this._maxPayload > 0) {
+          const error = this.createError(
+            RangeError,
+            'Max payload size exceeded',
+            false,
+            1009,
+            'WS_ERR_UNSUPPORTED_MESSAGE_LENGTH'
+          );
+
+          cb(error);
+          return;
+        }
+
+        this._fragments.push(buf);
+      }
+
+      this.dataMessage(cb);
+      if (this._state === GET_INFO) this.startLoop(cb);
+    });
+  }
+
+  /**
+   * Handles a data message.
+   *
+   * @param {Function} cb Callback
+   * @private
+   */
+  dataMessage(cb) {
+    if (!this._fin) {
+      this._state = GET_INFO;
+      return;
+    }
+
+    const messageLength = this._messageLength;
+    const fragments = this._fragments;
+
+    this._totalPayloadLength = 0;
+    this._messageLength = 0;
+    this._fragmented = 0;
+    this._fragments = [];
+
+    if (this._opcode === 2) {
+      let data;
+
+      if (this._binaryType === 'nodebuffer') {
+        data = concat(fragments, messageLength);
+      } else if (this._binaryType === 'arraybuffer') {
+        data = toArrayBuffer(concat(fragments, messageLength));
+      } else {
+        data = fragments;
+      }
+
+      //
+      // If the state is `INFLATING`, it means that the frame data was
+      // decompressed asynchronously, so there is no need to defer the event
+      // as it will be emitted asynchronously anyway.
+      //
+      if (this._state === INFLATING || this._allowSynchronousEvents) {
+        this.emit('message', data, true);
+        this._state = GET_INFO;
+      } else {
+        this._state = DEFER_EVENT;
+        queueTask(() => {
+          this.emit('message', data, true);
+          this._state = GET_INFO;
+          this.startLoop(cb);
+        });
+      }
+    } else {
+      const buf = concat(fragments, messageLength);
+
+      if (!this._skipUTF8Validation && !isValidUTF8(buf)) {
+        const error = this.createError(
+          Error,
+          'invalid UTF-8 sequence',
+          true,
+          1007,
+          'WS_ERR_INVALID_UTF8'
+        );
+
+        cb(error);
+        return;
+      }
+
+      if (this._state === INFLATING || this._allowSynchronousEvents) {
+        this.emit('message', buf, false);
+        this._state = GET_INFO;
+      } else {
+        this._state = DEFER_EVENT;
+        queueTask(() => {
+          this.emit('message', buf, false);
+          this._state = GET_INFO;
+          this.startLoop(cb);
+        });
+      }
+    }
+  }
+
+  /**
+   * Handles a control message.
+   *
+   * @param {Buffer} data Data to handle
+   * @return {(Error|RangeError|undefined)} A possible error
+   * @private
+   */
+  controlMessage(data, cb) {
+    if (this._opcode === 0x08) {
+      if (data.length === 0) {
+        this._loop = false;
+        this.emit('conclude', 1005, EMPTY_BUFFER$2);
+        this.end();
+      } else {
+        const code = data.readUInt16BE(0);
+
+        if (!isValidStatusCode$1(code)) {
+          const error = this.createError(
+            RangeError,
+            `invalid status code ${code}`,
+            true,
+            1002,
+            'WS_ERR_INVALID_CLOSE_CODE'
+          );
+
+          cb(error);
+          return;
+        }
+
+        const buf = new FastBuffer(
+          data.buffer,
+          data.byteOffset + 2,
+          data.length - 2
+        );
+
+        if (!this._skipUTF8Validation && !isValidUTF8(buf)) {
+          const error = this.createError(
+            Error,
+            'invalid UTF-8 sequence',
+            true,
+            1007,
+            'WS_ERR_INVALID_UTF8'
+          );
+
+          cb(error);
+          return;
+        }
+
+        this._loop = false;
+        this.emit('conclude', code, buf);
+        this.end();
+      }
+
+      this._state = GET_INFO;
+      return;
+    }
+
+    if (this._allowSynchronousEvents) {
+      this.emit(this._opcode === 0x09 ? 'ping' : 'pong', data);
+      this._state = GET_INFO;
+    } else {
+      this._state = DEFER_EVENT;
+      queueTask(() => {
+        this.emit(this._opcode === 0x09 ? 'ping' : 'pong', data);
+        this._state = GET_INFO;
+        this.startLoop(cb);
+      });
+    }
+  }
+
+  /**
+   * Builds an error object.
+   *
+   * @param {function(new:Error|RangeError)} ErrorCtor The error constructor
+   * @param {String} message The error message
+   * @param {Boolean} prefix Specifies whether or not to add a default prefix to
+   *     `message`
+   * @param {Number} statusCode The status code
+   * @param {String} errorCode The exposed error code
+   * @return {(Error|RangeError)} The error
+   * @private
+   */
+  createError(ErrorCtor, message, prefix, statusCode, errorCode) {
+    this._loop = false;
+    this._errored = true;
+
+    const err = new ErrorCtor(
+      prefix ? `Invalid WebSocket frame: ${message}` : message
+    );
+
+    Error.captureStackTrace(err, this.createError);
+    err.code = errorCode;
+    err[kStatusCode$1] = statusCode;
+    return err;
+  }
+};
+
+var receiver = Receiver$1;
+
+/**
+ * A shim for `queueMicrotask()`.
+ *
+ * @param {Function} cb Callback
+ */
+function queueMicrotaskShim(cb) {
+  promise.then(cb).catch(throwErrorNextTick);
+}
+
+/**
+ * Throws an error.
+ *
+ * @param {Error} err The error to throw
+ * @private
+ */
+function throwError(err) {
+  throw err;
+}
+
+/**
+ * Throws an error in the next tick.
+ *
+ * @param {Error} err The error to throw
+ * @private
+ */
+function throwErrorNextTick(err) {
+  process.nextTick(throwError, err);
+}
+
+/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^Duplex" }] */
+const { randomFillSync } = require$$1;
+
+const PerMessageDeflate$1 = permessageDeflate;
+const { EMPTY_BUFFER: EMPTY_BUFFER$1 } = constants;
+const { isValidStatusCode } = validationExports;
+const { mask: applyMask, toBuffer: toBuffer$1 } = bufferUtilExports;
+
+const kByteLength = Symbol('kByteLength');
+const maskBuffer = Buffer.alloc(4);
+
+/**
+ * HyBi Sender implementation.
+ */
+let Sender$1 = class Sender {
+  /**
+   * Creates a Sender instance.
+   *
+   * @param {Duplex} socket The connection socket
+   * @param {Object} [extensions] An object containing the negotiated extensions
+   * @param {Function} [generateMask] The function used to generate the masking
+   *     key
+   */
+  constructor(socket, extensions, generateMask) {
+    this._extensions = extensions || {};
+
+    if (generateMask) {
+      this._generateMask = generateMask;
+      this._maskBuffer = Buffer.alloc(4);
+    }
+
+    this._socket = socket;
+
+    this._firstFragment = true;
+    this._compress = false;
+
+    this._bufferedBytes = 0;
+    this._deflating = false;
+    this._queue = [];
+  }
+
+  /**
+   * Frames a piece of data according to the HyBi WebSocket protocol.
+   *
+   * @param {(Buffer|String)} data The data to frame
+   * @param {Object} options Options object
+   * @param {Boolean} [options.fin=false] Specifies whether or not to set the
+   *     FIN bit
+   * @param {Function} [options.generateMask] The function used to generate the
+   *     masking key
+   * @param {Boolean} [options.mask=false] Specifies whether or not to mask
+   *     `data`
+   * @param {Buffer} [options.maskBuffer] The buffer used to store the masking
+   *     key
+   * @param {Number} options.opcode The opcode
+   * @param {Boolean} [options.readOnly=false] Specifies whether `data` can be
+   *     modified
+   * @param {Boolean} [options.rsv1=false] Specifies whether or not to set the
+   *     RSV1 bit
+   * @return {(Buffer|String)[]} The framed data
+   * @public
+   */
+  static frame(data, options) {
+    let mask;
+    let merge = false;
+    let offset = 2;
+    let skipMasking = false;
+
+    if (options.mask) {
+      mask = options.maskBuffer || maskBuffer;
+
+      if (options.generateMask) {
+        options.generateMask(mask);
+      } else {
+        randomFillSync(mask, 0, 4);
+      }
+
+      skipMasking = (mask[0] | mask[1] | mask[2] | mask[3]) === 0;
+      offset = 6;
+    }
+
+    let dataLength;
+
+    if (typeof data === 'string') {
+      if (
+        (!options.mask || skipMasking) &&
+        options[kByteLength] !== undefined
+      ) {
+        dataLength = options[kByteLength];
+      } else {
+        data = Buffer.from(data);
+        dataLength = data.length;
+      }
+    } else {
+      dataLength = data.length;
+      merge = options.mask && options.readOnly && !skipMasking;
+    }
+
+    let payloadLength = dataLength;
+
+    if (dataLength >= 65536) {
+      offset += 8;
+      payloadLength = 127;
+    } else if (dataLength > 125) {
+      offset += 2;
+      payloadLength = 126;
+    }
+
+    const target = Buffer.allocUnsafe(merge ? dataLength + offset : offset);
+
+    target[0] = options.fin ? options.opcode | 0x80 : options.opcode;
+    if (options.rsv1) target[0] |= 0x40;
+
+    target[1] = payloadLength;
+
+    if (payloadLength === 126) {
+      target.writeUInt16BE(dataLength, 2);
+    } else if (payloadLength === 127) {
+      target[2] = target[3] = 0;
+      target.writeUIntBE(dataLength, 4, 6);
+    }
+
+    if (!options.mask) return [target, data];
+
+    target[1] |= 0x80;
+    target[offset - 4] = mask[0];
+    target[offset - 3] = mask[1];
+    target[offset - 2] = mask[2];
+    target[offset - 1] = mask[3];
+
+    if (skipMasking) return [target, data];
+
+    if (merge) {
+      applyMask(data, mask, target, offset, dataLength);
+      return [target];
+    }
+
+    applyMask(data, mask, data, 0, dataLength);
+    return [target, data];
+  }
+
+  /**
+   * Sends a close message to the other peer.
+   *
+   * @param {Number} [code] The status code component of the body
+   * @param {(String|Buffer)} [data] The message component of the body
+   * @param {Boolean} [mask=false] Specifies whether or not to mask the message
+   * @param {Function} [cb] Callback
+   * @public
+   */
+  close(code, data, mask, cb) {
+    let buf;
+
+    if (code === undefined) {
+      buf = EMPTY_BUFFER$1;
+    } else if (typeof code !== 'number' || !isValidStatusCode(code)) {
+      throw new TypeError('First argument must be a valid error code number');
+    } else if (data === undefined || !data.length) {
+      buf = Buffer.allocUnsafe(2);
+      buf.writeUInt16BE(code, 0);
+    } else {
+      const length = Buffer.byteLength(data);
+
+      if (length > 123) {
+        throw new RangeError('The message must not be greater than 123 bytes');
+      }
+
+      buf = Buffer.allocUnsafe(2 + length);
+      buf.writeUInt16BE(code, 0);
+
+      if (typeof data === 'string') {
+        buf.write(data, 2);
+      } else {
+        buf.set(data, 2);
+      }
+    }
+
+    const options = {
+      [kByteLength]: buf.length,
+      fin: true,
+      generateMask: this._generateMask,
+      mask,
+      maskBuffer: this._maskBuffer,
+      opcode: 0x08,
+      readOnly: false,
+      rsv1: false
+    };
+
+    if (this._deflating) {
+      this.enqueue([this.dispatch, buf, false, options, cb]);
+    } else {
+      this.sendFrame(Sender.frame(buf, options), cb);
+    }
+  }
+
+  /**
+   * Sends a ping message to the other peer.
+   *
+   * @param {*} data The message to send
+   * @param {Boolean} [mask=false] Specifies whether or not to mask `data`
+   * @param {Function} [cb] Callback
+   * @public
+   */
+  ping(data, mask, cb) {
+    let byteLength;
+    let readOnly;
+
+    if (typeof data === 'string') {
+      byteLength = Buffer.byteLength(data);
+      readOnly = false;
+    } else {
+      data = toBuffer$1(data);
+      byteLength = data.length;
+      readOnly = toBuffer$1.readOnly;
+    }
+
+    if (byteLength > 125) {
+      throw new RangeError('The data size must not be greater than 125 bytes');
+    }
+
+    const options = {
+      [kByteLength]: byteLength,
+      fin: true,
+      generateMask: this._generateMask,
+      mask,
+      maskBuffer: this._maskBuffer,
+      opcode: 0x09,
+      readOnly,
+      rsv1: false
+    };
+
+    if (this._deflating) {
+      this.enqueue([this.dispatch, data, false, options, cb]);
+    } else {
+      this.sendFrame(Sender.frame(data, options), cb);
+    }
+  }
+
+  /**
+   * Sends a pong message to the other peer.
+   *
+   * @param {*} data The message to send
+   * @param {Boolean} [mask=false] Specifies whether or not to mask `data`
+   * @param {Function} [cb] Callback
+   * @public
+   */
+  pong(data, mask, cb) {
+    let byteLength;
+    let readOnly;
+
+    if (typeof data === 'string') {
+      byteLength = Buffer.byteLength(data);
+      readOnly = false;
+    } else {
+      data = toBuffer$1(data);
+      byteLength = data.length;
+      readOnly = toBuffer$1.readOnly;
+    }
+
+    if (byteLength > 125) {
+      throw new RangeError('The data size must not be greater than 125 bytes');
+    }
+
+    const options = {
+      [kByteLength]: byteLength,
+      fin: true,
+      generateMask: this._generateMask,
+      mask,
+      maskBuffer: this._maskBuffer,
+      opcode: 0x0a,
+      readOnly,
+      rsv1: false
+    };
+
+    if (this._deflating) {
+      this.enqueue([this.dispatch, data, false, options, cb]);
+    } else {
+      this.sendFrame(Sender.frame(data, options), cb);
+    }
+  }
+
+  /**
+   * Sends a data message to the other peer.
+   *
+   * @param {*} data The message to send
+   * @param {Object} options Options object
+   * @param {Boolean} [options.binary=false] Specifies whether `data` is binary
+   *     or text
+   * @param {Boolean} [options.compress=false] Specifies whether or not to
+   *     compress `data`
+   * @param {Boolean} [options.fin=false] Specifies whether the fragment is the
+   *     last one
+   * @param {Boolean} [options.mask=false] Specifies whether or not to mask
+   *     `data`
+   * @param {Function} [cb] Callback
+   * @public
+   */
+  send(data, options, cb) {
+    const perMessageDeflate = this._extensions[PerMessageDeflate$1.extensionName];
+    let opcode = options.binary ? 2 : 1;
+    let rsv1 = options.compress;
+
+    let byteLength;
+    let readOnly;
+
+    if (typeof data === 'string') {
+      byteLength = Buffer.byteLength(data);
+      readOnly = false;
+    } else {
+      data = toBuffer$1(data);
+      byteLength = data.length;
+      readOnly = toBuffer$1.readOnly;
+    }
+
+    if (this._firstFragment) {
+      this._firstFragment = false;
+      if (
+        rsv1 &&
+        perMessageDeflate &&
+        perMessageDeflate.params[
+          perMessageDeflate._isServer
+            ? 'server_no_context_takeover'
+            : 'client_no_context_takeover'
+        ]
+      ) {
+        rsv1 = byteLength >= perMessageDeflate._threshold;
+      }
+      this._compress = rsv1;
+    } else {
+      rsv1 = false;
+      opcode = 0;
+    }
+
+    if (options.fin) this._firstFragment = true;
+
+    if (perMessageDeflate) {
+      const opts = {
+        [kByteLength]: byteLength,
+        fin: options.fin,
+        generateMask: this._generateMask,
+        mask: options.mask,
+        maskBuffer: this._maskBuffer,
+        opcode,
+        readOnly,
+        rsv1
+      };
+
+      if (this._deflating) {
+        this.enqueue([this.dispatch, data, this._compress, opts, cb]);
+      } else {
+        this.dispatch(data, this._compress, opts, cb);
+      }
+    } else {
+      this.sendFrame(
+        Sender.frame(data, {
+          [kByteLength]: byteLength,
+          fin: options.fin,
+          generateMask: this._generateMask,
+          mask: options.mask,
+          maskBuffer: this._maskBuffer,
+          opcode,
+          readOnly,
+          rsv1: false
+        }),
+        cb
+      );
+    }
+  }
+
+  /**
+   * Dispatches a message.
+   *
+   * @param {(Buffer|String)} data The message to send
+   * @param {Boolean} [compress=false] Specifies whether or not to compress
+   *     `data`
+   * @param {Object} options Options object
+   * @param {Boolean} [options.fin=false] Specifies whether or not to set the
+   *     FIN bit
+   * @param {Function} [options.generateMask] The function used to generate the
+   *     masking key
+   * @param {Boolean} [options.mask=false] Specifies whether or not to mask
+   *     `data`
+   * @param {Buffer} [options.maskBuffer] The buffer used to store the masking
+   *     key
+   * @param {Number} options.opcode The opcode
+   * @param {Boolean} [options.readOnly=false] Specifies whether `data` can be
+   *     modified
+   * @param {Boolean} [options.rsv1=false] Specifies whether or not to set the
+   *     RSV1 bit
+   * @param {Function} [cb] Callback
+   * @private
+   */
+  dispatch(data, compress, options, cb) {
+    if (!compress) {
+      this.sendFrame(Sender.frame(data, options), cb);
+      return;
+    }
+
+    const perMessageDeflate = this._extensions[PerMessageDeflate$1.extensionName];
+
+    this._bufferedBytes += options[kByteLength];
+    this._deflating = true;
+    perMessageDeflate.compress(data, options.fin, (_, buf) => {
+      if (this._socket.destroyed) {
+        const err = new Error(
+          'The socket was closed while data was being compressed'
+        );
+
+        if (typeof cb === 'function') cb(err);
+
+        for (let i = 0; i < this._queue.length; i++) {
+          const params = this._queue[i];
+          const callback = params[params.length - 1];
+
+          if (typeof callback === 'function') callback(err);
+        }
+
+        return;
+      }
+
+      this._bufferedBytes -= options[kByteLength];
+      this._deflating = false;
+      options.readOnly = false;
+      this.sendFrame(Sender.frame(buf, options), cb);
+      this.dequeue();
+    });
+  }
+
+  /**
+   * Executes queued send operations.
+   *
+   * @private
+   */
+  dequeue() {
+    while (!this._deflating && this._queue.length) {
+      const params = this._queue.shift();
+
+      this._bufferedBytes -= params[3][kByteLength];
+      Reflect.apply(params[0], this, params.slice(1));
+    }
+  }
+
+  /**
+   * Enqueues a send operation.
+   *
+   * @param {Array} params Send operation parameters.
+   * @private
+   */
+  enqueue(params) {
+    this._bufferedBytes += params[3][kByteLength];
+    this._queue.push(params);
+  }
+
+  /**
+   * Sends a frame.
+   *
+   * @param {Buffer[]} list The frame to send
+   * @param {Function} [cb] Callback
+   * @private
+   */
+  sendFrame(list, cb) {
+    if (list.length === 2) {
+      this._socket.cork();
+      this._socket.write(list[0]);
+      this._socket.write(list[1], cb);
+      this._socket.uncork();
+    } else {
+      this._socket.write(list[0], cb);
+    }
+  }
+};
+
+var sender = Sender$1;
+
+const { kForOnEventAttribute: kForOnEventAttribute$1, kListener: kListener$1 } = constants;
+
+const kCode = Symbol('kCode');
+const kData = Symbol('kData');
+const kError = Symbol('kError');
+const kMessage = Symbol('kMessage');
+const kReason = Symbol('kReason');
+const kTarget = Symbol('kTarget');
+const kType = Symbol('kType');
+const kWasClean = Symbol('kWasClean');
+
+/**
+ * Class representing an event.
+ */
+let Event$1 = class Event {
+  /**
+   * Create a new `Event`.
+   *
+   * @param {String} type The name of the event
+   * @throws {TypeError} If the `type` argument is not specified
+   */
+  constructor(type) {
+    this[kTarget] = null;
+    this[kType] = type;
+  }
+
+  /**
+   * @type {*}
+   */
+  get target() {
+    return this[kTarget];
+  }
+
+  /**
+   * @type {String}
+   */
+  get type() {
+    return this[kType];
+  }
+};
+
+Object.defineProperty(Event$1.prototype, 'target', { enumerable: true });
+Object.defineProperty(Event$1.prototype, 'type', { enumerable: true });
+
+/**
+ * Class representing a close event.
+ *
+ * @extends Event
+ */
+class CloseEvent extends Event$1 {
+  /**
+   * Create a new `CloseEvent`.
+   *
+   * @param {String} type The name of the event
+   * @param {Object} [options] A dictionary object that allows for setting
+   *     attributes via object members of the same name
+   * @param {Number} [options.code=0] The status code explaining why the
+   *     connection was closed
+   * @param {String} [options.reason=''] A human-readable string explaining why
+   *     the connection was closed
+   * @param {Boolean} [options.wasClean=false] Indicates whether or not the
+   *     connection was cleanly closed
+   */
+  constructor(type, options = {}) {
+    super(type);
+
+    this[kCode] = options.code === undefined ? 0 : options.code;
+    this[kReason] = options.reason === undefined ? '' : options.reason;
+    this[kWasClean] = options.wasClean === undefined ? false : options.wasClean;
+  }
+
+  /**
+   * @type {Number}
+   */
+  get code() {
+    return this[kCode];
+  }
+
+  /**
+   * @type {String}
+   */
+  get reason() {
+    return this[kReason];
+  }
+
+  /**
+   * @type {Boolean}
+   */
+  get wasClean() {
+    return this[kWasClean];
+  }
+}
+
+Object.defineProperty(CloseEvent.prototype, 'code', { enumerable: true });
+Object.defineProperty(CloseEvent.prototype, 'reason', { enumerable: true });
+Object.defineProperty(CloseEvent.prototype, 'wasClean', { enumerable: true });
+
+/**
+ * Class representing an error event.
+ *
+ * @extends Event
+ */
+class ErrorEvent extends Event$1 {
+  /**
+   * Create a new `ErrorEvent`.
+   *
+   * @param {String} type The name of the event
+   * @param {Object} [options] A dictionary object that allows for setting
+   *     attributes via object members of the same name
+   * @param {*} [options.error=null] The error that generated this event
+   * @param {String} [options.message=''] The error message
+   */
+  constructor(type, options = {}) {
+    super(type);
+
+    this[kError] = options.error === undefined ? null : options.error;
+    this[kMessage] = options.message === undefined ? '' : options.message;
+  }
+
+  /**
+   * @type {*}
+   */
+  get error() {
+    return this[kError];
+  }
+
+  /**
+   * @type {String}
+   */
+  get message() {
+    return this[kMessage];
+  }
+}
+
+Object.defineProperty(ErrorEvent.prototype, 'error', { enumerable: true });
+Object.defineProperty(ErrorEvent.prototype, 'message', { enumerable: true });
+
+/**
+ * Class representing a message event.
+ *
+ * @extends Event
+ */
+class MessageEvent extends Event$1 {
+  /**
+   * Create a new `MessageEvent`.
+   *
+   * @param {String} type The name of the event
+   * @param {Object} [options] A dictionary object that allows for setting
+   *     attributes via object members of the same name
+   * @param {*} [options.data=null] The message content
+   */
+  constructor(type, options = {}) {
+    super(type);
+
+    this[kData] = options.data === undefined ? null : options.data;
+  }
+
+  /**
+   * @type {*}
+   */
+  get data() {
+    return this[kData];
+  }
+}
+
+Object.defineProperty(MessageEvent.prototype, 'data', { enumerable: true });
+
+/**
+ * This provides methods for emulating the `EventTarget` interface. It's not
+ * meant to be used directly.
+ *
+ * @mixin
+ */
+const EventTarget = {
+  /**
+   * Register an event listener.
+   *
+   * @param {String} type A string representing the event type to listen for
+   * @param {(Function|Object)} handler The listener to add
+   * @param {Object} [options] An options object specifies characteristics about
+   *     the event listener
+   * @param {Boolean} [options.once=false] A `Boolean` indicating that the
+   *     listener should be invoked at most once after being added. If `true`,
+   *     the listener would be automatically removed when invoked.
+   * @public
+   */
+  addEventListener(type, handler, options = {}) {
+    for (const listener of this.listeners(type)) {
+      if (
+        !options[kForOnEventAttribute$1] &&
+        listener[kListener$1] === handler &&
+        !listener[kForOnEventAttribute$1]
+      ) {
+        return;
+      }
+    }
+
+    let wrapper;
+
+    if (type === 'message') {
+      wrapper = function onMessage(data, isBinary) {
+        const event = new MessageEvent('message', {
+          data: isBinary ? data : data.toString()
+        });
+
+        event[kTarget] = this;
+        callListener(handler, this, event);
+      };
+    } else if (type === 'close') {
+      wrapper = function onClose(code, message) {
+        const event = new CloseEvent('close', {
+          code,
+          reason: message.toString(),
+          wasClean: this._closeFrameReceived && this._closeFrameSent
+        });
+
+        event[kTarget] = this;
+        callListener(handler, this, event);
+      };
+    } else if (type === 'error') {
+      wrapper = function onError(error) {
+        const event = new ErrorEvent('error', {
+          error,
+          message: error.message
+        });
+
+        event[kTarget] = this;
+        callListener(handler, this, event);
+      };
+    } else if (type === 'open') {
+      wrapper = function onOpen() {
+        const event = new Event$1('open');
+
+        event[kTarget] = this;
+        callListener(handler, this, event);
+      };
+    } else {
+      return;
+    }
+
+    wrapper[kForOnEventAttribute$1] = !!options[kForOnEventAttribute$1];
+    wrapper[kListener$1] = handler;
+
+    if (options.once) {
+      this.once(type, wrapper);
+    } else {
+      this.on(type, wrapper);
+    }
+  },
+
+  /**
+   * Remove an event listener.
+   *
+   * @param {String} type A string representing the event type to remove
+   * @param {(Function|Object)} handler The listener to remove
+   * @public
+   */
+  removeEventListener(type, handler) {
+    for (const listener of this.listeners(type)) {
+      if (listener[kListener$1] === handler && !listener[kForOnEventAttribute$1]) {
+        this.removeListener(type, listener);
+        break;
+      }
+    }
+  }
+};
+
+var eventTarget = {
+  CloseEvent,
+  ErrorEvent,
+  Event: Event$1,
+  EventTarget,
+  MessageEvent
+};
+
+/**
+ * Call an event listener
+ *
+ * @param {(Function|Object)} listener The listener to call
+ * @param {*} thisArg The value to use as `this`` when calling the listener
+ * @param {Event} event The event to pass to the listener
+ * @private
+ */
+function callListener(listener, thisArg, event) {
+  if (typeof listener === 'object' && listener.handleEvent) {
+    listener.handleEvent.call(listener, event);
+  } else {
+    listener.call(thisArg, event);
+  }
+}
+
+const { tokenChars } = validationExports;
+
+/**
+ * Adds an offer to the map of extension offers or a parameter to the map of
+ * parameters.
+ *
+ * @param {Object} dest The map of extension offers or parameters
+ * @param {String} name The extension or parameter name
+ * @param {(Object|Boolean|String)} elem The extension parameters or the
+ *     parameter value
+ * @private
+ */
+function push(dest, name, elem) {
+  if (dest[name] === undefined) dest[name] = [elem];
+  else dest[name].push(elem);
+}
+
+/**
+ * Parses the `Sec-WebSocket-Extensions` header into an object.
+ *
+ * @param {String} header The field value of the header
+ * @return {Object} The parsed object
+ * @public
+ */
+function parse$1(header) {
+  const offers = Object.create(null);
+  let params = Object.create(null);
+  let mustUnescape = false;
+  let isEscaping = false;
+  let inQuotes = false;
+  let extensionName;
+  let paramName;
+  let start = -1;
+  let code = -1;
+  let end = -1;
+  let i = 0;
+
+  for (; i < header.length; i++) {
+    code = header.charCodeAt(i);
+
+    if (extensionName === undefined) {
+      if (end === -1 && tokenChars[code] === 1) {
+        if (start === -1) start = i;
+      } else if (
+        i !== 0 &&
+        (code === 0x20 /* ' ' */ || code === 0x09) /* '\t' */
+      ) {
+        if (end === -1 && start !== -1) end = i;
+      } else if (code === 0x3b /* ';' */ || code === 0x2c /* ',' */) {
+        if (start === -1) {
+          throw new SyntaxError(`Unexpected character at index ${i}`);
+        }
+
+        if (end === -1) end = i;
+        const name = header.slice(start, end);
+        if (code === 0x2c) {
+          push(offers, name, params);
+          params = Object.create(null);
+        } else {
+          extensionName = name;
+        }
+
+        start = end = -1;
+      } else {
+        throw new SyntaxError(`Unexpected character at index ${i}`);
+      }
+    } else if (paramName === undefined) {
+      if (end === -1 && tokenChars[code] === 1) {
+        if (start === -1) start = i;
+      } else if (code === 0x20 || code === 0x09) {
+        if (end === -1 && start !== -1) end = i;
+      } else if (code === 0x3b || code === 0x2c) {
+        if (start === -1) {
+          throw new SyntaxError(`Unexpected character at index ${i}`);
+        }
+
+        if (end === -1) end = i;
+        push(params, header.slice(start, end), true);
+        if (code === 0x2c) {
+          push(offers, extensionName, params);
+          params = Object.create(null);
+          extensionName = undefined;
+        }
+
+        start = end = -1;
+      } else if (code === 0x3d /* '=' */ && start !== -1 && end === -1) {
+        paramName = header.slice(start, i);
+        start = end = -1;
+      } else {
+        throw new SyntaxError(`Unexpected character at index ${i}`);
+      }
+    } else {
+      //
+      // The value of a quoted-string after unescaping must conform to the
+      // token ABNF, so only token characters are valid.
+      // Ref: https://tools.ietf.org/html/rfc6455#section-9.1
+      //
+      if (isEscaping) {
+        if (tokenChars[code] !== 1) {
+          throw new SyntaxError(`Unexpected character at index ${i}`);
+        }
+        if (start === -1) start = i;
+        else if (!mustUnescape) mustUnescape = true;
+        isEscaping = false;
+      } else if (inQuotes) {
+        if (tokenChars[code] === 1) {
+          if (start === -1) start = i;
+        } else if (code === 0x22 /* '"' */ && start !== -1) {
+          inQuotes = false;
+          end = i;
+        } else if (code === 0x5c /* '\' */) {
+          isEscaping = true;
+        } else {
+          throw new SyntaxError(`Unexpected character at index ${i}`);
+        }
+      } else if (code === 0x22 && header.charCodeAt(i - 1) === 0x3d) {
+        inQuotes = true;
+      } else if (end === -1 && tokenChars[code] === 1) {
+        if (start === -1) start = i;
+      } else if (start !== -1 && (code === 0x20 || code === 0x09)) {
+        if (end === -1) end = i;
+      } else if (code === 0x3b || code === 0x2c) {
+        if (start === -1) {
+          throw new SyntaxError(`Unexpected character at index ${i}`);
+        }
+
+        if (end === -1) end = i;
+        let value = header.slice(start, end);
+        if (mustUnescape) {
+          value = value.replace(/\\/g, '');
+          mustUnescape = false;
+        }
+        push(params, paramName, value);
+        if (code === 0x2c) {
+          push(offers, extensionName, params);
+          params = Object.create(null);
+          extensionName = undefined;
+        }
+
+        paramName = undefined;
+        start = end = -1;
+      } else {
+        throw new SyntaxError(`Unexpected character at index ${i}`);
+      }
+    }
+  }
+
+  if (start === -1 || inQuotes || code === 0x20 || code === 0x09) {
+    throw new SyntaxError('Unexpected end of input');
+  }
+
+  if (end === -1) end = i;
+  const token = header.slice(start, end);
+  if (extensionName === undefined) {
+    push(offers, token, params);
+  } else {
+    if (paramName === undefined) {
+      push(params, token, true);
+    } else if (mustUnescape) {
+      push(params, paramName, token.replace(/\\/g, ''));
+    } else {
+      push(params, paramName, token);
+    }
+    push(offers, extensionName, params);
+  }
+
+  return offers;
+}
+
+/**
+ * Builds the `Sec-WebSocket-Extensions` header field value.
+ *
+ * @param {Object} extensions The map of extensions and parameters to format
+ * @return {String} A string representing the given object
+ * @public
+ */
+function format$1(extensions) {
+  return Object.keys(extensions)
+    .map((extension) => {
+      let configurations = extensions[extension];
+      if (!Array.isArray(configurations)) configurations = [configurations];
+      return configurations
+        .map((params) => {
+          return [extension]
+            .concat(
+              Object.keys(params).map((k) => {
+                let values = params[k];
+                if (!Array.isArray(values)) values = [values];
+                return values
+                  .map((v) => (v === true ? k : `${k}=${v}`))
+                  .join('; ');
+              })
+            )
+            .join('; ');
+        })
+        .join(', ');
+    })
+    .join(', ');
+}
+
+var extension = { format: format$1, parse: parse$1 };
+
+/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^Duplex|Readable$" }] */
+
+const EventEmitter = require$$0$3;
+const https = require$$1$1;
+const http = require$$2;
+const net = require$$3;
+const tls = require$$4;
+const { randomBytes, createHash } = require$$1;
+const { URL: URL$1 } = require$$7;
+
+const PerMessageDeflate = permessageDeflate;
+const Receiver = receiver;
+const Sender = sender;
+const {
+  BINARY_TYPES,
+  EMPTY_BUFFER,
+  GUID,
+  kForOnEventAttribute,
+  kListener,
+  kStatusCode,
+  kWebSocket,
+  NOOP
+} = constants;
+const {
+  EventTarget: { addEventListener, removeEventListener }
+} = eventTarget;
+const { format, parse } = extension;
+const { toBuffer } = bufferUtilExports;
+
+const closeTimeout = 30 * 1000;
+const kAborted = Symbol('kAborted');
+const protocolVersions = [8, 13];
+const readyStates = ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'];
+const subprotocolRegex = /^[!#$%&'*+\-.0-9A-Z^_`|a-z~]+$/;
+
+/**
+ * Class representing a WebSocket.
+ *
+ * @extends EventEmitter
+ */
+class WebSocket extends EventEmitter {
+  /**
+   * Create a new `WebSocket`.
+   *
+   * @param {(String|URL)} address The URL to which to connect
+   * @param {(String|String[])} [protocols] The subprotocols
+   * @param {Object} [options] Connection options
+   */
+  constructor(address, protocols, options) {
+    super();
+
+    this._binaryType = BINARY_TYPES[0];
+    this._closeCode = 1006;
+    this._closeFrameReceived = false;
+    this._closeFrameSent = false;
+    this._closeMessage = EMPTY_BUFFER;
+    this._closeTimer = null;
+    this._extensions = {};
+    this._paused = false;
+    this._protocol = '';
+    this._readyState = WebSocket.CONNECTING;
+    this._receiver = null;
+    this._sender = null;
+    this._socket = null;
+
+    if (address !== null) {
+      this._bufferedAmount = 0;
+      this._isServer = false;
+      this._redirects = 0;
+
+      if (protocols === undefined) {
+        protocols = [];
+      } else if (!Array.isArray(protocols)) {
+        if (typeof protocols === 'object' && protocols !== null) {
+          options = protocols;
+          protocols = [];
+        } else {
+          protocols = [protocols];
+        }
+      }
+
+      initAsClient(this, address, protocols, options);
+    } else {
+      this._autoPong = options.autoPong;
+      this._isServer = true;
+    }
+  }
+
+  /**
+   * This deviates from the WHATWG interface since ws doesn't support the
+   * required default "blob" type (instead we define a custom "nodebuffer"
+   * type).
+   *
+   * @type {String}
+   */
+  get binaryType() {
+    return this._binaryType;
+  }
+
+  set binaryType(type) {
+    if (!BINARY_TYPES.includes(type)) return;
+
+    this._binaryType = type;
+
+    //
+    // Allow to change `binaryType` on the fly.
+    //
+    if (this._receiver) this._receiver._binaryType = type;
+  }
+
+  /**
+   * @type {Number}
+   */
+  get bufferedAmount() {
+    if (!this._socket) return this._bufferedAmount;
+
+    return this._socket._writableState.length + this._sender._bufferedBytes;
+  }
+
+  /**
+   * @type {String}
+   */
+  get extensions() {
+    return Object.keys(this._extensions).join();
+  }
+
+  /**
+   * @type {Boolean}
+   */
+  get isPaused() {
+    return this._paused;
+  }
+
+  /**
+   * @type {Function}
+   */
+  /* istanbul ignore next */
+  get onclose() {
+    return null;
+  }
+
+  /**
+   * @type {Function}
+   */
+  /* istanbul ignore next */
+  get onerror() {
+    return null;
+  }
+
+  /**
+   * @type {Function}
+   */
+  /* istanbul ignore next */
+  get onopen() {
+    return null;
+  }
+
+  /**
+   * @type {Function}
+   */
+  /* istanbul ignore next */
+  get onmessage() {
+    return null;
+  }
+
+  /**
+   * @type {String}
+   */
+  get protocol() {
+    return this._protocol;
+  }
+
+  /**
+   * @type {Number}
+   */
+  get readyState() {
+    return this._readyState;
+  }
+
+  /**
+   * @type {String}
+   */
+  get url() {
+    return this._url;
+  }
+
+  /**
+   * Set up the socket and the internal resources.
+   *
+   * @param {Duplex} socket The network socket between the server and client
+   * @param {Buffer} head The first packet of the upgraded stream
+   * @param {Object} options Options object
+   * @param {Boolean} [options.allowSynchronousEvents=false] Specifies whether
+   *     any of the `'message'`, `'ping'`, and `'pong'` events can be emitted
+   *     multiple times in the same tick
+   * @param {Function} [options.generateMask] The function used to generate the
+   *     masking key
+   * @param {Number} [options.maxPayload=0] The maximum allowed message size
+   * @param {Boolean} [options.skipUTF8Validation=false] Specifies whether or
+   *     not to skip UTF-8 validation for text and close messages
+   * @private
+   */
+  setSocket(socket, head, options) {
+    const receiver = new Receiver({
+      allowSynchronousEvents: options.allowSynchronousEvents,
+      binaryType: this.binaryType,
+      extensions: this._extensions,
+      isServer: this._isServer,
+      maxPayload: options.maxPayload,
+      skipUTF8Validation: options.skipUTF8Validation
+    });
+
+    this._sender = new Sender(socket, this._extensions, options.generateMask);
+    this._receiver = receiver;
+    this._socket = socket;
+
+    receiver[kWebSocket] = this;
+    socket[kWebSocket] = this;
+
+    receiver.on('conclude', receiverOnConclude);
+    receiver.on('drain', receiverOnDrain);
+    receiver.on('error', receiverOnError);
+    receiver.on('message', receiverOnMessage);
+    receiver.on('ping', receiverOnPing);
+    receiver.on('pong', receiverOnPong);
+
+    //
+    // These methods may not be available if `socket` is just a `Duplex`.
+    //
+    if (socket.setTimeout) socket.setTimeout(0);
+    if (socket.setNoDelay) socket.setNoDelay();
+
+    if (head.length > 0) socket.unshift(head);
+
+    socket.on('close', socketOnClose);
+    socket.on('data', socketOnData);
+    socket.on('end', socketOnEnd);
+    socket.on('error', socketOnError);
+
+    this._readyState = WebSocket.OPEN;
+    this.emit('open');
+  }
+
+  /**
+   * Emit the `'close'` event.
+   *
+   * @private
+   */
+  emitClose() {
+    if (!this._socket) {
+      this._readyState = WebSocket.CLOSED;
+      this.emit('close', this._closeCode, this._closeMessage);
+      return;
+    }
+
+    if (this._extensions[PerMessageDeflate.extensionName]) {
+      this._extensions[PerMessageDeflate.extensionName].cleanup();
+    }
+
+    this._receiver.removeAllListeners();
+    this._readyState = WebSocket.CLOSED;
+    this.emit('close', this._closeCode, this._closeMessage);
+  }
+
+  /**
+   * Start a closing handshake.
+   *
+   *          +----------+   +-----------+   +----------+
+   *     - - -|ws.close()|-->|close frame|-->|ws.close()|- - -
+   *    |     +----------+   +-----------+   +----------+     |
+   *          +----------+   +-----------+         |
+   * CLOSING  |ws.close()|<--|close frame|<--+-----+       CLOSING
+   *          +----------+   +-----------+   |
+   *    |           |                        |   +---+        |
+   *                +------------------------+-->|fin| - - - -
+   *    |         +---+                      |   +---+
+   *     - - - - -|fin|<---------------------+
+   *              +---+
+   *
+   * @param {Number} [code] Status code explaining why the connection is closing
+   * @param {(String|Buffer)} [data] The reason why the connection is
+   *     closing
+   * @public
+   */
+  close(code, data) {
+    if (this.readyState === WebSocket.CLOSED) return;
+    if (this.readyState === WebSocket.CONNECTING) {
+      const msg = 'WebSocket was closed before the connection was established';
+      abortHandshake(this, this._req, msg);
+      return;
+    }
+
+    if (this.readyState === WebSocket.CLOSING) {
+      if (
+        this._closeFrameSent &&
+        (this._closeFrameReceived || this._receiver._writableState.errorEmitted)
+      ) {
+        this._socket.end();
+      }
+
+      return;
+    }
+
+    this._readyState = WebSocket.CLOSING;
+    this._sender.close(code, data, !this._isServer, (err) => {
+      //
+      // This error is handled by the `'error'` listener on the socket. We only
+      // want to know if the close frame has been sent here.
+      //
+      if (err) return;
+
+      this._closeFrameSent = true;
+
+      if (
+        this._closeFrameReceived ||
+        this._receiver._writableState.errorEmitted
+      ) {
+        this._socket.end();
+      }
+    });
+
+    //
+    // Specify a timeout for the closing handshake to complete.
+    //
+    this._closeTimer = setTimeout(
+      this._socket.destroy.bind(this._socket),
+      closeTimeout
+    );
+  }
+
+  /**
+   * Pause the socket.
+   *
+   * @public
+   */
+  pause() {
+    if (
+      this.readyState === WebSocket.CONNECTING ||
+      this.readyState === WebSocket.CLOSED
+    ) {
+      return;
+    }
+
+    this._paused = true;
+    this._socket.pause();
+  }
+
+  /**
+   * Send a ping.
+   *
+   * @param {*} [data] The data to send
+   * @param {Boolean} [mask] Indicates whether or not to mask `data`
+   * @param {Function} [cb] Callback which is executed when the ping is sent
+   * @public
+   */
+  ping(data, mask, cb) {
+    if (this.readyState === WebSocket.CONNECTING) {
+      throw new Error('WebSocket is not open: readyState 0 (CONNECTING)');
+    }
+
+    if (typeof data === 'function') {
+      cb = data;
+      data = mask = undefined;
+    } else if (typeof mask === 'function') {
+      cb = mask;
+      mask = undefined;
+    }
+
+    if (typeof data === 'number') data = data.toString();
+
+    if (this.readyState !== WebSocket.OPEN) {
+      sendAfterClose(this, data, cb);
+      return;
+    }
+
+    if (mask === undefined) mask = !this._isServer;
+    this._sender.ping(data || EMPTY_BUFFER, mask, cb);
+  }
+
+  /**
+   * Send a pong.
+   *
+   * @param {*} [data] The data to send
+   * @param {Boolean} [mask] Indicates whether or not to mask `data`
+   * @param {Function} [cb] Callback which is executed when the pong is sent
+   * @public
+   */
+  pong(data, mask, cb) {
+    if (this.readyState === WebSocket.CONNECTING) {
+      throw new Error('WebSocket is not open: readyState 0 (CONNECTING)');
+    }
+
+    if (typeof data === 'function') {
+      cb = data;
+      data = mask = undefined;
+    } else if (typeof mask === 'function') {
+      cb = mask;
+      mask = undefined;
+    }
+
+    if (typeof data === 'number') data = data.toString();
+
+    if (this.readyState !== WebSocket.OPEN) {
+      sendAfterClose(this, data, cb);
+      return;
+    }
+
+    if (mask === undefined) mask = !this._isServer;
+    this._sender.pong(data || EMPTY_BUFFER, mask, cb);
+  }
+
+  /**
+   * Resume the socket.
+   *
+   * @public
+   */
+  resume() {
+    if (
+      this.readyState === WebSocket.CONNECTING ||
+      this.readyState === WebSocket.CLOSED
+    ) {
+      return;
+    }
+
+    this._paused = false;
+    if (!this._receiver._writableState.needDrain) this._socket.resume();
+  }
+
+  /**
+   * Send a data message.
+   *
+   * @param {*} data The message to send
+   * @param {Object} [options] Options object
+   * @param {Boolean} [options.binary] Specifies whether `data` is binary or
+   *     text
+   * @param {Boolean} [options.compress] Specifies whether or not to compress
+   *     `data`
+   * @param {Boolean} [options.fin=true] Specifies whether the fragment is the
+   *     last one
+   * @param {Boolean} [options.mask] Specifies whether or not to mask `data`
+   * @param {Function} [cb] Callback which is executed when data is written out
+   * @public
+   */
+  send(data, options, cb) {
+    if (this.readyState === WebSocket.CONNECTING) {
+      throw new Error('WebSocket is not open: readyState 0 (CONNECTING)');
+    }
+
+    if (typeof options === 'function') {
+      cb = options;
+      options = {};
+    }
+
+    if (typeof data === 'number') data = data.toString();
+
+    if (this.readyState !== WebSocket.OPEN) {
+      sendAfterClose(this, data, cb);
+      return;
+    }
+
+    const opts = {
+      binary: typeof data !== 'string',
+      mask: !this._isServer,
+      compress: true,
+      fin: true,
+      ...options
+    };
+
+    if (!this._extensions[PerMessageDeflate.extensionName]) {
+      opts.compress = false;
+    }
+
+    this._sender.send(data || EMPTY_BUFFER, opts, cb);
+  }
+
+  /**
+   * Forcibly close the connection.
+   *
+   * @public
+   */
+  terminate() {
+    if (this.readyState === WebSocket.CLOSED) return;
+    if (this.readyState === WebSocket.CONNECTING) {
+      const msg = 'WebSocket was closed before the connection was established';
+      abortHandshake(this, this._req, msg);
+      return;
+    }
+
+    if (this._socket) {
+      this._readyState = WebSocket.CLOSING;
+      this._socket.destroy();
+    }
+  }
+}
+
+/**
+ * @constant {Number} CONNECTING
+ * @memberof WebSocket
+ */
+Object.defineProperty(WebSocket, 'CONNECTING', {
+  enumerable: true,
+  value: readyStates.indexOf('CONNECTING')
+});
+
+/**
+ * @constant {Number} CONNECTING
+ * @memberof WebSocket.prototype
+ */
+Object.defineProperty(WebSocket.prototype, 'CONNECTING', {
+  enumerable: true,
+  value: readyStates.indexOf('CONNECTING')
+});
+
+/**
+ * @constant {Number} OPEN
+ * @memberof WebSocket
+ */
+Object.defineProperty(WebSocket, 'OPEN', {
+  enumerable: true,
+  value: readyStates.indexOf('OPEN')
+});
+
+/**
+ * @constant {Number} OPEN
+ * @memberof WebSocket.prototype
+ */
+Object.defineProperty(WebSocket.prototype, 'OPEN', {
+  enumerable: true,
+  value: readyStates.indexOf('OPEN')
+});
+
+/**
+ * @constant {Number} CLOSING
+ * @memberof WebSocket
+ */
+Object.defineProperty(WebSocket, 'CLOSING', {
+  enumerable: true,
+  value: readyStates.indexOf('CLOSING')
+});
+
+/**
+ * @constant {Number} CLOSING
+ * @memberof WebSocket.prototype
+ */
+Object.defineProperty(WebSocket.prototype, 'CLOSING', {
+  enumerable: true,
+  value: readyStates.indexOf('CLOSING')
+});
+
+/**
+ * @constant {Number} CLOSED
+ * @memberof WebSocket
+ */
+Object.defineProperty(WebSocket, 'CLOSED', {
+  enumerable: true,
+  value: readyStates.indexOf('CLOSED')
+});
+
+/**
+ * @constant {Number} CLOSED
+ * @memberof WebSocket.prototype
+ */
+Object.defineProperty(WebSocket.prototype, 'CLOSED', {
+  enumerable: true,
+  value: readyStates.indexOf('CLOSED')
+});
+
+[
+  'binaryType',
+  'bufferedAmount',
+  'extensions',
+  'isPaused',
+  'protocol',
+  'readyState',
+  'url'
+].forEach((property) => {
+  Object.defineProperty(WebSocket.prototype, property, { enumerable: true });
+});
+
+//
+// Add the `onopen`, `onerror`, `onclose`, and `onmessage` attributes.
+// See https://html.spec.whatwg.org/multipage/comms.html#the-websocket-interface
+//
+['open', 'error', 'close', 'message'].forEach((method) => {
+  Object.defineProperty(WebSocket.prototype, `on${method}`, {
+    enumerable: true,
+    get() {
+      for (const listener of this.listeners(method)) {
+        if (listener[kForOnEventAttribute]) return listener[kListener];
+      }
+
+      return null;
+    },
+    set(handler) {
+      for (const listener of this.listeners(method)) {
+        if (listener[kForOnEventAttribute]) {
+          this.removeListener(method, listener);
+          break;
+        }
+      }
+
+      if (typeof handler !== 'function') return;
+
+      this.addEventListener(method, handler, {
+        [kForOnEventAttribute]: true
+      });
+    }
+  });
+});
+
+WebSocket.prototype.addEventListener = addEventListener;
+WebSocket.prototype.removeEventListener = removeEventListener;
+
+var websocket = WebSocket;
+
+/**
+ * Initialize a WebSocket client.
+ *
+ * @param {WebSocket} websocket The client to initialize
+ * @param {(String|URL)} address The URL to which to connect
+ * @param {Array} protocols The subprotocols
+ * @param {Object} [options] Connection options
+ * @param {Boolean} [options.allowSynchronousEvents=false] Specifies whether any
+ *     of the `'message'`, `'ping'`, and `'pong'` events can be emitted multiple
+ *     times in the same tick
+ * @param {Boolean} [options.autoPong=true] Specifies whether or not to
+ *     automatically send a pong in response to a ping
+ * @param {Function} [options.finishRequest] A function which can be used to
+ *     customize the headers of each http request before it is sent
+ * @param {Boolean} [options.followRedirects=false] Whether or not to follow
+ *     redirects
+ * @param {Function} [options.generateMask] The function used to generate the
+ *     masking key
+ * @param {Number} [options.handshakeTimeout] Timeout in milliseconds for the
+ *     handshake request
+ * @param {Number} [options.maxPayload=104857600] The maximum allowed message
+ *     size
+ * @param {Number} [options.maxRedirects=10] The maximum number of redirects
+ *     allowed
+ * @param {String} [options.origin] Value of the `Origin` or
+ *     `Sec-WebSocket-Origin` header
+ * @param {(Boolean|Object)} [options.perMessageDeflate=true] Enable/disable
+ *     permessage-deflate
+ * @param {Number} [options.protocolVersion=13] Value of the
+ *     `Sec-WebSocket-Version` header
+ * @param {Boolean} [options.skipUTF8Validation=false] Specifies whether or
+ *     not to skip UTF-8 validation for text and close messages
+ * @private
+ */
+function initAsClient(websocket, address, protocols, options) {
+  const opts = {
+    allowSynchronousEvents: false,
+    autoPong: true,
+    protocolVersion: protocolVersions[1],
+    maxPayload: 100 * 1024 * 1024,
+    skipUTF8Validation: false,
+    perMessageDeflate: true,
+    followRedirects: false,
+    maxRedirects: 10,
+    ...options,
+    createConnection: undefined,
+    socketPath: undefined,
+    hostname: undefined,
+    protocol: undefined,
+    timeout: undefined,
+    method: 'GET',
+    host: undefined,
+    path: undefined,
+    port: undefined
+  };
+
+  websocket._autoPong = opts.autoPong;
+
+  if (!protocolVersions.includes(opts.protocolVersion)) {
+    throw new RangeError(
+      `Unsupported protocol version: ${opts.protocolVersion} ` +
+        `(supported versions: ${protocolVersions.join(', ')})`
+    );
+  }
+
+  let parsedUrl;
+
+  if (address instanceof URL$1) {
+    parsedUrl = address;
+  } else {
+    try {
+      parsedUrl = new URL$1(address);
+    } catch (e) {
+      throw new SyntaxError(`Invalid URL: ${address}`);
+    }
+  }
+
+  if (parsedUrl.protocol === 'http:') {
+    parsedUrl.protocol = 'ws:';
+  } else if (parsedUrl.protocol === 'https:') {
+    parsedUrl.protocol = 'wss:';
+  }
+
+  websocket._url = parsedUrl.href;
+
+  const isSecure = parsedUrl.protocol === 'wss:';
+  const isIpcUrl = parsedUrl.protocol === 'ws+unix:';
+  let invalidUrlMessage;
+
+  if (parsedUrl.protocol !== 'ws:' && !isSecure && !isIpcUrl) {
+    invalidUrlMessage =
+      'The URL\'s protocol must be one of "ws:", "wss:", ' +
+      '"http:", "https", or "ws+unix:"';
+  } else if (isIpcUrl && !parsedUrl.pathname) {
+    invalidUrlMessage = "The URL's pathname is empty";
+  } else if (parsedUrl.hash) {
+    invalidUrlMessage = 'The URL contains a fragment identifier';
+  }
+
+  if (invalidUrlMessage) {
+    const err = new SyntaxError(invalidUrlMessage);
+
+    if (websocket._redirects === 0) {
+      throw err;
+    } else {
+      emitErrorAndClose(websocket, err);
+      return;
+    }
+  }
+
+  const defaultPort = isSecure ? 443 : 80;
+  const key = randomBytes(16).toString('base64');
+  const request = isSecure ? https.request : http.request;
+  const protocolSet = new Set();
+  let perMessageDeflate;
+
+  opts.createConnection = isSecure ? tlsConnect : netConnect;
+  opts.defaultPort = opts.defaultPort || defaultPort;
+  opts.port = parsedUrl.port || defaultPort;
+  opts.host = parsedUrl.hostname.startsWith('[')
+    ? parsedUrl.hostname.slice(1, -1)
+    : parsedUrl.hostname;
+  opts.headers = {
+    ...opts.headers,
+    'Sec-WebSocket-Version': opts.protocolVersion,
+    'Sec-WebSocket-Key': key,
+    Connection: 'Upgrade',
+    Upgrade: 'websocket'
+  };
+  opts.path = parsedUrl.pathname + parsedUrl.search;
+  opts.timeout = opts.handshakeTimeout;
+
+  if (opts.perMessageDeflate) {
+    perMessageDeflate = new PerMessageDeflate(
+      opts.perMessageDeflate !== true ? opts.perMessageDeflate : {},
+      false,
+      opts.maxPayload
+    );
+    opts.headers['Sec-WebSocket-Extensions'] = format({
+      [PerMessageDeflate.extensionName]: perMessageDeflate.offer()
+    });
+  }
+  if (protocols.length) {
+    for (const protocol of protocols) {
+      if (
+        typeof protocol !== 'string' ||
+        !subprotocolRegex.test(protocol) ||
+        protocolSet.has(protocol)
+      ) {
+        throw new SyntaxError(
+          'An invalid or duplicated subprotocol was specified'
+        );
+      }
+
+      protocolSet.add(protocol);
+    }
+
+    opts.headers['Sec-WebSocket-Protocol'] = protocols.join(',');
+  }
+  if (opts.origin) {
+    if (opts.protocolVersion < 13) {
+      opts.headers['Sec-WebSocket-Origin'] = opts.origin;
+    } else {
+      opts.headers.Origin = opts.origin;
+    }
+  }
+  if (parsedUrl.username || parsedUrl.password) {
+    opts.auth = `${parsedUrl.username}:${parsedUrl.password}`;
+  }
+
+  if (isIpcUrl) {
+    const parts = opts.path.split(':');
+
+    opts.socketPath = parts[0];
+    opts.path = parts[1];
+  }
+
+  let req;
+
+  if (opts.followRedirects) {
+    if (websocket._redirects === 0) {
+      websocket._originalIpc = isIpcUrl;
+      websocket._originalSecure = isSecure;
+      websocket._originalHostOrSocketPath = isIpcUrl
+        ? opts.socketPath
+        : parsedUrl.host;
+
+      const headers = options && options.headers;
+
+      //
+      // Shallow copy the user provided options so that headers can be changed
+      // without mutating the original object.
+      //
+      options = { ...options, headers: {} };
+
+      if (headers) {
+        for (const [key, value] of Object.entries(headers)) {
+          options.headers[key.toLowerCase()] = value;
+        }
+      }
+    } else if (websocket.listenerCount('redirect') === 0) {
+      const isSameHost = isIpcUrl
+        ? websocket._originalIpc
+          ? opts.socketPath === websocket._originalHostOrSocketPath
+          : false
+        : websocket._originalIpc
+          ? false
+          : parsedUrl.host === websocket._originalHostOrSocketPath;
+
+      if (!isSameHost || (websocket._originalSecure && !isSecure)) {
+        //
+        // Match curl 7.77.0 behavior and drop the following headers. These
+        // headers are also dropped when following a redirect to a subdomain.
+        //
+        delete opts.headers.authorization;
+        delete opts.headers.cookie;
+
+        if (!isSameHost) delete opts.headers.host;
+
+        opts.auth = undefined;
+      }
+    }
+
+    //
+    // Match curl 7.77.0 behavior and make the first `Authorization` header win.
+    // If the `Authorization` header is set, then there is nothing to do as it
+    // will take precedence.
+    //
+    if (opts.auth && !options.headers.authorization) {
+      options.headers.authorization =
+        'Basic ' + Buffer.from(opts.auth).toString('base64');
+    }
+
+    req = websocket._req = request(opts);
+
+    if (websocket._redirects) {
+      //
+      // Unlike what is done for the `'upgrade'` event, no early exit is
+      // triggered here if the user calls `websocket.close()` or
+      // `websocket.terminate()` from a listener of the `'redirect'` event. This
+      // is because the user can also call `request.destroy()` with an error
+      // before calling `websocket.close()` or `websocket.terminate()` and this
+      // would result in an error being emitted on the `request` object with no
+      // `'error'` event listeners attached.
+      //
+      websocket.emit('redirect', websocket.url, req);
+    }
+  } else {
+    req = websocket._req = request(opts);
+  }
+
+  if (opts.timeout) {
+    req.on('timeout', () => {
+      abortHandshake(websocket, req, 'Opening handshake has timed out');
+    });
+  }
+
+  req.on('error', (err) => {
+    if (req === null || req[kAborted]) return;
+
+    req = websocket._req = null;
+    emitErrorAndClose(websocket, err);
+  });
+
+  req.on('response', (res) => {
+    const location = res.headers.location;
+    const statusCode = res.statusCode;
+
+    if (
+      location &&
+      opts.followRedirects &&
+      statusCode >= 300 &&
+      statusCode < 400
+    ) {
+      if (++websocket._redirects > opts.maxRedirects) {
+        abortHandshake(websocket, req, 'Maximum redirects exceeded');
+        return;
+      }
+
+      req.abort();
+
+      let addr;
+
+      try {
+        addr = new URL$1(location, address);
+      } catch (e) {
+        const err = new SyntaxError(`Invalid URL: ${location}`);
+        emitErrorAndClose(websocket, err);
+        return;
+      }
+
+      initAsClient(websocket, addr, protocols, options);
+    } else if (!websocket.emit('unexpected-response', req, res)) {
+      abortHandshake(
+        websocket,
+        req,
+        `Unexpected server response: ${res.statusCode}`
+      );
+    }
+  });
+
+  req.on('upgrade', (res, socket, head) => {
+    websocket.emit('upgrade', res);
+
+    //
+    // The user may have closed the connection from a listener of the
+    // `'upgrade'` event.
+    //
+    if (websocket.readyState !== WebSocket.CONNECTING) return;
+
+    req = websocket._req = null;
+
+    if (res.headers.upgrade.toLowerCase() !== 'websocket') {
+      abortHandshake(websocket, socket, 'Invalid Upgrade header');
+      return;
+    }
+
+    const digest = createHash('sha1')
+      .update(key + GUID)
+      .digest('base64');
+
+    if (res.headers['sec-websocket-accept'] !== digest) {
+      abortHandshake(websocket, socket, 'Invalid Sec-WebSocket-Accept header');
+      return;
+    }
+
+    const serverProt = res.headers['sec-websocket-protocol'];
+    let protError;
+
+    if (serverProt !== undefined) {
+      if (!protocolSet.size) {
+        protError = 'Server sent a subprotocol but none was requested';
+      } else if (!protocolSet.has(serverProt)) {
+        protError = 'Server sent an invalid subprotocol';
+      }
+    } else if (protocolSet.size) {
+      protError = 'Server sent no subprotocol';
+    }
+
+    if (protError) {
+      abortHandshake(websocket, socket, protError);
+      return;
+    }
+
+    if (serverProt) websocket._protocol = serverProt;
+
+    const secWebSocketExtensions = res.headers['sec-websocket-extensions'];
+
+    if (secWebSocketExtensions !== undefined) {
+      if (!perMessageDeflate) {
+        const message =
+          'Server sent a Sec-WebSocket-Extensions header but no extension ' +
+          'was requested';
+        abortHandshake(websocket, socket, message);
+        return;
+      }
+
+      let extensions;
+
+      try {
+        extensions = parse(secWebSocketExtensions);
+      } catch (err) {
+        const message = 'Invalid Sec-WebSocket-Extensions header';
+        abortHandshake(websocket, socket, message);
+        return;
+      }
+
+      const extensionNames = Object.keys(extensions);
+
+      if (
+        extensionNames.length !== 1 ||
+        extensionNames[0] !== PerMessageDeflate.extensionName
+      ) {
+        const message = 'Server indicated an extension that was not requested';
+        abortHandshake(websocket, socket, message);
+        return;
+      }
+
+      try {
+        perMessageDeflate.accept(extensions[PerMessageDeflate.extensionName]);
+      } catch (err) {
+        const message = 'Invalid Sec-WebSocket-Extensions header';
+        abortHandshake(websocket, socket, message);
+        return;
+      }
+
+      websocket._extensions[PerMessageDeflate.extensionName] =
+        perMessageDeflate;
+    }
+
+    websocket.setSocket(socket, head, {
+      allowSynchronousEvents: opts.allowSynchronousEvents,
+      generateMask: opts.generateMask,
+      maxPayload: opts.maxPayload,
+      skipUTF8Validation: opts.skipUTF8Validation
+    });
+  });
+
+  if (opts.finishRequest) {
+    opts.finishRequest(req, websocket);
+  } else {
+    req.end();
+  }
+}
+
+/**
+ * Emit the `'error'` and `'close'` events.
+ *
+ * @param {WebSocket} websocket The WebSocket instance
+ * @param {Error} The error to emit
+ * @private
+ */
+function emitErrorAndClose(websocket, err) {
+  websocket._readyState = WebSocket.CLOSING;
+  websocket.emit('error', err);
+  websocket.emitClose();
+}
+
+/**
+ * Create a `net.Socket` and initiate a connection.
+ *
+ * @param {Object} options Connection options
+ * @return {net.Socket} The newly created socket used to start the connection
+ * @private
+ */
+function netConnect(options) {
+  options.path = options.socketPath;
+  return net.connect(options);
+}
+
+/**
+ * Create a `tls.TLSSocket` and initiate a connection.
+ *
+ * @param {Object} options Connection options
+ * @return {tls.TLSSocket} The newly created socket used to start the connection
+ * @private
+ */
+function tlsConnect(options) {
+  options.path = undefined;
+
+  if (!options.servername && options.servername !== '') {
+    options.servername = net.isIP(options.host) ? '' : options.host;
+  }
+
+  return tls.connect(options);
+}
+
+/**
+ * Abort the handshake and emit an error.
+ *
+ * @param {WebSocket} websocket The WebSocket instance
+ * @param {(http.ClientRequest|net.Socket|tls.Socket)} stream The request to
+ *     abort or the socket to destroy
+ * @param {String} message The error message
+ * @private
+ */
+function abortHandshake(websocket, stream, message) {
+  websocket._readyState = WebSocket.CLOSING;
+
+  const err = new Error(message);
+  Error.captureStackTrace(err, abortHandshake);
+
+  if (stream.setHeader) {
+    stream[kAborted] = true;
+    stream.abort();
+
+    if (stream.socket && !stream.socket.destroyed) {
+      //
+      // On Node.js >= 14.3.0 `request.abort()` does not destroy the socket if
+      // called after the request completed. See
+      // https://github.com/websockets/ws/issues/1869.
+      //
+      stream.socket.destroy();
+    }
+
+    process.nextTick(emitErrorAndClose, websocket, err);
+  } else {
+    stream.destroy(err);
+    stream.once('error', websocket.emit.bind(websocket, 'error'));
+    stream.once('close', websocket.emitClose.bind(websocket));
+  }
+}
+
+/**
+ * Handle cases where the `ping()`, `pong()`, or `send()` methods are called
+ * when the `readyState` attribute is `CLOSING` or `CLOSED`.
+ *
+ * @param {WebSocket} websocket The WebSocket instance
+ * @param {*} [data] The data to send
+ * @param {Function} [cb] Callback
+ * @private
+ */
+function sendAfterClose(websocket, data, cb) {
+  if (data) {
+    const length = toBuffer(data).length;
+
+    //
+    // The `_bufferedAmount` property is used only when the peer is a client and
+    // the opening handshake fails. Under these circumstances, in fact, the
+    // `setSocket()` method is not called, so the `_socket` and `_sender`
+    // properties are set to `null`.
+    //
+    if (websocket._socket) websocket._sender._bufferedBytes += length;
+    else websocket._bufferedAmount += length;
+  }
+
+  if (cb) {
+    const err = new Error(
+      `WebSocket is not open: readyState ${websocket.readyState} ` +
+        `(${readyStates[websocket.readyState]})`
+    );
+    process.nextTick(cb, err);
+  }
+}
+
+/**
+ * The listener of the `Receiver` `'conclude'` event.
+ *
+ * @param {Number} code The status code
+ * @param {Buffer} reason The reason for closing
+ * @private
+ */
+function receiverOnConclude(code, reason) {
+  const websocket = this[kWebSocket];
+
+  websocket._closeFrameReceived = true;
+  websocket._closeMessage = reason;
+  websocket._closeCode = code;
+
+  if (websocket._socket[kWebSocket] === undefined) return;
+
+  websocket._socket.removeListener('data', socketOnData);
+  process.nextTick(resume, websocket._socket);
+
+  if (code === 1005) websocket.close();
+  else websocket.close(code, reason);
+}
+
+/**
+ * The listener of the `Receiver` `'drain'` event.
+ *
+ * @private
+ */
+function receiverOnDrain() {
+  const websocket = this[kWebSocket];
+
+  if (!websocket.isPaused) websocket._socket.resume();
+}
+
+/**
+ * The listener of the `Receiver` `'error'` event.
+ *
+ * @param {(RangeError|Error)} err The emitted error
+ * @private
+ */
+function receiverOnError(err) {
+  const websocket = this[kWebSocket];
+
+  if (websocket._socket[kWebSocket] !== undefined) {
+    websocket._socket.removeListener('data', socketOnData);
+
+    //
+    // On Node.js < 14.0.0 the `'error'` event is emitted synchronously. See
+    // https://github.com/websockets/ws/issues/1940.
+    //
+    process.nextTick(resume, websocket._socket);
+
+    websocket.close(err[kStatusCode]);
+  }
+
+  websocket.emit('error', err);
+}
+
+/**
+ * The listener of the `Receiver` `'finish'` event.
+ *
+ * @private
+ */
+function receiverOnFinish() {
+  this[kWebSocket].emitClose();
+}
+
+/**
+ * The listener of the `Receiver` `'message'` event.
+ *
+ * @param {Buffer|ArrayBuffer|Buffer[])} data The message
+ * @param {Boolean} isBinary Specifies whether the message is binary or not
+ * @private
+ */
+function receiverOnMessage(data, isBinary) {
+  this[kWebSocket].emit('message', data, isBinary);
+}
+
+/**
+ * The listener of the `Receiver` `'ping'` event.
+ *
+ * @param {Buffer} data The data included in the ping frame
+ * @private
+ */
+function receiverOnPing(data) {
+  const websocket = this[kWebSocket];
+
+  if (websocket._autoPong) websocket.pong(data, !this._isServer, NOOP);
+  websocket.emit('ping', data);
+}
+
+/**
+ * The listener of the `Receiver` `'pong'` event.
+ *
+ * @param {Buffer} data The data included in the pong frame
+ * @private
+ */
+function receiverOnPong(data) {
+  this[kWebSocket].emit('pong', data);
+}
+
+/**
+ * Resume a readable stream
+ *
+ * @param {Readable} stream The readable stream
+ * @private
+ */
+function resume(stream) {
+  stream.resume();
+}
+
+/**
+ * The listener of the socket `'close'` event.
+ *
+ * @private
+ */
+function socketOnClose() {
+  const websocket = this[kWebSocket];
+
+  this.removeListener('close', socketOnClose);
+  this.removeListener('data', socketOnData);
+  this.removeListener('end', socketOnEnd);
+
+  websocket._readyState = WebSocket.CLOSING;
+
+  let chunk;
+
+  //
+  // The close frame might not have been received or the `'end'` event emitted,
+  // for example, if the socket was destroyed due to an error. Ensure that the
+  // `receiver` stream is closed after writing any remaining buffered data to
+  // it. If the readable side of the socket is in flowing mode then there is no
+  // buffered data as everything has been already written and `readable.read()`
+  // will return `null`. If instead, the socket is paused, any possible buffered
+  // data will be read as a single chunk.
+  //
+  if (
+    !this._readableState.endEmitted &&
+    !websocket._closeFrameReceived &&
+    !websocket._receiver._writableState.errorEmitted &&
+    (chunk = websocket._socket.read()) !== null
+  ) {
+    websocket._receiver.write(chunk);
+  }
+
+  websocket._receiver.end();
+
+  this[kWebSocket] = undefined;
+
+  clearTimeout(websocket._closeTimer);
+
+  if (
+    websocket._receiver._writableState.finished ||
+    websocket._receiver._writableState.errorEmitted
+  ) {
+    websocket.emitClose();
+  } else {
+    websocket._receiver.on('error', receiverOnFinish);
+    websocket._receiver.on('finish', receiverOnFinish);
+  }
+}
+
+/**
+ * The listener of the socket `'data'` event.
+ *
+ * @param {Buffer} chunk A chunk of data
+ * @private
+ */
+function socketOnData(chunk) {
+  if (!this[kWebSocket]._receiver.write(chunk)) {
+    this.pause();
+  }
+}
+
+/**
+ * The listener of the socket `'end'` event.
+ *
+ * @private
+ */
+function socketOnEnd() {
+  const websocket = this[kWebSocket];
+
+  websocket._readyState = WebSocket.CLOSING;
+  websocket._receiver.end();
+  this.end();
+}
+
+/**
+ * The listener of the socket `'error'` event.
+ *
+ * @private
+ */
+function socketOnError() {
+  const websocket = this[kWebSocket];
+
+  this.removeListener('error', socketOnError);
+  this.on('error', NOOP);
+
+  if (websocket) {
+    websocket._readyState = WebSocket.CLOSING;
+    this.destroy();
+  }
+}
+
+var WebSocket$1 = /*@__PURE__*/getDefaultExportFromCjs(websocket);
+
 /**!
  * @author Elgato
  * @module elgato/streamdeck
  * @license MIT
  * @copyright Copyright (c) Corsair Memory Inc.
- */class Gt{type;constructor(e){this.type=e.event}}class Bt extends Gt{action;deviceId;constructor(e,t){super(t),this.action=e,this.deviceId=t.device}}class Ft extends Bt{payload;constructor(e,t){super(e,t),this.payload=t.payload}}class $t extends Gt{application;constructor(e){super(e),this.application=e.payload.application}}class Mt extends Gt{device;constructor(e,t){super(e),this.device=t}}class jt extends Gt{url;constructor(e){super(e),this.url=new Vt(e.payload.url)}}const Wt="streamdeck://";class Vt{fragment;href;path;query;queryParameters;constructor(e){const t=new URL(`${Wt}${e}`);this.fragment=t.hash.substring(1),this.href=t.href.substring(13),this.path=Vt.parsePath(this.href),this.query=t.search.substring(1),this.queryParameters=t.searchParams}static parsePath(e){const t=t=>{const n=e.indexOf(t);return n>=0?n:e.length};return e.substring(0,Math.min(t("?"),t("#")))}}class qt extends Gt{action;payload;constructor(e,t){super(t),this.action=e,this.payload=t.payload}}class Ht extends Gt{settings;constructor(e){super(e),this.settings=e.payload.settings}}class zt{connection;id;manifestId;constructor(e,t){this.connection=e,this.id=t.context,this.manifestId=t.action}getSettings(){return e=this.connection,t=this.id,new Promise((n=>{const i=s=>{s.context==t&&(n(s.payload.settings),e.removeListener("didReceiveSettings",i))};e.on("didReceiveSettings",i),e.send({event:"getSettings",context:t})}));var e,t}sendToPropertyInspector(e){return this.connection.send({event:"sendToPropertyInspector",context:this.id,payload:e})}setFeedback(e){return this.connection.send({event:"setFeedback",context:this.id,payload:e})}setFeedbackLayout(e){return this.connection.send({event:"setFeedbackLayout",context:this.id,payload:{layout:e}})}setImage(e,t){return this.connection.send({event:"setImage",context:this.id,payload:{image:e,...t}})}setSettings(e){return this.connection.send({event:"setSettings",context:this.id,payload:e})}setState(e){return this.connection.send({event:"setState",context:this.id,payload:{state:e}})}setTitle(e,t){return this.connection.send({event:"setTitle",context:this.id,payload:{title:e,...t}})}setTriggerDescription(e){return this.connection.send({event:"setTriggerDescription",context:this.id,payload:e||{}})}showAlert(){return this.connection.send({event:"showAlert",context:this.id})}showOk(){return this.connection.send({event:"showOk",context:this.id})}}class Kt{connection;manifest;settingsClient;uiClient;logger;constructor(e,t,n,i,s){this.connection=e,this.manifest=t,this.settingsClient=n,this.uiClient=i,this.logger=s.createScope("ActionClient")}createController(e){return new zt(this.connection,{action:"",context:e})}onDialDown(e){return this.connection.addDisposableListener("dialDown",(t=>e(new Ft(new zt(this.connection,t),t))))}onDialRotate(e){return this.connection.addDisposableListener("dialRotate",(t=>e(new Ft(new zt(this.connection,t),t))))}onDialUp(e){return this.connection.addDisposableListener("dialUp",(t=>e(new Ft(new zt(this.connection,t),t))))}onKeyDown(e){return this.connection.addDisposableListener("keyDown",(t=>e(new Ft(new zt(this.connection,t),t))))}onKeyUp(e){return this.connection.addDisposableListener("keyUp",(t=>e(new Ft(new zt(this.connection,t),t))))}onTitleParametersDidChange(e){return this.connection.addDisposableListener("titleParametersDidChange",(t=>e(new Ft(new zt(this.connection,t),t))))}onTouchTap(e){return this.connection.addDisposableListener("touchTap",(t=>e(new Ft(new zt(this.connection,t),t))))}onWillAppear(e){return this.connection.addDisposableListener("willAppear",(t=>e(new Ft(new zt(this.connection,t),t))))}onWillDisappear(e){return this.connection.addDisposableListener("willDisappear",(t=>e(new Ft(new zt(this.connection,t),t))))}registerAction(e){if(void 0===e.manifestId)throw new Error("The action's manifestId cannot be undefined.");if(!this.manifest.Actions.some((t=>t.UUID===e.manifestId)))return void this.logger.warn(`Failed to route action: manifestId (UUID) ${e.manifestId} was not found in the manifest.`);const t=(t,n,i,s)=>{const r=s?.bind(e);void 0!==r&&i(n).bind(n)((async e=>{e.action.manifestId==t&&await r(e)}))};t(e.manifestId,this,(e=>e.onDialDown),e.onDialDown),t(e.manifestId,this,(e=>e.onDialUp),e.onDialUp),t(e.manifestId,this,(e=>e.onDialRotate),e.onDialRotate),t(e.manifestId,this,(e=>e.onKeyDown),e.onKeyDown),t(e.manifestId,this,(e=>e.onKeyUp),e.onKeyUp),t(e.manifestId,this,(e=>e.onTitleParametersDidChange),e.onTitleParametersDidChange),t(e.manifestId,this,(e=>e.onTouchTap),e.onTouchTap),t(e.manifestId,this,(e=>e.onWillAppear),e.onWillAppear),t(e.manifestId,this,(e=>e.onWillDisappear),e.onWillDisappear),t(e.manifestId,this.settingsClient,(e=>e.onDidReceiveSettings),e.onDidReceiveSettings),t(e.manifestId,this.uiClient,(e=>e.onPropertyInspectorDidAppear),e.onPropertyInspectorDidAppear),t(e.manifestId,this.uiClient,(e=>e.onPropertyInspectorDidDisappear),e.onPropertyInspectorDidDisappear),t(e.manifestId,this.uiClient,(e=>e.onSendToPlugin),e.onSendToPlugin)}}class Yt{_promise;_reject;_resolve;constructor(){this._promise=new Promise(((e,t)=>{this._resolve=e,this._reject=t}))}get promise(){return this._promise}setException(e){this._reject&&this._reject(e)}setResult(e){this._resolve&&this._resolve(e)}}Symbol.dispose??=Symbol("Symbol.dispose");class Zt{build;major;minor;patch;constructor(e){const t=e.match(/^(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?$/);if(null===t)throw new Error(`Invalid format; expected "{major}[.{minor}[.{patch}[.{build}]]]" but was "${e}"`);[,this.major,this.minor,this.patch,this.build]=[...t.map((e=>parseInt(e)||0))]}compareTo(e){const t=({major:e,minor:t,build:n,patch:i})=>[e,t,n,i],n=t(this),i=t(e);for(let e=0;e<4;e++){if(n[e]<i[e])return-1;if(n[e]>i[e])return 1}return 0}toString(){return`${this.major}.${this.minor}`}}class Xt extends e{registrationParameters;version;canConnect=!0;connection=new Yt;logger;constructor(e,t){super(),this.registrationParameters=e,this.logger=t.createScope("StreamDeckConnection"),this.version=new Zt(e.info.application.version)}addDisposableListener(e,t){return this.addListener(e,t),function(e){let t=!1;const n=()=>{t||(e(),t=!0)};return{[Symbol.dispose]:n,dispose:n}}((()=>this.removeListener(e,t)))}async connect(){if(this.canConnect){this.canConnect=!1,this.logger.debug("Connecting to Stream Deck.");const e=new At(`ws://127.0.0.1:${this.registrationParameters.port}`);e.on("error",(()=>this.resetConnection())),e.on("close",(()=>this.resetConnection())),e.on("message",(e=>this.tryEmit(e))),e.once("open",(()=>{e.send(JSON.stringify({event:this.registrationParameters.registerEvent,uuid:this.registrationParameters.pluginUUID})),this.logger.debug("Successfully connected to Stream Deck."),this.connection.setResult(e)}))}await this.connection.promise}async send(e){const t=await this.connection.promise,n=JSON.stringify(e);this.logger.trace(n),t.send(n)}resetConnection(){this.canConnect=!0,this.connection.setException(),this.connection=new Yt}tryEmit(e){try{const t=JSON.parse(e.toString());t.event?(this.logger.trace(`${e}`),this.emit(t.event,t)):this.logger.warn(`Received unknown message: ${e}`)}catch(t){this.logger.error(`Failed to parse message: ${e}`,t)}}}var Qt;!function(e){e.Port="-port",e.Info="-info",e.PluginUUID="-pluginUUID",e.RegisterEvent="-registerEvent"}(Qt||(Qt={}));class Jt{info;pluginUUID;port;registerEvent;constructor(e,t){const n=t.createScope("RegistrationParameters");for(let t=0;t<e.length-1;t++){const i=e[t],s=e[++t];switch(i){case Qt.Port:n.debug(`port=${s}`),this.port=s;break;case Qt.PluginUUID:n.debug(`pluginUUID=${s}`),this.pluginUUID=s;break;case Qt.RegisterEvent:n.debug(`registerEvent=${s}`),this.registerEvent=s;break;case Qt.Info:n.debug(`info=${s}`),this.info=JSON.parse(s);break;default:t--}}const i=[],s=(e,t)=>{void 0===t&&i.push(e)};if(s(Qt.Port,this.port),s(Qt.PluginUUID,this.pluginUUID),s(Qt.RegisterEvent,this.registerEvent),s(Qt.Info,this.info),i.length>0)throw new Error(`Unable to establish a connection with Stream Deck, missing command line arguments: ${i.join(", ")}`)}}const en=["de","en","es","fr","ja","zh_CN"];class tn{connection;devices=new Map;constructor(e){this.connection=e,e.registrationParameters.info.devices.forEach((e=>{this.devices.set(e.id,{...e,isConnected:!1})})),e.on("deviceDidConnect",(({device:e,deviceInfo:t})=>{this.devices.set(e,Object.assign(this.devices.get(e)||{},{id:e,isConnected:!0,...t}))})),e.on("deviceDidDisconnect",(({device:e})=>{const t=this.devices.get(e);void 0!==t&&(t.isConnected=!1)}))}get length(){return this.devices.size}[Symbol.iterator](){return this.devices.values()}forEach(e){this.devices.forEach((t=>e(t)))}getDeviceById(e){return this.devices.get(e)}onDeviceDidConnect(e){return this.connection.addDisposableListener("deviceDidConnect",(t=>e(new Mt(t,{...t.deviceInfo,id:t.device,isConnected:!0}))))}onDeviceDidDisconnect(e){return this.connection.addDisposableListener("deviceDidDisconnect",(t=>e(new Mt(t,{...this.devices.get(t.device),id:t.device,isConnected:!1}))))}}let nn;function sn(e,t){return e.split(".").reduce(((e,t)=>e&&e[t]),t)}function rn(){return void 0===nn&&(nn=process.execArgv.some((e=>{const t=e.split("=")[0];return"--inspect"===t||"--inspect-brk"===t||"--inspect-port"===t}))),nn}function on(){const e=f.basename(process.cwd()),t=e.lastIndexOf(".sdPlugin");return t<0?e:e.substring(0,t)}class an{language;logMissingKey=!0;static DEFAULT_LANGUAGE="en";locales=new Map;logger;constructor(e,t,n){this.language=e,this.logger=n.createScope("I18nProvider"),this.loadLocales(t)}translate(e,t=this.language){const n=this.translateOrDefault(e,t);return void 0===n&&this.logMissingKey&&this.logger.warn(`Missing translation: ${e}`),n||""}loadLocales(e){for(const e of d.readdirSync(process.cwd())){const{ext:t,name:n}=f.parse(e),i=n;if(".json"==t.toLowerCase()&&en.includes(i)){const t=this.readFile(e);void 0!==t&&this.locales.set(i,t)}}this.locales.set(an.DEFAULT_LANGUAGE,{...e,...this.locales.get(an.DEFAULT_LANGUAGE)||{}})}readFile(e){try{const t=d.readFileSync(e,{flag:"r"})?.toString();return JSON.parse(t)}catch(t){this.logger.error(`Failed to load translations from ${e}`,t)}}translateOrDefault(e,t=this.language){return t===an.DEFAULT_LANGUAGE?sn(e,this.locales.get(t))?.toString():sn(e,this.locales.get(t))?.toString()||sn(e,this.locales.get(an.DEFAULT_LANGUAGE))?.toString()}}var cn;!function(e){e[e.ERROR=0]="ERROR",e[e.WARN=1]="WARN",e[e.INFO=2]="INFO",e[e.DEBUG=3]="DEBUG",e[e.TRACE=4]="TRACE"}(cn||(cn={}));class hn{options;filePath;size=0;constructor(e){this.options=e,this.filePath=this.getLogFilePath(),this.reIndex()}write({level:e,message:t,error:n}){const i=d.openSync(this.filePath,"a"),s=e=>{d.writeSync(i,e),this.size+=e.length};try{s(`${(new Date).toISOString()} ${cn[e].padEnd(5)} ${t}${_}`),void 0!==n&&(n instanceof Object&&"message"in n&&n.message&&""!==n.message&&s(`${n.message}${_}`),n instanceof Object&&"stack"in n&&n.stack&&s(`${n.stack}${_}`))}finally{d.closeSync(i)}this.size>=this.options.maxSize&&(this.reIndex(),this.size=0)}getLogFilePath(e=0){return f.join(this.options.dest,`${this.options.fileName}.${e}.log`)}getLogFiles(){const e=/^\.(\d+)\.log$/;return d.readdirSync(this.options.dest,{withFileTypes:!0}).reduce(((t,n)=>{if(n.isDirectory()||n.name.indexOf(this.options.fileName)<0)return t;const i=n.name.substring(this.options.fileName.length).match(e);return 2!==i?.length||t.push({path:f.join(this.options.dest,n.name),index:parseInt(i[1])}),t}),[]).sort((({index:e},{index:t})=>e<t?-1:e>t?1:0))}reIndex(){if(!d.existsSync(this.options.dest))return void d.mkdirSync(this.options.dest);const e=this.getLogFiles();for(let t=e.length-1;t>=0;t--){const n=e[t];t>=this.options.maxFileCount-1?d.rmSync(n.path):d.renameSync(n.path,this.getLogFilePath(t+1))}}}class ln{_level;options;scope;constructor(e){this.options={...e},this.scope=void 0===this.options.scope||""===this.options.scope.trim()?"":`${this.options.scope}: `,"function"!=typeof this.options.level&&this.setLevel(this.options.level)}get level(){return void 0!==this._level?this._level:"function"==typeof this.options.level?this.options.level():this.options.level}createScope(e){return""===(e=e.trim())?this:new ln({...this.options,level:()=>this.level,scope:this.options.scope?`${this.options.scope}->${e}`:e})}debug(e,t){return this.log(cn.DEBUG,e,t)}error(e,t){return this.log(cn.ERROR,e,t)}info(e,t){return this.log(cn.INFO,e,t)}setLevel(e){return e!==cn.DEBUG&&e!==cn.TRACE||rn()?this._level=e:(this._level=cn.INFO,this.warn(`Log level cannot be set to ${cn[e]} whilst not in debug mode.`)),this}trace(e,t){return this.log(cn.TRACE,e,t)}warn(e,t){return this.log(cn.WARN,e,t)}log(e,t,n){return e<=this.level&&this.options.target.write({level:e,message:`${this.scope}${t}`,error:n}),this}}let dn,un;function pn(){return dn??=function(){const e=m(process.cwd(),"manifest.json");if(!u(e))throw new Error("Failed to read manifest.json as the file does not exist.");return JSON.parse(p(e,{encoding:"utf-8",flag:"r"}).toString())}()}function fn(e,t,n){const i={major:Math.floor(e),minor:e%1*10,patch:0,build:0};if(-1===t.compareTo(i))throw new Error(`[ERR_NOT_SUPPORTED]: ${n} requires Stream Deck version ${i.major}.${i.minor} or higher, but current version is ${t.major}.${t.minor}; please update Stream Deck and the "Software.MinimumVersion" in the plugin's manifest to "${i.major}.${i.minor}" or higher.`);if(-1===(un??=new Zt(pn().Software.MinimumVersion)).compareTo(i))throw new Error(`[ERR_NOT_SUPPORTED]: ${n} requires Stream Deck version ${i.major}.${i.minor} or higher; please update the "Software.MinimumVersion" in the plugin's manifest to "${i.major}.${i.minor}" or higher.`)}class mn{connection;constructor(e){this.connection=e}switchToProfile(e,t,n){return void 0!==n&&fn(6.5,this.connection.version,"Switching to a profile page"),this.connection.send({event:"switchToProfile",context:this.connection.registrationParameters.pluginUUID,device:e,payload:{page:n,profile:t}})}}class gn{connection;constructor(e){this.connection=e}getGlobalSettings(){return new Promise((e=>{this.connection.once("didReceiveGlobalSettings",(t=>e(t.payload.settings))),this.connection.send({event:"getGlobalSettings",context:this.connection.registrationParameters.pluginUUID})}))}onDidReceiveGlobalSettings(e){return this.connection.addDisposableListener("didReceiveGlobalSettings",(t=>e(new Ht(t))))}onDidReceiveSettings(e){return this.connection.addDisposableListener("didReceiveSettings",(t=>e(new Ft(new zt(this.connection,t),t))))}setGlobalSettings(e){return this.connection.send({event:"setGlobalSettings",context:this.connection.registrationParameters.pluginUUID,payload:e})}}class _n{connection;constructor(e){this.connection=e}onApplicationDidLaunch(e){return this.connection.addDisposableListener("applicationDidLaunch",(t=>e(new $t(t))))}onApplicationDidTerminate(e){return this.connection.addDisposableListener("applicationDidTerminate",(t=>e(new $t(t))))}onDidReceiveDeepLink(e){return fn(6.5,this.connection.version,"Receiving deep-link messages"),this.connection.addDisposableListener("didReceiveDeepLink",(t=>e(new jt(t))))}onSystemDidWakeUp(e){return this.connection.addDisposableListener("systemDidWakeUp",(t=>e(new Gt(t))))}openUrl(e){return this.connection.send({event:"openUrl",payload:{url:e}})}}class yn{connection;constructor(e){this.connection=e}onPropertyInspectorDidAppear(e){return this.connection.addDisposableListener("propertyInspectorDidAppear",(t=>e(new Bt(new zt(this.connection,t),t))))}onPropertyInspectorDidDisappear(e){return this.connection.addDisposableListener("propertyInspectorDidDisappear",(t=>e(new Bt(new zt(this.connection,t),t))))}onSendToPlugin(e){return this.connection.addDisposableListener("sendToPlugin",(t=>e(new qt(new zt(this.connection,t),t))))}}function vn(e){const t=e.UUID;return function(e,n){return class extends e{manifestId=t}}}class wn{manifestId}var bn,En;!function(e){e[e.Rectangle=0]="Rectangle",e[e.DoubleRectangle=1]="DoubleRectangle",e[e.Trapezoid=2]="Trapezoid",e[e.DoubleTrapezoid=3]="DoubleTrapezoid",e[e.Groove=4]="Groove"}(bn||(bn={})),function(e){e[e.HardwareAndSoftware=0]="HardwareAndSoftware",e[e.Hardware=1]="Hardware",e[e.Software=2]="Software"}(En||(En={}));var Sn=new class{_actions;_connection;_devices;_i18n;_logger;_manifest;_profiles;_registrationParameters;_settings;_system;_ui;get actions(){return this._actions??=new Kt(this.connection,this.manifest,this.settings,this.ui,this.logger)}get devices(){return this._devices??=new tn(this.connection)}get i18n(){return this._i18n??=new an(this.registrationParameters.info.application.language,this.manifest,this.logger)}get info(){return this.registrationParameters.info}get logger(){return this._logger??=function(){const e=new hn({dest:f.join(g(),"logs"),fileName:on(),maxFileCount:10,maxSize:52428800}),t=new ln({level:rn()?cn.DEBUG:cn.INFO,target:e});return process.once("uncaughtException",(e=>t.error("Process encountered uncaught exception",e))),t}()}get manifest(){return this._manifest??=pn()}get profiles(){return this._profiles??=new mn(this.connection)}get settings(){return this._settings??=new gn(this.connection)}get system(){return this._system??=new _n(this.connection)}get ui(){return this._ui??=new yn(this.connection)}get connection(){return this._connection??=function(e,t){return new Xt(e,t)}(this.registrationParameters,this.logger)}get registrationParameters(){return this._registrationParameters??=new Jt(process.argv,this.logger)}connect(){return void 0===this._devices&&(this._devices=new tn(this.connection)),this.connection.connect()}};"function"==typeof SuppressedError&&SuppressedError;var xn={},kn=Object.defineProperty,Rn=Object.getOwnPropertyDescriptor,Dn={animation:["animate","animatecolor","animatemotion","animatetransform","discard","mapath","set"],basicshapes:["circle","ellipse","line","polygon","polyline","rect"],container:["a","defs","glyph","g","marker","mask","missing-glyph","pattern","svg","switch","symbol"],descriptive:["desc","metadata","title"],paint:["linearGradient","radialGradient","pattern"],structural:["defs","g","svg","symbol","use"],textcontent:["altglyph","altglyphdef","altglyphitem","glyph","glyphref","text","textpath","tref","tspan"],textcontentchild:["altglyph","textpath","tref","tspan"]},On={animationevent:["onbegin","onend","onload","onrepeat"],animationattributetarget:["attributeType","attributeName"],animationtiming:["begin","dur","end","min","max","restart","repeatCount","repeatDur","fill"],animationvalue:["calcMode","values","keyTimes","keySplines","from","to","by"],animationaddition:["additive","accumulate"],aria:["aria-activedescendant","aria-atomic","aria-autocomplete","aria-busy","aria-checked","aria-colcount","aria-colindex","aria-colspan","aria-controls","aria-current","aria-describedby","aria-details","aria-disabled","aria-dropeffect","aria-errormessage","aria-expanded","aria-flowto","aria-grabbed","aria-haspopup","aria-hidden","aria-invalid","aria-keyshortcuts","aria-label","aria-labelledby","aria-level","aria-live","aria-modal","aria-multiline","aria-multiselectable","aria-orientation","aria-owns","aria-placeholder","aria-posinset","aria-pressed","aria-readonly","aria-relevant","aria-required","aria-roledescription","aria-rowcount","aria-rowindex","aria-rowspan","aria-selected","aria-setsize","aria-sort","aria-valuemax","aria-valuemin","aria-valuenow","aria-valuetext","role"],conditionalprocessing:["requiredExtensions","requiredFeatures","systemLanguage"],core:["class","id","lang","style","tabindex","xml:base","xml:lang","xml:space"],documentevent:["onabort","onerror","onresize","onscroll","onunload","onzoom"],filterprimitive:["height","result","width","x","y"],graphicalevent:["onactivate","onclick","onfocusin","onfocusout","onload","onmousedown","onmousemove","onmouseout","onmouseover","onmouseup"],presentation:["alignment-baseline","baseline-shift","clip","clip-path","clip-rule","color","color-interpolation","color-interpolation-filters","color-profile","color-rendering","cursor","direction","display","dominant-baseline","enable-background","fill","fill-opacity","fill-rule","filter","flood-color","flood-opacity","font-family","font-size","font-size-adjust","font-stretch","font-style","font-variant","font-weight","glyph-orientation-horizontal","glyph-orientation-vertical","image-rendering","kerning","letter-spacing","lighting-color","marker-end","marker-mid","marker-start","mask","opacity","overflow","pointer-events","shape-rendering","stop-color","stop-opacity","stroke","stroke-dasharray","stroke-dashoffset","stroke-linecap","stroke-linejoin","stroke-miterlimit","stroke-opacity","stroke-width","text-anchor","text-decoration","text-rendering","unicode-bidi","visibility","word-spacing","writing-mode"],transferfunction:["type","tableValues","slope","intercept","amplitude","exponent","offset"],xlink:["xlink:href","xlink:type","xlink:role","xlink:arcrole","xlink:title","xlink:show","xlink:actuate"]},Cn={globalAttributes:["conditionalprocessing","core"],constructor:function(e,t){this.attributes=e,this.content=t,this.defineAttributes(),this.defineContent(),this.checkAttributes(),this.checkContent(),this.make(e,t)},checkAny:function(e){return"any"===e},defineContent:function(){this.checkAny(this.permittedContent)||this.permittedContent.forEach((function(e){this.permittedContent=this.permittedContent.concat(Dn[e])}),this)},defineAttributes:function(){if(!this.checkAny(this.permittedAttributes)){var e=this.permittedAttributes.concat(this.globalAttributes);e.forEach((function(t){this.permittedAttributes=e.concat(On[t])}),this)}},getElementName:function(e){return e.match(/(\w+)/)[0]},checkAttributes:function(){for(var e in this.attributes)if(-1!==this.permittedAttributes.indexOf(e))throw new Error(e+" is not permitted on "+this.name+" elements.")},checkContent:function(){if(this.content){if("string"==typeof this.content&&"text"!==this.name)throw new Error("Content cannot be a string.");this.content.elements&&"any"!==this.permittedContent&&this.content.elements.forEach(function(e){var t=this.getElementName(e);if(-1===this.permittedContent.indexOf(t))throw new Error(this.name+" cannot contain "+t+" elements.")}.bind(this))}},make:function(e,t){var n,i="<"+this.name;if(e)for(n in e)i+=" "+n+'="'+e[n]+'"';i+=">",this.node=i}};function Tn(e,t){var n,i,s=Object.getOwnPropertyNames(t);for(i=0;i<s.length;++i)n=Rn(e,s[i]),s[i]in Function||n&&!n.writable||kn(e,s[i],Rn(t,s[i]))}kn(Cn,"extend",{configurable:!0,writable:!0,value:function(e,t){return function(e,t,n){var i;return i=t&&t.hasOwnProperty("constructor")?t.constructor:function(){return i.super.apply(this,arguments)},kn(i,"super",{value:e}),Tn(i,e),n&&Tn(i,n),i.prototype=Object.create(e,{constructor:{value:i,enumerable:!1,writable:!0,configurable:!0}}),t&&Tn(i.prototype,t),i}(this,e,t)}});var Ln=Cn,In=Ln,Pn=In.extend({constructor:function(){this.name="a",this.permittedContent="any",this.permittedAttributes=["graphicalevent","presentation","core","conditionalprocessing",["style","class","externalResourcesRequired","transform"]],In.constructor.apply(this,arguments)}}),Nn=Ln,Un=Nn.extend({constructor:function(){this.name="g",this.permittedContent="any",this.permittedAttributes=["graphicalevent","presentation","core","conditionalprocessing",["style","class","externalResourcesRequired","transform"]],Nn.constructor.apply(this,arguments)}}),An=Ln,Gn=An.extend({constructor:function(){this.name="circle",this.permittedContent=["animation","descriptive"],this.permittedAttributes=["graphicalevent","presentation","core","conditionalprocessing",["style","class","externalResourcesRequired","transform"]],An.constructor.apply(this,arguments)}}),Bn=Ln,Fn=Bn.extend({constructor:function(){this.name="text",this.permittedContent=["animation","descriptive","textcontentchild","container a"],this.permittedAttributes=["graphicalevent","presentation","core","conditionalprocessing",["style","class","externalResourcesRequired","transform"]],Bn.constructor.apply(this,arguments)}}),$n=Ln,Mn=$n.extend({constructor:function(){this.name="foreignObject",this.permittedContent="any",this.permittedAttributes=["filterprimitive","graphicalevent","presentation","core","conditionalprocessing",["style","class","externalResourcesRequired","transform"]],$n.constructor.apply(this,arguments)}}),jn=Ln,Wn=jn.extend({constructor:function(){this.name="line",this.permittedContent=["animation","descriptive"],this.permittedAttributes=["graphicalevent","presentation","core","conditionalprocessing",["style","class","externalResourcesRequired","transform"]],jn.constructor.apply(this,arguments)}}),Vn=Ln,qn=Vn.extend({constructor:function(){this.name="rect",this.permittedContent=["animation","descriptive"],this.permittedAttributes=["graphicalevent","presentation","core","conditionalprocessing",["style","class","externalResourcesRequired","transform"]],Vn.constructor.apply(this,arguments)}}),Hn=Ln,zn=Hn.extend({constructor:function(){this.name="path",this.permittedContent=["animation","descriptive"],this.permittedAttributes=["graphicalevent","presentation","core","conditionalprocessing",["style","class","externalResourcesRequired","transform"]],Hn.constructor.apply(this,arguments)}}),Kn=Ln,Yn=Kn.extend({constructor:function(){this.name="style",this.categories="none",this.permittedContent="any",this.permittedAttributes=["type","media","title",["style","class","externalResourcesRequired","transform"]],Kn.constructor.apply(this,arguments)}});xn.A=Pn,xn.G=Un,xn.Circle=Gn,xn.Text=Fn,xn.ForeignObject=Mn,xn.Line=Wn,xn.Rect=qn,xn.Path=zn,xn.Style=Yn;var Zn=xn;function Xn(){function e(e,t){var n=this.root,i=new RegExp(e+'([^=,]*)=("[^"]*"|[^,"]*)');return n.replace(i,e+'="'+t+'"')}this.root='<svg height="100" width="100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">',this.elements=[],this.closeTag=function(e){return"</"+e+">"},this.width=function(t){return this.root=e.call(this,"width",t),this},this.height=function(t){return this.root=e.call(this,"height",t),this},this.viewBox=function(e){return this.root=this.root.replace("<svg ",`<svg viewBox="${e}" `),this},this.addElement=function(e){if(e.content){if("string"==typeof e.content&&"text"===e.name)e.node+=e.content+this.closeTag(e.name),this.elements.push(e.node);else if("object"==typeof e.content){var t=this.elements.join("");this.elements=[],this.elements.unshift(e.node,t),this.elements.push(this.closeTag(e.name))}}else e.node+=this.closeTag(e.name),this.elements.push(e.node)}}Xn.prototype.newInstance=function(){return new Xn},Xn.prototype.reset=function(){return this.elements=[],this},Xn.prototype.render=function(){return this.root+this.elements.join("")+this.closeTag("svg")},Xn.prototype.buffer=function(){return Buffer.from(this.render())},Xn.prototype.a=function(e,t){return this.addElement(new Zn.A(e,t)),this},Xn.prototype.g=function(e,t){return this.addElement(new Zn.G(e,t)),this},Xn.prototype.circle=function(e,t){return this.addElement(new Zn.Circle(e,t)),this},Xn.prototype.text=function(e,t){return this.addElement(new Zn.Text(e,t)),this},Xn.prototype.foreignObject=function(e,t){return this.addElement(new Zn.ForeignObject(e,t)),this},Xn.prototype.line=function(e,t){return this.addElement(new Zn.Line(e,t)),this},Xn.prototype.rect=function(e,t){return this.addElement(new Zn.Rect(e,t)),this},Xn.prototype.path=function(e,t){return this.addElement(new Zn.Path(e,t)),this},Xn.prototype.style=function(e,t){return this.addElement(new Zn.Style(e,t)),this};var Qn=b(new Xn);class Jn{graphHistory=[];addSensorValue(e,t,n){this.graphHistory.length>=73&&this.graphHistory.shift();let i=144-(e-t)/(n-t)*144;this.graphHistory.push({y1:i,y2:i})}generateSvg(e,t,n,i,s,r,o){var a=Qn.newInstance();a.width(144).height(144),a.rect({height:"144",width:"144",fill:t});for(let t=0;t<this.graphHistory.length;t++){const n=this.graphHistory[t];a.line({x1:2*t,y1:144,x2:2*t,y2:n.y2,stroke:e,"stroke-width":2})}a.text({x:72,y:42,"font-family":o,"font-size":s,stroke:"grey",fill:"grey","text-anchor":"middle"},n),a.text({x:72,y:116,"font-family":o,"font-size":r,stroke:"white",fill:"white","text-anchor":"middle"},i);let c=a.render();return`data:image/svg+xml;base64,${Buffer.from(c).toString("base64")}`}}Sn.logger.createScope("Custom Scope");let ei=(()=>{let e,t,n=[vn({UUID:"com.5e.hwinfo-reader.sensor"})],i=[],s=wn;return class extends s{static{t=this}static{const r="function"==typeof Symbol&&Symbol.metadata?Object.create(s[Symbol.metadata]??null):void 0;!function(e,t,n,i,s,r){function o(e){if(void 0!==e&&"function"!=typeof e)throw new TypeError("Function expected");return e}for(var a,c=i.kind,h="getter"===c?"get":"setter"===c?"set":"value",l=!t&&e?i.static?e:e.prototype:null,d=t||(l?Object.getOwnPropertyDescriptor(l,i.name):{}),u=!1,p=n.length-1;p>=0;p--){var f={};for(var m in i)f[m]="access"===m?{}:i[m];for(var m in i.access)f.access[m]=i.access[m];f.addInitializer=function(e){if(u)throw new TypeError("Cannot add initializers after decoration has completed");r.push(o(e||null))};var g=(0,n[p])("accessor"===c?{get:d.get,set:d.set}:d[h],f);if("accessor"===c){if(void 0===g)continue;if(null===g||"object"!=typeof g)throw new TypeError("Object expected");(a=o(g.get))&&(d.get=a),(a=o(g.set))&&(d.set=a),(a=o(g.init))&&s.unshift(a)}else(a=o(g))&&("field"===c?s.unshift(a):d[h]=a)}l&&Object.defineProperty(l,i.name,d),u=!0}(null,e={value:t},n,{kind:"class",name:t.name,metadata:r},null,i),t=e.value,r&&Object.defineProperty(t,Symbol.metadata,{enumerable:!0,configurable:!0,writable:!0,value:r}),function(e,t,n){for(var i=arguments.length>2,s=0;s<t.length;s++)n=i?t[s].call(e,n):t[s].call(e)}(t,i)}buttons={};globalSettingsPoller=void 0;getGlobalSettingsCopy={registry:[]};async onPropertyInspectorDidAppear(e){e.action.sendToPropertyInspector({event:"registryKeys",payload:this.getGlobalSettingsCopy.registry})}onDidReceiveSettings(e){this.buttons[e.action.id].settings={...e.payload.settings}}onWillDisappear(e){clearInterval(this.buttons[e.action.id].graphInterval),this.buttons[e.action.id].graphInterval=void 0}async onWillAppear(e){let t=async()=>{let e=await Sn.settings.getGlobalSettings();this.getGlobalSettingsCopy=e};null==this.globalSettingsPoller&&(this.globalSettingsPoller=setInterval((async()=>{t()}),1e3));let n=async()=>{let t=this.buttons[e.action.id].settings;if(null==t.registryName)return;let n=!1;for(let i=0;i<this.getGlobalSettingsCopy.registry.length;i++){const s=this.getGlobalSettingsCopy.registry[i];if(s.value==t.registryName){let i=s.name,r=i.match(/\d+$/)?.[0],o="Value"+r,a=this.getGlobalSettingsCopy.registry.find((e=>e.name===o))?.value;null!=a&&(n=!0,a=a.replace(/\..*?\s/g,""),a=a.replace("�","°"),this.buttons[e.action.id].lastSensorValue=a,this.buttons[e.action.id].graph.addSensorValue(parseFloat(a),parseFloat(t.graphMinValue),parseFloat(t.graphMaxValue)))}}0==n&&(this.buttons[e.action.id].lastSensorValue=void 0)},i=async()=>{let t=this.buttons[e.action.id].settings;e.action.setImage(this.buttons[e.action.id].graph.generateSvg(t.graphColor,t.backgroundColor,t.title,this.buttons[e.action.id].lastSensorValue??"ERROR",t.titleFontSize,t.sensorFontSize,t.fontName))};this.buttons[e.action.id]?null==this.buttons[e.action.id].graphInterval&&(this.buttons[e.action.id].graphInterval=setInterval((async()=>{i()}),1e3)):this.buttons[e.action.id]={graph:new Jn,sensorPollInterval:setInterval((async()=>{n()}),1e3),lastSensorValue:void 0,graphInterval:setInterval((async()=>{i()}),1e3),settings:{...e.payload.settings}},i()}},t})();var ti=y,ni=v,ii=w.spawn,si="HKLM",ri="HKCU",oi="HKCR",ai="HKCC",ci=[si,ri,oi,"HKU",ai],hi="REG_SZ",li="REG_MULTI_SZ",di="REG_EXPAND_SZ",ui="REG_DWORD",pi="REG_QWORD",fi="REG_BINARY",mi="REG_NONE",gi=[hi,li,di,ui,pi,fi,mi],_i=/(\\[a-zA-Z0-9_\s]+)*/,yi=/^(HKEY_LOCAL_MACHINE|HKEY_CURRENT_USER|HKEY_CLASSES_ROOT|HKEY_USERS|HKEY_CURRENT_CONFIG)(.*)$/,vi=/^(.*)\s(REG_SZ|REG_MULTI_SZ|REG_EXPAND_SZ|REG_DWORD|REG_QWORD|REG_BINARY|REG_NONE)\s+([^\s].*)$/;function wi(e,t){if(!(this instanceof wi))return new wi(e,t);Error.captureStackTrace(this,wi),this.__defineGetter__("name",(function(){return wi.name})),this.__defineGetter__("message",(function(){return e})),this.__defineGetter__("code",(function(){return t}))}function bi(e){var t={stdout:"",stderr:""};return e.stdout.on("data",(function(e){t.stdout+=e.toString()})),e.stderr.on("data",(function(e){t.stderr+=e.toString()})),t}function Ei(e,t,n){var i=n.stdout.trim(),s=n.stderr.trim();return new wi(ti.format("%s command exited with code %d:\n%s\n%s",e,t,i,s),t)}function Si(e,t){t&&e.push("/reg:"+function(e){if("x64"==e)return"64";if("x86"==e)return"32";throw new Error("illegal architecture: "+e+" (use x86 or x64)")}(t))}function xi(){return"win32"===process.platform?ni.join(process.env.windir,"system32","reg.exe"):"REG"}function ki(e,t,n,i,s,r,o){if(!(this instanceof ki))return new ki(e,t,n,i,s,r,o);var a=e,c=t,h=n,l=i,d=s,u=r,p=o;this.__defineGetter__("host",(function(){return a})),this.__defineGetter__("hive",(function(){return c})),this.__defineGetter__("key",(function(){return h})),this.__defineGetter__("name",(function(){return l})),this.__defineGetter__("type",(function(){return d})),this.__defineGetter__("value",(function(){return u})),this.__defineGetter__("arch",(function(){return p}))}function Ri(e){if(!(this instanceof Ri))return new Ri(e);var t=e||{},n=""+(t.host||""),i=""+(t.hive||si),s=""+(t.key||""),r=t.arch||null;if(this.__defineGetter__("host",(function(){return n})),this.__defineGetter__("hive",(function(){return i})),this.__defineGetter__("key",(function(){return s})),this.__defineGetter__("path",(function(){return'"'+(0==n.length?"":"\\\\"+n+"\\")+i+s+'"'})),this.__defineGetter__("arch",(function(){return r})),this.__defineGetter__("parent",(function(){var e=s.lastIndexOf("\\");return new Ri({host:this.host,hive:this.hive,key:-1==e?"":s.substring(0,e),arch:this.arch})})),-1==ci.indexOf(i))throw new Error("illegal hive specified.");if(!_i.test(s))throw new Error("illegal key specified.");if(r&&"x64"!=r&&"x86"!=r)throw new Error("illegal architecture specified (use x86 or x64)")}ti.inherits(wi,Error),ti.inherits(ki,Object),Ri.HKLM=si,Ri.HKCU=ri,Ri.HKCR=oi,Ri.HKU="HKU",Ri.HKCC=ai,Ri.HIVES=ci,Ri.REG_SZ=hi,Ri.REG_MULTI_SZ=li,Ri.REG_EXPAND_SZ=di,Ri.REG_DWORD=ui,Ri.REG_QWORD=pi,Ri.REG_BINARY=fi,Ri.REG_NONE=mi,Ri.REG_TYPES=gi,Ri.DEFAULT_VALUE="",Ri.prototype.values=function(e){if("function"!=typeof e)throw new TypeError("must specify a callback");var t=["QUERY",this.path];Si(t,this.arch);var n=ii(xi(),t,{cwd:void 0,env:process.env,shell:!0,windowsHide:!0,stdio:["ignore","pipe","pipe"]}),i="",s=this,r=null,o=bi(n);return n.on("close",(function(t){if(!r)if(0!==t)e(Ei("QUERY",t,o),null);else{for(var n=[],a=[],c=i.split("\n"),h=0,l=0,d=c.length;l<d;l++){var u=c[l].trim();u.length>0&&(0!=h&&n.push(u),++h)}for(l=0,d=n.length;l<d;l++){var p,f,m,g=vi.exec(n[l]);g&&(p=g[1].trim(),f=g[2].trim(),m=g[3],a.push(new ki(s.host,s.hive,s.key,p,f,m,s.arch)))}e(null,a)}})),n.stdout.on("data",(function(e){i+=e.toString()})),n.on("error",(function(t){r=t,e(t)})),this},Ri.prototype.keys=function(e){if("function"!=typeof e)throw new TypeError("must specify a callback");var t=["QUERY",this.path];Si(t,this.arch);var n=ii(xi(),t,{cwd:void 0,env:process.env,shell:!0,windowsHide:!0,stdio:["ignore","pipe","pipe"]}),i="",s=this,r=null,o=bi(n);return n.on("close",(function(t){r||0!==t&&e(Ei("QUERY",t,o),null)})),n.stdout.on("data",(function(e){i+=e.toString()})),n.stdout.on("end",(function(){for(var t=[],n=[],r=i.split("\n"),o=0,a=r.length;o<a;o++){var c=r[o].trim();c.length>0&&t.push(c)}for(o=0,a=t.length;o<a;o++){var h,l=yi.exec(t[o]);l&&(l[1],(h=l[2])&&h!==s.key&&n.push(new Ri({host:s.host,hive:s.hive,key:h,arch:s.arch})))}e(null,n)})),n.on("error",(function(t){r=t,e(t)})),this},Ri.prototype.get=function(e,t){if("function"!=typeof t)throw new TypeError("must specify a callback");var n=["QUERY",this.path];""==e?n.push("/ve"):n=n.concat(["/v",e]),Si(n,this.arch);var i=ii(xi(),n,{cwd:void 0,env:process.env,shell:!0,windowsHide:!0,stdio:["ignore","pipe","pipe"]}),s="",r=this,o=null,a=bi(i);return i.on("close",(function(e){if(!o)if(0!==e)t(Ei("QUERY",e,a),null);else{for(var n=[],i=null,c=s.split("\n"),h=0,l=0,d=c.length;l<d;l++){var u=c[l].trim();u.length>0&&(0!=h&&n.push(u),++h)}var p,f,m,g=n[n.length-1]||"",_=vi.exec(g);_&&(p=_[1].trim(),f=_[2].trim(),m=_[3],i=new ki(r.host,r.hive,r.key,p,f,m,r.arch)),t(null,i)}})),i.stdout.on("data",(function(e){s+=e.toString()})),i.on("error",(function(e){o=e,t(e)})),this},Ri.prototype.set=function(e,t,n,i){if("function"!=typeof i)throw new TypeError("must specify a callback");if(-1==gi.indexOf(t))throw Error("illegal type specified.");var s=["ADD",this.path];""==e?s.push("/ve"):s=s.concat(["/v",e]),Si(s=s.concat(["/t",t,"/d",n,"/f"]),this.arch);var r=ii(xi(),s,{cwd:void 0,env:process.env,shell:!0,windowsHide:!0,stdio:["ignore","pipe","pipe"]}),o=null,a=bi(r);return r.on("close",(function(e){o||i(0!==e?Ei("ADD",e,a):null)})),r.stdout.on("data",(function(e){})),r.on("error",(function(e){o=e,i(e)})),this},Ri.prototype.remove=function(e,t){if("function"!=typeof t)throw new TypeError("must specify a callback");var n=e?["DELETE",this.path,"/f","/v",e]:["DELETE",this.path,"/f","/ve"];Si(n,this.arch);var i=ii(xi(),n,{cwd:void 0,env:process.env,shell:!0,windowsHide:!0,stdio:["ignore","pipe","pipe"]}),s=null,r=bi(i);return i.on("close",(function(e){s||(0!==e?t(Ei("DELETE",e,r),null):t(null))})),i.stdout.on("data",(function(e){})),i.on("error",(function(e){s=e,t(e)})),this},Ri.prototype.clear=function(e){if("function"!=typeof e)throw new TypeError("must specify a callback");var t=["DELETE",this.path,"/f","/va"];Si(t,this.arch);var n=ii(xi(),t,{cwd:void 0,env:process.env,shell:!0,windowsHide:!0,stdio:["ignore","pipe","pipe"]}),i=null,s=bi(n);return n.on("close",(function(t){i||(0!==t?e(Ei("DELETE",t,s),null):e(null))})),n.stdout.on("data",(function(e){})),n.on("error",(function(t){i=t,e(t)})),this},Ri.prototype.erase=Ri.prototype.clear,Ri.prototype.destroy=function(e){if("function"!=typeof e)throw new TypeError("must specify a callback");var t=["DELETE",this.path,"/f"];Si(t,this.arch);var n=ii(xi(),t,{cwd:void 0,env:process.env,shell:!0,windowsHide:!0,stdio:["ignore","pipe","pipe"]}),i=null,s=bi(n);return n.on("close",(function(t){i||(0!==t?e(Ei("DELETE",t,s),null):e(null))})),n.stdout.on("data",(function(e){})),n.on("error",(function(t){i=t,e(t)})),this},Ri.prototype.create=function(e){if("function"!=typeof e)throw new TypeError("must specify a callback");var t=["ADD",this.path,"/f"];Si(t,this.arch);var n=ii(xi(),t,{cwd:void 0,env:process.env,shell:!0,windowsHide:!0,stdio:["ignore","pipe","pipe"]}),i=null,s=bi(n);return n.on("close",(function(t){i||(0!==t?e(Ei("ADD",t,s),null):e(null))})),n.stdout.on("data",(function(e){})),n.on("error",(function(t){i=t,e(t)})),this},Ri.prototype.keyExists=function(e){return this.values((function(t,n){if(t)return 1==t.code?e(null,!1):e(t);e(null,!0)})),this},Ri.prototype.valueExists=function(e,t){return this.get(e,(function(e,n){if(e)return 1==e.code?t(null,!1):t(e);t(null,!0)})),this};var Di=b(Ri);Sn.logger.setLevel(cn.DEBUG),Sn.actions.registerAction(new ei);const Oi=Sn.logger.createScope("Plugin.Ts scope");let Ci=new Di({hive:Di.HKCU,key:"\\Software\\HWiNFO64\\VSB"});setInterval((async function(){let e=[];Ci.values((async function(t,n){if(t)Oi.error(t.toString());else{for(var i=0;i<n.length;i++)e.push(n[i]);await Sn.settings.setGlobalSettings({registry:e})}}))}),2e3),Sn.connect();
+ */
+
+/**
+ * Provides information for events received from Stream Deck.
+ */
+class Event {
+    /**
+     * Event that occurred.
+     */
+    type;
+    /**
+     * Initializes a new instance of the {@link Event} class.
+     * @param source Source of the event, i.e. the original message from Stream Deck.
+     */
+    constructor(source) {
+        this.type = source.event;
+    }
+}
+
+/**
+ * Provides information for an event relating to an action.
+ */
+class ActionWithoutPayloadEvent extends Event {
+    action;
+    /**
+     * Device identifier the action is associated with.
+     */
+    deviceId;
+    /**
+     * Initializes a new instance of the {@link ActionWithoutPayloadEvent} class.
+     * @param action Action that raised the event.
+     * @param source Source of the event, i.e. the original message from Stream Deck.
+     */
+    constructor(action, source) {
+        super(source);
+        this.action = action;
+        this.deviceId = source.device;
+    }
+}
+/**
+ * Provides information for an event relating to an action.
+ */
+class ActionEvent extends ActionWithoutPayloadEvent {
+    /**
+     * Provides additional information about the event that occurred, e.g. how many `ticks` the dial was rotated, the current `state` of the action, etc.
+     */
+    payload;
+    /**
+     * Initializes a new instance of the {@link ActionEvent} class.
+     * @param action Action that raised the event.
+     * @param source Source of the event, i.e. the original message from Stream Deck.
+     */
+    constructor(action, source) {
+        super(action, source);
+        this.payload = source.payload;
+    }
+}
+
+/**
+ * Provides information for events relating to an application.
+ */
+class ApplicationEvent extends Event {
+    /**
+     * Monitored application that was launched/terminated.
+     */
+    application;
+    /**
+     * Initializes a new instance of the {@link ApplicationEvent} class.
+     * @param source Source of the event, i.e. the original message from Stream Deck.
+     */
+    constructor(source) {
+        super(source);
+        this.application = source.payload.application;
+    }
+}
+
+/**
+ * Provides information for events relating to a device.
+ */
+class DeviceEvent extends Event {
+    device;
+    /**
+     * Initializes a new instance of the {@link DeviceEvent} class.
+     * @param source Source of the event, i.e. the original message from Stream Deck.
+     * @param device Device that event is associated with.
+     */
+    constructor(source, device) {
+        super(source);
+        this.device = device;
+    }
+}
+
+/**
+ * Event information received from Stream Deck as part of a deep-link message being routed to the plugin.
+ */
+class DidReceiveDeepLinkEvent extends Event {
+    /**
+     * Deep-link URL routed from Stream Deck.
+     */
+    url;
+    /**
+     * Initializes a new instance of the {@link DidReceiveDeepLinkEvent} class.
+     * @param source Source of the event, i.e. the original message from Stream Deck.
+     */
+    constructor(source) {
+        super(source);
+        this.url = new DeepLinkURL(source.payload.url);
+    }
+}
+const PREFIX = "streamdeck://";
+/**
+ * Provides information associated with a URL received as part of a deep-link message, conforming to the URI syntax defined within RFC-3986 (https://datatracker.ietf.org/doc/html/rfc3986#section-3).
+ */
+class DeepLinkURL {
+    /**
+     * Fragment of the URL, with the number sign (#) omitted. For example, a URL of "/test#heading" would result in a {@link DeepLinkURL.fragment} of "heading".
+     */
+    fragment;
+    /**
+     * Original URL. For example, a URL of "/test?one=two#heading" would result in a {@link DeepLinkURL.href} of "/test?one=two#heading".
+     */
+    href;
+    /**
+     * Path of the URL; the full URL with the query and fragment omitted. For example, a URL of "/test?one=two#heading" would result in a {@link DeepLinkURL.path} of "/test".
+     */
+    path;
+    /**
+     * Query of the URL, with the question mark (?) omitted. For example, a URL of "/test?name=elgato&key=123" would result in a {@link DeepLinkURL.query} of "name=elgato&key=123".
+     * Also see {@link DeepLinkURL.queryParameters}.
+     */
+    query;
+    /**
+     * Query string parameters parsed from the URL. Also see {@link DeepLinkURL.query}.
+     */
+    queryParameters;
+    /**
+     * Initializes a new instance of the {@link DeepLinkURL} class.
+     * @param url URL of the deep-link, with the schema and authority omitted.
+     */
+    constructor(url) {
+        const refUrl = new URL(`${PREFIX}${url}`);
+        this.fragment = refUrl.hash.substring(1);
+        this.href = refUrl.href.substring(PREFIX.length);
+        this.path = DeepLinkURL.parsePath(this.href);
+        this.query = refUrl.search.substring(1);
+        this.queryParameters = refUrl.searchParams;
+    }
+    /**
+     * Parses the {@link DeepLinkURL.path} from the specified {@link href}.
+     * @param href Partial URL that contains the path to parse.
+     * @returns The path of the URL.
+     */
+    static parsePath(href) {
+        const indexOf = (char) => {
+            const index = href.indexOf(char);
+            return index >= 0 ? index : href.length;
+        };
+        return href.substring(0, Math.min(indexOf("?"), indexOf("#")));
+    }
+}
+
+/**
+ * Provides information for an event trigger by a message being sent to the plugin, from the property inspector.
+ */
+class SendToPluginEvent extends Event {
+    action;
+    /**
+     * Payload sent from the property inspector.
+     */
+    payload;
+    /**
+     * Initializes a new instance of the {@link SendToPluginEvent} class.
+     * @param action Action that raised the event.
+     * @param source Source of the event, i.e. the original message from Stream Deck.
+     */
+    constructor(action, source) {
+        super(source);
+        this.action = action;
+        this.payload = source.payload;
+    }
+}
+
+/**
+ * Provides event information for when the plugin received the global settings.
+ */
+class DidReceiveGlobalSettingsEvent extends Event {
+    /**
+     * Settings associated with the event.
+     */
+    settings;
+    /**
+     * Initializes a new instance of the {@link DidReceiveGlobalSettingsEvent} class.
+     * @param source Source of the event, i.e. the original message from Stream Deck.
+     */
+    constructor(source) {
+        super(source);
+        this.settings = source.payload.settings;
+    }
+}
+
+/**
+ * Gets the settings associated with an instance of an action, as identified by the {@link context}. An instance of an action represents a button, dial, pedal, etc.
+ * @template T The type of settings associated with the action.
+ * @param connection Connection with Stream Deck.
+ * @param context Unique identifier of the action instance whose settings are being requested.
+ * @returns Promise containing the action instance's settings.
+ */
+function getSettings(connection, context) {
+    return new Promise((resolve) => {
+        const callback = (ev) => {
+            if (ev.context == context) {
+                resolve(ev.payload.settings);
+                connection.removeListener("didReceiveSettings", callback);
+            }
+        };
+        connection.on("didReceiveSettings", callback);
+        connection.send({
+            event: "getSettings",
+            context
+        });
+    });
+}
+
+/**
+ * Provides a contextualized instance of an {@link Action}, allowing for direct communication with the Stream Deck.
+ * @template T The type of settings associated with the action.
+ */
+class Action {
+    connection;
+    /**
+     * Unique identifier of the instance of the action; this can be used to update the action on the Stream Deck, e.g. its title, settings, etc.
+     */
+    id;
+    /**
+     * Unique identifier (UUID) of the action as defined within the plugin's manifest's actions collection.
+     */
+    manifestId;
+    /**
+     * Initializes a new instance of the {@see Action} class.
+     * @param connection Connection with Stream Deck.
+     * @param source Source of the action.
+     */
+    constructor(connection, source) {
+        this.connection = connection;
+        this.id = source.context;
+        this.manifestId = source.action;
+    }
+    /**
+     * Gets the settings associated this action instance. See also {@link Action.setSettings}.
+     * @template U The type of settings associated with the action.
+     * @returns Promise containing the action instance's settings.
+     */
+    getSettings() {
+        return getSettings(this.connection, this.id);
+    }
+    /**
+     * Sends the {@link payload} to the current property inspector associated with this action instance. The plugin can also receive information from the property inspector via
+     * {@link UIClient.onSendToPlugin} and {@link SingletonAction.onSendToPlugin} allowing for bi-directional communication.
+     * @template T The type of the payload received from the property inspector.
+     * @param payload Payload to send to the property inspector.
+     * @returns `Promise` resolved when {@link payload} has been sent to the property inspector.
+     */
+    sendToPropertyInspector(payload) {
+        return this.connection.send({
+            event: "sendToPropertyInspector",
+            context: this.id,
+            payload
+        });
+    }
+    /**
+     * Sets the feedback for the current layout associated with this action instance, allowing for the visual items to be updated. Layouts are a powerful way to provide dynamic information
+     * to users, and can be assigned in the manifest, or dynamically via {@link Action.setFeedbackLayout}.
+     *
+     * The {@link feedback} payload defines which items within the layout will be updated, and are identified by their property name (defined as the `key` in the layout's definition).
+     * The values can either by a complete new definition, a `string` for layout item types of `text` and `pixmap`, or a `number` for layout item types of `bar` and `gbar`.
+     *
+     * For example, given the following custom layout definition saved relatively to the plugin at "layouts/MyCustomLayout.json".
+     * ```
+     * {
+     *   "id": "MyCustomLayout",
+     *   "items": [{
+     *     "key": "text_item", // <-- Key used to identify which item is being updated.
+     *     "type": "text",
+     *     "rect": [16, 10, 136, 24],
+     *     "alignment": "left",
+     *     "value": "Some default value"
+     *   }]
+     * }
+     * ```
+     *
+     * And the layout assigned to an action within the manifest.
+     * ```
+     * {
+     *   "Actions": [{
+     *     "Encoder": {
+     *       "Layout": "layouts/MyCustomLayout.json"
+     *     }
+     *   }]
+     * }
+     * ```
+     *
+     * The layout item's text can be updated dynamically via.
+     * ```
+     * action.setFeedback(ctx, {
+     *  // "text_item" matches a "key" within the layout's JSON file.
+     *   text_item: "Some new value"
+     * })
+     * ```
+     *
+     * Alternatively, more information can be updated.
+     * ```
+     * action.setFeedback(ctx, {
+     *   text_item: { // <-- "text_item" matches a "key" within the layout's JSON file.
+     *     value: "Some new value",
+     *     alignment: "center"
+     *   }
+     * });
+     * ```
+     * @param feedback Object containing information about the layout items to be updated.
+     * @returns `Promise` resolved when the request to set the {@link feedback} has been sent to Stream Deck.
+     */
+    setFeedback(feedback) {
+        return this.connection.send({
+            event: "setFeedback",
+            context: this.id,
+            payload: feedback
+        });
+    }
+    /**
+     * Sets the layout associated with this action instance. The layout must be either a built-in layout identifier, or path to a local layout JSON file within the plugin's folder.
+     * Use in conjunction with {@link Action.setFeedback} to update the layout's current items' settings.
+     * @param layout Name of a pre-defined layout, or relative path to a custom one.
+     * @returns `Promise` resolved when the new layout has been sent to Stream Deck.
+     */
+    setFeedbackLayout(layout) {
+        return this.connection.send({
+            event: "setFeedbackLayout",
+            context: this.id,
+            payload: {
+                layout
+            }
+        });
+    }
+    /**
+     * Sets the {@link image} to be display for this action instance.
+     *
+     * NB: The image can only be set by the plugin when the the user has not specified a custom image.
+     * @param image Image to display; this can be either a path to a local file within the plugin's folder, a base64 encoded `string` with the mime type declared (e.g. PNG, JPEG, etc.),
+     * or an SVG `string`. When `undefined`, the image from the manifest will be used.
+     * @param options Additional options that define where and how the image should be rendered.
+     * @returns `Promise` resolved when the request to set the {@link image} has been sent to Stream Deck.
+     */
+    setImage(image, options) {
+        return this.connection.send({
+            event: "setImage",
+            context: this.id,
+            payload: {
+                image,
+                ...options
+            }
+        });
+    }
+    /**
+     * Sets the {@link settings} associated with this action instance. Use in conjunction with {@link Action.getSettings}.
+     * @param settings Settings to persist.
+     * @returns `Promise` resolved when the {@link settings} are sent to Stream Deck.
+     */
+    setSettings(settings) {
+        return this.connection.send({
+            event: "setSettings",
+            context: this.id,
+            payload: settings
+        });
+    }
+    /**
+     * Sets the current {@link state} of this action instance; only applies to actions that have multiple states defined within the manifest.
+     * @param state State to set; this be either 0, or 1.
+     * @returns `Promise` resolved when the request to set the state of an action instance has been sent to Stream Deck.
+     */
+    setState(state) {
+        return this.connection.send({
+            event: "setState",
+            context: this.id,
+            payload: {
+                state
+            }
+        });
+    }
+    /**
+     * Sets the {@link title} displayed for this action instance. See also {@link SingletonAction.onTitleParametersDidChange}.
+     *
+     * NB: The title can only be set by the plugin when the the user has not specified a custom title.
+     * @param title Title to display; when `undefined` the title within the manifest will be used.
+     * @param options Additional options that define where and how the title should be rendered.
+     * @returns `Promise` resolved when the request to set the {@link title} has been sent to Stream Deck.
+     */
+    setTitle(title, options) {
+        return this.connection.send({
+            event: "setTitle",
+            context: this.id,
+            payload: {
+                title,
+                ...options
+            }
+        });
+    }
+    /**
+     * Sets the trigger (interaction) {@link descriptions} associated with this action instance. Descriptions are shown within the Stream Deck application, and informs the user what
+     * will happen when they interact with the action, e.g. rotate, touch, etc. When {@link descriptions} is `undefined`, the descriptions will be reset to the values provided as part
+     * of the manifest.
+     *
+     * NB: Applies to encoders (dials / touchscreens) found on Stream Deck+ devices.
+     * @param descriptions Descriptions that detail the action's interaction.
+     * @returns `Promise` resolved when the request to set the {@link descriptions} has been sent to Stream Deck.
+     */
+    setTriggerDescription(descriptions) {
+        return this.connection.send({
+            event: "setTriggerDescription",
+            context: this.id,
+            payload: descriptions || {}
+        });
+    }
+    /**
+     * Temporarily shows an alert (i.e. warning), in the form of an exclamation mark in a yellow triangle, on this action instance. Used to provide visual feedback when an action failed.
+     * @returns `Promise` resolved when the request to show an alert has been sent to Stream Deck.
+     */
+    showAlert() {
+        return this.connection.send({
+            event: "showAlert",
+            context: this.id
+        });
+    }
+    /**
+     * Temporarily shows an "OK" (i.e. success), in the form of a check-mark in a green circle, on this action instance. Used to provide visual feedback when an action successfully
+     * executed.
+     * @returns `Promise` resolved when the request to show an "OK" has been sent to Stream Deck.
+     */
+    showOk() {
+        return this.connection.send({
+            event: "showOk",
+            context: this.id
+        });
+    }
+}
+
+/**
+ * Client responsible for interacting with Stream Deck actions.
+ */
+class ActionClient {
+    connection;
+    manifest;
+    settingsClient;
+    uiClient;
+    /**
+     * Logger scoped to this class.
+     */
+    logger;
+    /**
+     * Initializes a new instance of the {@link ActionClient} class.
+     * @param connection Underlying connection with the Stream Deck.
+     * @param manifest Manifest associated with the plugin.
+     * @param settingsClient Client responsible for managing settings.
+     * @param uiClient Client responsible for interacting with the UI / property inspector.
+     * @param logger Logger responsible for capturing log entries.
+     */
+    constructor(connection, manifest, settingsClient, uiClient, logger) {
+        this.connection = connection;
+        this.manifest = manifest;
+        this.settingsClient = settingsClient;
+        this.uiClient = uiClient;
+        this.logger = logger.createScope("ActionClient");
+    }
+    /**
+     * Creates an {@link Action} controller capable of interacting with Stream Deck.
+     * @param id The instance identifier of the action to control; identifiers are supplied as part of events emitted by this client, and are accessible via {@link Action.id}.
+     * @returns The {@link Action} controller.
+     */
+    createController(id) {
+        return new Action(this.connection, {
+            action: "",
+            context: id
+        });
+    }
+    /**
+     * Occurs when the user presses a dial (Stream Deck+). Also see {@link ActionClient.onDialUp}.
+     *
+     * NB: For other action types see {@link ActionClient.onKeyDown}.
+     * @template T The type of settings associated with the action.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onDialDown(listener) {
+        return this.connection.addDisposableListener("dialDown", (ev) => listener(new ActionEvent(new Action(this.connection, ev), ev)));
+    }
+    /**
+     * Occurs when the user rotates a dial (Stream Deck+).
+     * @template T The type of settings associated with the action.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onDialRotate(listener) {
+        return this.connection.addDisposableListener("dialRotate", (ev) => listener(new ActionEvent(new Action(this.connection, ev), ev)));
+    }
+    /**
+     * Occurs when the user releases a pressed dial (Stream Deck+). Also see {@link ActionClient.onDialDown}.
+     *
+     * NB: For other action types see {@link ActionClient.onKeyUp}.
+     * @template T The type of settings associated with the action.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onDialUp(listener) {
+        return this.connection.addDisposableListener("dialUp", (ev) => listener(new ActionEvent(new Action(this.connection, ev), ev)));
+    }
+    /**
+     * Occurs when the user presses a action down. Also see {@link ActionClient.onKeyUp}.
+     *
+     * NB: For dials / touchscreens see {@link ActionClient.onDialDown}.
+     * @template T The type of settings associated with the action.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onKeyDown(listener) {
+        return this.connection.addDisposableListener("keyDown", (ev) => listener(new ActionEvent(new Action(this.connection, ev), ev)));
+    }
+    /**
+     * Occurs when the user releases a pressed action. Also see {@link ActionClient.onKeyDown}.
+     *
+     * NB: For dials / touchscreens see {@link ActionClient.onDialUp}.
+     * @template T The type of settings associated with the action.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onKeyUp(listener) {
+        return this.connection.addDisposableListener("keyUp", (ev) => listener(new ActionEvent(new Action(this.connection, ev), ev)));
+    }
+    /**
+     * Occurs when the user updates an action's title settings in the Stream Deck application. Also see {@link ActionClient.setTitle}.
+     * @template T The type of settings associated with the action.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onTitleParametersDidChange(listener) {
+        return this.connection.addDisposableListener("titleParametersDidChange", (ev) => listener(new ActionEvent(new Action(this.connection, ev), ev)));
+    }
+    /**
+     * Occurs when the user taps the touchscreen (Stream Deck+).
+     * @template T The type of settings associated with the action.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onTouchTap(listener) {
+        return this.connection.addDisposableListener("touchTap", (ev) => listener(new ActionEvent(new Action(this.connection, ev), ev)));
+    }
+    /**
+     * Occurs when an action appears on the Stream Deck due to the user navigating to another page, profile, folder, etc. This also occurs during startup if the action is on the "front
+     * page". An action refers to _all_ types of actions, e.g. keys, dials,
+     * @template T The type of settings associated with the action.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onWillAppear(listener) {
+        return this.connection.addDisposableListener("willAppear", (ev) => listener(new ActionEvent(new Action(this.connection, ev), ev)));
+    }
+    /**
+     * Occurs when an action disappears from the Stream Deck due to the user navigating to another page, profile, folder, etc. An action refers to _all_ types of actions, e.g. keys,
+     * dials, touchscreens, pedals, etc.
+     * @template T The type of settings associated with the action.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onWillDisappear(listener) {
+        return this.connection.addDisposableListener("willDisappear", (ev) => listener(new ActionEvent(new Action(this.connection, ev), ev)));
+    }
+    /**
+     * Registers the action with the Stream Deck, routing all events associated with the {@link SingletonAction.manifestId} to the specified {@link action}.
+     * @param action The action to register.
+     * @example
+     * ＠action({ UUID: "com.elgato.test.action" })
+     * class MyCustomAction extends SingletonAction {
+     *     public onKeyDown(ev: KeyDownEvent) {
+     *         // Do some awesome thing.
+     *     }
+     * }
+     *
+     * streamDeck.actions.registerAction(new MyCustomAction());
+     */
+    registerAction(action) {
+        if (action.manifestId === undefined) {
+            throw new Error("The action's manifestId cannot be undefined.");
+        }
+        if (!this.manifest.Actions.some((a) => a.UUID === action.manifestId)) {
+            this.logger.warn(`Failed to route action: manifestId (UUID) ${action.manifestId} was not found in the manifest.`);
+            return;
+        }
+        const addEventListener = (manifestId, client, eventFn, listener) => {
+            const boundedListener = listener?.bind(action);
+            if (boundedListener === undefined) {
+                return;
+            }
+            eventFn(client).bind(client)(async (ev) => {
+                if (ev.action.manifestId == manifestId) {
+                    await boundedListener(ev);
+                }
+            });
+        };
+        addEventListener(action.manifestId, this, (emitter) => emitter.onDialDown, action.onDialDown);
+        addEventListener(action.manifestId, this, (emitter) => emitter.onDialUp, action.onDialUp);
+        addEventListener(action.manifestId, this, (emitter) => emitter.onDialRotate, action.onDialRotate);
+        addEventListener(action.manifestId, this, (emitter) => emitter.onKeyDown, action.onKeyDown);
+        addEventListener(action.manifestId, this, (emitter) => emitter.onKeyUp, action.onKeyUp);
+        addEventListener(action.manifestId, this, (emitter) => emitter.onTitleParametersDidChange, action.onTitleParametersDidChange);
+        addEventListener(action.manifestId, this, (emitter) => emitter.onTouchTap, action.onTouchTap);
+        addEventListener(action.manifestId, this, (emitter) => emitter.onWillAppear, action.onWillAppear);
+        addEventListener(action.manifestId, this, (emitter) => emitter.onWillDisappear, action.onWillDisappear);
+        addEventListener(action.manifestId, this.settingsClient, (emitter) => emitter.onDidReceiveSettings, action.onDidReceiveSettings);
+        addEventListener(action.manifestId, this.uiClient, (emitter) => emitter.onPropertyInspectorDidAppear, action.onPropertyInspectorDidAppear);
+        addEventListener(action.manifestId, this.uiClient, (emitter) => emitter.onPropertyInspectorDidDisappear, action.onPropertyInspectorDidDisappear);
+        addEventListener(action.manifestId, this.uiClient, (emitter) => emitter.onSendToPlugin, action.onSendToPlugin);
+    }
+}
+
+/**
+ * Wraps an underlying Promise{T}, exposing the resolve and reject delegates as methods, allowing for it to be awaited, resolved, or rejected externally.
+ */
+class PromiseCompletionSource {
+    /**
+     * The underlying promise that this instance is managing.
+     */
+    _promise;
+    /**
+     * Delegate used to reject the promise.
+     */
+    _reject;
+    /**
+     * Delegate used to resolve the promise.
+     */
+    _resolve;
+    /**
+     * Wraps an underlying Promise{T}, exposing the resolve and reject delegates as methods, allowing for it to be awaited, resolved, or rejected externally.
+     */
+    constructor() {
+        this._promise = new Promise((resolve, reject) => {
+            this._resolve = resolve;
+            this._reject = reject;
+        });
+    }
+    /**
+     * Gets the underlying promise being managed by this instance.
+     * @returns The promise.
+     */
+    get promise() {
+        return this._promise;
+    }
+    /**
+     * Rejects the promise, causing any awaited calls to throw.
+     * @param reason The reason for rejecting the promise.
+     */
+    setException(reason) {
+        if (this._reject) {
+            this._reject(reason);
+        }
+    }
+    /**
+     * Sets the result of the underlying promise, allowing any awaited calls to continue invocation.
+     * @param value The value to resolve the promise with.
+     */
+    setResult(value) {
+        if (this._resolve) {
+            this._resolve(value);
+        }
+    }
+}
+
+// Polyfill, explicit resource management https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-2.html#using-declarations-and-explicit-resource-management
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+Symbol.dispose ??= Symbol("Symbol.dispose");
+/**
+ * Creates a {@link IDisposable} that defers the disposing to the {@link dispose} function; disposing is guarded so that it may only occur once.
+ * @param dispose Function responsible for disposing.
+ * @returns Disposable whereby the disposing is delegated to the {@link dispose}  function.
+ */
+function deferredDisposable(dispose) {
+    let isDisposed = false;
+    const guardedDispose = () => {
+        if (!isDisposed) {
+            dispose();
+            isDisposed = true;
+        }
+    };
+    return {
+        [Symbol.dispose]: guardedDispose,
+        dispose: guardedDispose
+    };
+}
+
+/**
+ * Provides information for a version, as parsed from a string denoted as a collection of numbers separated by a period, for example `1.45.2`, `4.0.2.13098`. Parsing is opinionated
+ * and strings should strictly conform to the format `{major}[.{minor}[.{patch}[.{build}]]]`; version numbers that form the version are optional, and when `undefined` will default to
+ * 0, for example the `minor`, `patch`, or `build` number may be omitted.
+ *
+ * NB: This implementation should be considered fit-for-purpose, and should be used sparing.
+ */
+class Version {
+    /**
+     * Build version number.
+     */
+    build;
+    /**
+     * Major version number.
+     */
+    major;
+    /**
+     * Minor version number.
+     */
+    minor;
+    /**
+     * Patch version number.
+     */
+    patch;
+    /**
+     * Initializes a new instance of the {@link Version} class.
+     * @param value Value to parse the version from.
+     */
+    constructor(value) {
+        const result = value.match(/^(0|[1-9]\d*)(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?(?:\.(0|[1-9]\d*))?$/);
+        if (result === null) {
+            throw new Error(`Invalid format; expected "{major}[.{minor}[.{patch}[.{build}]]]" but was "${value}"`);
+        }
+        [, this.major, this.minor, this.patch, this.build] = [...result.map((value) => parseInt(value) || 0)];
+    }
+    /**
+     * Compares this instance to the {@link other} {@link Version}.
+     * @param other The {@link Version} to compare to.
+     * @returns `-1` when this instance is less than the {@link other}, `1` when this instance is greater than {@link other}, otherwise `0`.
+     */
+    compareTo(other) {
+        const segments = ({ major, minor, build, patch }) => [major, minor, build, patch];
+        const thisSegments = segments(this);
+        const otherSegments = segments(other);
+        for (let i = 0; i < 4; i++) {
+            if (thisSegments[i] < otherSegments[i]) {
+                return -1;
+            }
+            else if (thisSegments[i] > otherSegments[i]) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+    /** @inheritdoc */
+    toString() {
+        return `${this.major}.${this.minor}`;
+    }
+}
+
+/**
+ * Creates a new {@link StreamDeckConnection} capable of connecting and communicating with Stream Deck.
+ * @param registrationParameters Registration parameters used to establish a connection with the Stream Deck; these are automatically supplied as part of the command line arguments
+ * when the plugin is ran by the Stream Deck.
+ * @param logger Logger responsible for capturing log entries.
+ * @returns A connection with the Stream Deck, in an idle-unconnected state.
+ */
+function createConnection(registrationParameters, logger) {
+    return new StreamDeckWebSocketConnection(registrationParameters, logger);
+}
+/**
+ * Provides a connection between the plugin and the Stream Deck allowing for messages to be sent and received.
+ */
+class StreamDeckWebSocketConnection extends EventEmitter$1 {
+    registrationParameters;
+    /**
+     * @inheritdoc
+     */
+    version;
+    /**
+     * Used to ensure {@link StreamDeckWebSocketConnection.connect} is invoked as a singleton; `false` when a connection is occurring or established.
+     */
+    canConnect = true;
+    /**
+     * Connection between the plugin and the Stream Deck in the form of a promise; once connected to the Stream Deck and the plugin has been registered, the promised is resolved and
+     * the connection becomes available.
+     */
+    connection = new PromiseCompletionSource();
+    /**
+     * Logger scoped to this class.
+     */
+    logger;
+    /**
+     * Initializes a new instance of the {@link StreamDeckWebSocketConnection} class.
+     * @param registrationParameters Registration parameters used to establish a connection with the Stream Deck; these are automatically supplied as part of the command line arguments
+     * when the plugin is ran by the Stream Deck.
+     * @param logger Logger responsible for capturing log entries.
+     */
+    constructor(registrationParameters, logger) {
+        super();
+        this.registrationParameters = registrationParameters;
+        this.logger = logger.createScope("StreamDeckConnection");
+        this.version = new Version(registrationParameters.info.application.version);
+    }
+    /**
+     * @inheritdoc
+     */
+    addDisposableListener(eventName, listener) {
+        this.addListener(eventName, listener);
+        return deferredDisposable(() => this.removeListener(eventName, listener));
+    }
+    /**
+     * @inheritdoc
+     */
+    async connect() {
+        // Ensure we only establish a single connection.
+        if (this.canConnect) {
+            this.canConnect = false;
+            this.logger.debug("Connecting to Stream Deck.");
+            const webSocket = new WebSocket$1(`ws://127.0.0.1:${this.registrationParameters.port}`);
+            webSocket.on("error", () => this.resetConnection());
+            webSocket.on("close", () => this.resetConnection());
+            webSocket.on("message", (data) => this.tryEmit(data));
+            webSocket.once("open", () => {
+                webSocket.send(JSON.stringify({
+                    event: this.registrationParameters.registerEvent,
+                    uuid: this.registrationParameters.pluginUUID
+                }));
+                // Web socket established a connection with the Stream Deck and the plugin was registered.
+                this.logger.debug("Successfully connected to Stream Deck.");
+                this.connection.setResult(webSocket);
+            });
+        }
+        await this.connection.promise;
+    }
+    /**
+     * @inheritdoc
+     */
+    async send(command) {
+        const connection = await this.connection.promise;
+        const message = JSON.stringify(command);
+        this.logger.trace(message);
+        connection.send(message);
+    }
+    /**
+     * Resets the {@link StreamDeckWebSocketConnection.connection}.
+     */
+    resetConnection() {
+        this.canConnect = true;
+        this.connection.setException();
+        this.connection = new PromiseCompletionSource();
+    }
+    /**
+     * Attempts to emit the {@link data} that was received from the {@link StreamDeckWebSocketConnection.connection}.
+     * @param data Event message data received from the Stream Deck.
+     */
+    tryEmit(data) {
+        try {
+            const message = JSON.parse(data.toString());
+            if (message.event) {
+                this.logger.trace(`${data}`);
+                this.emit(message.event, message);
+            }
+            else {
+                this.logger.warn(`Received unknown message: ${data}`);
+            }
+        }
+        catch (err) {
+            this.logger.error(`Failed to parse message: ${data}`, err);
+        }
+    }
+}
+
+/**
+ * Defines the type of argument supplied by Stream Deck.
+ */
+var Argument;
+(function (Argument) {
+    /**
+     * Identifies the argument that specifies the web socket port that Stream Deck is listening on.
+     */
+    Argument["Port"] = "-port";
+    /**
+     * Identifies the argument that supplies information about the Stream Deck and the plugin.
+     */
+    Argument["Info"] = "-info";
+    /**
+     * Identifies the argument that specifies the unique identifier that can be used when registering the plugin.
+     */
+    Argument["PluginUUID"] = "-pluginUUID";
+    /**
+     * Identifies the argument that specifies the event to be sent to Stream Deck as part of the registration procedure.
+     */
+    Argument["RegisterEvent"] = "-registerEvent";
+})(Argument || (Argument = {}));
+/**
+ * Registration information supplied by the Stream Deck when launching the plugin, that enables the plugin to establish a secure connection with the Stream Deck.
+ */
+class RegistrationParameters {
+    /**
+     * Object containing information about the Stream Deck, this plugin, the user's operating system, user's Stream Deck devices, etc.
+     */
+    info;
+    /**
+     * Unique identifier assigned to the plugin by Stream Deck; this value is used in conjunction with specific commands used to identify the source of the request, e.g. "getGlobalSettings".
+     */
+    pluginUUID;
+    /**
+     * Port used by the web socket responsible for communicating messages between the plugin and the Stream Deck.
+     */
+    port;
+    /**
+     * Name of the event used as part of the registration procedure when a connection with the Stream Deck is being established.
+     */
+    registerEvent;
+    /**
+     * Initializes a new instance of the {@link RegistrationParameters} class.
+     * @param args Command line arguments supplied by Stream Deck when launching this plugin, used to parse the required registration parameters.
+     * @param logger Logger responsible for capturing log entries.
+     */
+    constructor(args, logger) {
+        const scopedLogger = logger.createScope("RegistrationParameters");
+        for (let i = 0; i < args.length - 1; i++) {
+            const param = args[i];
+            const value = args[++i];
+            switch (param) {
+                case Argument.Port:
+                    scopedLogger.debug(`port=${value}`);
+                    this.port = value;
+                    break;
+                case Argument.PluginUUID:
+                    scopedLogger.debug(`pluginUUID=${value}`);
+                    this.pluginUUID = value;
+                    break;
+                case Argument.RegisterEvent:
+                    scopedLogger.debug(`registerEvent=${value}`);
+                    this.registerEvent = value;
+                    break;
+                case Argument.Info:
+                    scopedLogger.debug(`info=${value}`);
+                    this.info = JSON.parse(value);
+                    break;
+                default:
+                    i--;
+                    break;
+            }
+        }
+        const invalidArgs = [];
+        const validate = (name, value) => {
+            if (value === undefined) {
+                invalidArgs.push(name);
+            }
+        };
+        validate(Argument.Port, this.port);
+        validate(Argument.PluginUUID, this.pluginUUID);
+        validate(Argument.RegisterEvent, this.registerEvent);
+        validate(Argument.Info, this.info);
+        if (invalidArgs.length > 0) {
+            throw new Error(`Unable to establish a connection with Stream Deck, missing command line arguments: ${invalidArgs.join(", ")}`);
+        }
+    }
+}
+/**
+ * Languages supported by Stream Deck.
+ */
+const supportedLanguages = ["de", "en", "es", "fr", "ja", "zh_CN"];
+
+/**
+ * Provides monitoring of Stream Deck devices.
+ */
+class DeviceClient {
+    connection;
+    /**
+     * Collection of tracked Stream Deck devices.
+     */
+    devices = new Map();
+    /**
+     * Initializes a new instance of the {@link DeviceClient} class.
+     * @param connection Connection with Stream Deck.
+     */
+    constructor(connection) {
+        this.connection = connection;
+        // Add the devices based on the registration parameters.
+        connection.registrationParameters.info.devices.forEach((dev) => {
+            this.devices.set(dev.id, {
+                ...dev,
+                isConnected: false
+            });
+        });
+        // Set newly connected devices.
+        connection.on("deviceDidConnect", ({ device: id, deviceInfo }) => {
+            this.devices.set(id, Object.assign(this.devices.get(id) || {}, {
+                id,
+                isConnected: true,
+                ...deviceInfo
+            }));
+        });
+        // Updated disconnected devices.
+        connection.on("deviceDidDisconnect", ({ device: id }) => {
+            const device = this.devices.get(id);
+            if (device !== undefined) {
+                device.isConnected = false;
+            }
+        });
+    }
+    /**
+     * Gets the number of Stream Deck devices currently being tracked.
+     * @returns The device count.
+     */
+    get length() {
+        return this.devices.size;
+    }
+    /**
+     * Gets the iterator capable of iterating the collection of Stream Deck devices.
+     * @returns Collection of Stream Deck devices
+     */
+    [Symbol.iterator]() {
+        return this.devices.values();
+    }
+    /**
+     * Iterates over each {@link Device} and invokes the {@link callback} function.
+     * @param callback Function to invoke for each {@link Device}.
+     */
+    forEach(callback) {
+        this.devices.forEach((value) => callback(value));
+    }
+    /**
+     * Gets the Stream Deck {@link Device} associated with the specified {@link deviceId}.
+     * @param deviceId Identifier of the Stream Deck device.
+     * @returns The Stream Deck device information; otherwise `undefined` if a device with the {@link deviceId} does not exist.
+     */
+    getDeviceById(deviceId) {
+        return this.devices.get(deviceId);
+    }
+    /**
+     * Occurs when a Stream Deck device is connected. Also see {@link DeviceClient.onDeviceDidConnect}.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onDeviceDidConnect(listener) {
+        return this.connection.addDisposableListener("deviceDidConnect", (ev) => listener(new DeviceEvent(ev, {
+            ...ev.deviceInfo,
+            ...{ id: ev.device, isConnected: true }
+        })));
+    }
+    /**
+     * Occurs when a Stream Deck device is disconnected. Also see {@link DeviceClient.onDeviceDidDisconnect}.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onDeviceDidDisconnect(listener) {
+        return this.connection.addDisposableListener("deviceDidDisconnect", (ev) => listener(new DeviceEvent(ev, {
+            ...this.devices.get(ev.device),
+            ...{ id: ev.device, isConnected: false }
+        })));
+    }
+}
+
+let __isDebugMode = undefined;
+/**
+ * Gets the value at the specified {@link path}.
+ * @param path Path to the property to get.
+ * @param source Source object that is being read from.
+ * @returns Value of the property.
+ */
+function get(path, source) {
+    const props = path.split(".");
+    return props.reduce((obj, prop) => obj && obj[prop], source);
+}
+/**
+ * Determines whether the current plugin is running in a debug environment; this is determined by the command-line arguments supplied to the plugin by Stream. Specifically, the result
+ * is `true` when  either `--inspect`, `--inspect-brk` or `--inspect-port` are present as part of the processes' arguments.
+ * @returns `true` when the plugin is running in debug mode; otherwise `false`.
+ */
+function isDebugMode() {
+    if (__isDebugMode === undefined) {
+        __isDebugMode = process.execArgv.some((arg) => {
+            const name = arg.split("=")[0];
+            return name === "--inspect" || name === "--inspect-brk" || name === "--inspect-port";
+        });
+    }
+    return __isDebugMode;
+}
+/**
+ * Gets the plugin's unique-identifier from the current working directory.
+ * @returns The plugin's unique-identifier.
+ */
+function getPluginUUID() {
+    const name = path$2.basename(process.cwd());
+    const suffixIndex = name.lastIndexOf(".sdPlugin");
+    return suffixIndex < 0 ? name : name.substring(0, suffixIndex);
+}
+
+/**
+ * Provides locales and translations for internalization.
+ */
+class I18nProvider {
+    language;
+    /**
+     * Determines whether a log should be written when a resource could not be found.
+     */
+    logMissingKey = true;
+    /**
+     * Default language to be used when a resource does not exist for the desired language.
+     */
+    static DEFAULT_LANGUAGE = "en";
+    /**
+     * Collection of loaded locales and their translations.
+     */
+    locales = new Map();
+    /**
+     * Logger scoped to this class.
+     */
+    logger;
+    /**
+     * Initializes a new instance of the {@link I18nProvider} class.
+     * @param language The default language to be used when retrieving translations for a given key.
+     * @param manifest Manifest that accompanies the plugin.
+     * @param logger Logger responsible for capturing log entries.
+     */
+    constructor(language, manifest, logger) {
+        this.language = language;
+        this.logger = logger.createScope("I18nProvider");
+        this.loadLocales(manifest);
+    }
+    /**
+     * Gets the translation for the specified {@link key} from the resources defined for {@link language}. When the key is not found, the default language is checked.
+     * @param key Key that represents the translation.
+     * @param language Optional language to get the translation for; otherwise the default language.
+     * @returns The translation; otherwise an empty string.
+     */
+    translate(key, language = this.language) {
+        const translation = this.translateOrDefault(key, language);
+        if (translation === undefined && this.logMissingKey) {
+            this.logger.warn(`Missing translation: ${key}`);
+        }
+        return translation || "";
+    }
+    /**
+     * Loads all known locales from the current working directory.
+     * @param manifest Manifest that accompanies the plugin.
+     */
+    loadLocales(manifest) {
+        for (const filePath of fs.readdirSync(process.cwd())) {
+            const { ext, name } = path$2.parse(filePath);
+            const lng = name;
+            if (ext.toLowerCase() == ".json" && supportedLanguages.includes(lng)) {
+                const contents = this.readFile(filePath);
+                if (contents !== undefined) {
+                    this.locales.set(lng, contents);
+                }
+            }
+        }
+        // Merge the manifest into the default language, prioritizing explicitly defined resources.
+        this.locales.set(I18nProvider.DEFAULT_LANGUAGE, {
+            ...manifest,
+            ...(this.locales.get(I18nProvider.DEFAULT_LANGUAGE) || {})
+        });
+    }
+    /**
+     * Reads the contents of the {@link filePath} and parses it as JSON.
+     * @param filePath File path to read.
+     * @returns Parsed object; otherwise `undefined`.
+     */
+    readFile(filePath) {
+        try {
+            const contents = fs.readFileSync(filePath, { flag: "r" })?.toString();
+            return JSON.parse(contents);
+        }
+        catch (err) {
+            this.logger.error(`Failed to load translations from ${filePath}`, err);
+        }
+    }
+    /**
+     * Gets the resource for the specified {@link key}; when the resource is not available for the {@link language}, the default language is used.
+     * @param key Key that represents the translation.
+     * @param language Language to retrieve the resource from.
+     * @returns The resource; otherwise the default language's resource, or `undefined`.
+     */
+    translateOrDefault(key, language = this.language) {
+        // When the language and default are the same, only check the language.
+        if (language === I18nProvider.DEFAULT_LANGUAGE) {
+            return get(key, this.locales.get(language))?.toString();
+        }
+        // Otherwise check the language and default.
+        return get(key, this.locales.get(language))?.toString() || get(key, this.locales.get(I18nProvider.DEFAULT_LANGUAGE))?.toString();
+    }
+}
+
+/**
+ * Levels of logging.
+ */
+var LogLevel;
+(function (LogLevel) {
+    /**
+     * Error message used to indicate an error was thrown, or something critically went wrong.
+     */
+    LogLevel[LogLevel["ERROR"] = 0] = "ERROR";
+    /**
+     * Warning message used to indicate something went wrong, but the application is able to recover.
+     */
+    LogLevel[LogLevel["WARN"] = 1] = "WARN";
+    /**
+     * Information message for general usage.
+     */
+    LogLevel[LogLevel["INFO"] = 2] = "INFO";
+    /**
+     * Debug message used to detail information useful for profiling the applications runtime.
+     */
+    LogLevel[LogLevel["DEBUG"] = 3] = "DEBUG";
+    /**
+     * Trace message used to monitor low-level information such as method calls, performance tracking, etc.
+     */
+    LogLevel[LogLevel["TRACE"] = 4] = "TRACE";
+})(LogLevel || (LogLevel = {}));
+
+/**
+ * Provides a {@link LogTarget} capable of logging to a local file system.
+ */
+class FileTarget {
+    options;
+    /**
+     * File path where logs will be written.
+     */
+    filePath;
+    /**
+     * Current size of the logs that have been written to the {@link FileTarget.filePath}.
+     */
+    size = 0;
+    /**
+     * Initializes a new instance of the {@link FileTarget} class.
+     * @param options Options that defines how logs should be written to the local file system.
+     */
+    constructor(options) {
+        this.options = options;
+        this.filePath = this.getLogFilePath();
+        this.reIndex();
+    }
+    /**
+     * @inheritdoc
+     */
+    write({ level, message, error }) {
+        const fd = fs.openSync(this.filePath, "a");
+        const write = (message) => {
+            fs.writeSync(fd, message);
+            this.size += message.length;
+        };
+        try {
+            write(`${new Date().toISOString()} ${LogLevel[level].padEnd(5)} ${message}${EOL}`);
+            if (error !== undefined) {
+                if (error instanceof Object && "message" in error && error.message && error.message !== "") {
+                    write(`${error.message}${EOL}`);
+                }
+                if (error instanceof Object && "stack" in error && error.stack) {
+                    write(`${error.stack}${EOL}`);
+                }
+            }
+        }
+        finally {
+            fs.closeSync(fd);
+        }
+        if (this.size >= this.options.maxSize) {
+            this.reIndex();
+            this.size = 0;
+        }
+    }
+    /**
+     * Gets the file path to an indexed log file.
+     * @param index Optional index of the log file to be included as part of the file name.
+     * @returns File path that represents the indexed log file.
+     */
+    getLogFilePath(index = 0) {
+        return path$2.join(this.options.dest, `${this.options.fileName}.${index}.log`);
+    }
+    /**
+     * Gets the log files associated with this file target, including past and present.
+     * @returns Log file entries.
+     */
+    getLogFiles() {
+        const regex = /^\.(\d+)\.log$/;
+        return fs
+            .readdirSync(this.options.dest, { withFileTypes: true })
+            .reduce((prev, entry) => {
+            if (entry.isDirectory() || entry.name.indexOf(this.options.fileName) < 0) {
+                return prev;
+            }
+            const match = entry.name.substring(this.options.fileName.length).match(regex);
+            if (match?.length !== 2) {
+                return prev;
+            }
+            prev.push({
+                path: path$2.join(this.options.dest, entry.name),
+                index: parseInt(match[1])
+            });
+            return prev;
+        }, [])
+            .sort(({ index: a }, { index: b }) => {
+            return a < b ? -1 : a > b ? 1 : 0;
+        });
+    }
+    /**
+     * Re-indexes the existing log files associated with this file target, removing old log files whose index exceeds the {@link FileTargetOptions.maxFileCount}, and renaming the
+     * remaining log files, leaving index "0" free for a new log file.
+     */
+    reIndex() {
+        // When the destination directory is new, create it, and return.
+        if (!fs.existsSync(this.options.dest)) {
+            fs.mkdirSync(this.options.dest);
+            return;
+        }
+        const logFiles = this.getLogFiles();
+        for (let i = logFiles.length - 1; i >= 0; i--) {
+            const log = logFiles[i];
+            if (i >= this.options.maxFileCount - 1) {
+                fs.rmSync(log.path);
+            }
+            else {
+                fs.renameSync(log.path, this.getLogFilePath(i + 1));
+            }
+        }
+    }
+}
+
+/**
+ * Logger capable of forwarding messages to a {@link LogTarget}.
+ */
+class Logger {
+    /**
+     * Backing field for the {@link Logger.level}.
+     */
+    _level;
+    /**
+     * Options that define the loggers behavior.
+     */
+    options;
+    /**
+     * Scope associated with this {@link Logger}.
+     */
+    scope;
+    /**
+     * Initializes a new instance of the {@link Logger} class.
+     * @param opts Options that define the loggers behavior.
+     */
+    constructor(opts) {
+        this.options = { ...opts };
+        this.scope = this.options.scope === undefined || this.options.scope.trim() === "" ? "" : `${this.options.scope}: `;
+        if (typeof this.options.level !== "function") {
+            this.setLevel(this.options.level);
+        }
+    }
+    /**
+     * Gets the {@link LogLevel}.
+     * @returns The {@link LogLevel}.
+     */
+    get level() {
+        if (this._level !== undefined) {
+            return this._level;
+        }
+        return typeof this.options.level === "function" ? this.options.level() : this.options.level;
+    }
+    /**
+     * Creates a scoped logger with the given {@link scope}; logs created by scoped-loggers include their scope to enable their source to be easily identified.
+     * @param scope Value that represents the scope of the new logger.
+     * @returns The scoped logger, or this instance when {@link scope} is not defined.
+     */
+    createScope(scope) {
+        scope = scope.trim();
+        if (scope === "") {
+            return this;
+        }
+        return new Logger({
+            ...this.options,
+            level: () => this.level,
+            scope: this.options.scope ? `${this.options.scope}->${scope}` : scope
+        });
+    }
+    /**
+     * Writes a debug log {@link message}.
+     * @param message Message to write to the log.
+     * @param error Optional error to log with the {@link message}.
+     * @returns This instance for chaining.
+     */
+    debug(message, error) {
+        return this.log(LogLevel.DEBUG, message, error);
+    }
+    /**
+     * Writes an error log {@link message}.
+     * @param message Message to write to the log.
+     * @param error Optional error to log with the {@link message}.
+     * @returns This instance for chaining.
+     */
+    error(message, error) {
+        return this.log(LogLevel.ERROR, message, error);
+    }
+    /**
+     * Writes an info log {@link message}.
+     * @param message Message to write to the log.
+     * @param error Optional error to log with the {@link message}.
+     * @returns This instance for chaining.
+     */
+    info(message, error) {
+        return this.log(LogLevel.INFO, message, error);
+    }
+    /**
+     * Sets the log-level that determines which logs should be written. The specified level will be inherited by all scoped loggers unless they have log-level explicitly defined.
+     * @param level The log-level that determines which logs should be written; when `undefined`, the level will be inherited from the parent logger, or default to the environment level.
+     * @returns This instance for chaining.
+     */
+    setLevel(level) {
+        if ((level === LogLevel.DEBUG || level === LogLevel.TRACE) && !isDebugMode()) {
+            this._level = LogLevel.INFO;
+            this.warn(`Log level cannot be set to ${LogLevel[level]} whilst not in debug mode.`);
+        }
+        else {
+            this._level = level;
+        }
+        return this;
+    }
+    /**
+     * Write a trace log {@link message}.
+     * @param message Message to write to the log.
+     * @param error Optional error to log with the {@link message}.
+     * @returns This instance for chaining.
+     */
+    trace(message, error) {
+        return this.log(LogLevel.TRACE, message, error);
+    }
+    /**
+     * Writes a warning log {@link message}.
+     * @param message Message to write to the log.
+     * @param error Optional error to log with the {@link message}.
+     * @returns This instance for chaining.
+     */
+    warn(message, error) {
+        return this.log(LogLevel.WARN, message, error);
+    }
+    /**
+     * Writes a log {@link message} with the specified {@link level}.
+     * @param level Log level of the message, printed as part of the overall log message.
+     * @param message Message to write to the log.
+     * @param error Optional error to log with the {@link message}.
+     * @returns This instance for chaining.
+     */
+    log(level, message, error) {
+        if (level <= this.level) {
+            this.options.target.write({
+                level,
+                message: `${this.scope}${message}`,
+                error
+            });
+        }
+        return this;
+    }
+}
+
+/**
+ * Create the default {@link Logger} for the current plugin based on its environment.
+ * @returns The default {@link Logger}.
+ */
+function createLogger() {
+    const target = new FileTarget({
+        dest: path$2.join(cwd(), "logs"),
+        fileName: getPluginUUID(),
+        maxFileCount: 10,
+        maxSize: 50 * 1024 * 1024
+    });
+    const logger = new Logger({
+        level: isDebugMode() ? LogLevel.DEBUG : LogLevel.INFO,
+        target
+    });
+    process.once("uncaughtException", (err) => logger.error("Process encountered uncaught exception", err));
+    return logger;
+}
+
+/* eslint-disable jsdoc/check-tag-names */
+let manifest;
+let softwareMinimumVersion;
+/**
+ * Gets the minimum version that this plugin required, as defined within the manifest.
+ * @returns Minimum required version.
+ */
+function getSoftwareMinimumVersion() {
+    return (softwareMinimumVersion ??= new Version(getManifest().Software.MinimumVersion));
+}
+/**
+ * Gets the manifest associated with the plugin.
+ * @returns The manifest.
+ */
+function getManifest() {
+    return (manifest ??= readManifest());
+}
+/**
+ * Reads the manifest associated with the plugin from the `manifest.json` file.
+ * @returns The manifest.
+ */
+function readManifest() {
+    const path = join(process.cwd(), "manifest.json");
+    if (!existsSync(path)) {
+        throw new Error("Failed to read manifest.json as the file does not exist.");
+    }
+    return JSON.parse(readFileSync(path, {
+        encoding: "utf-8",
+        flag: "r"
+    }).toString());
+}
+
+/**
+ * Validates the {@link streamDeckVersion} and manifest's `Software.MinimumVersion` are at least the {@link minimumVersion}; when the version is not fulfilled, an error is thrown with the
+ * {@link feature} formatted into the message.
+ * @param minimumVersion Minimum required version.
+ * @param streamDeckVersion Actual application version.
+ * @param feature Feature that requires the version.
+ */
+function requiresVersion(minimumVersion, streamDeckVersion, feature) {
+    const required = {
+        major: Math.floor(minimumVersion),
+        minor: (minimumVersion % 1) * 10,
+        patch: 0,
+        build: 0
+    };
+    if (streamDeckVersion.compareTo(required) === -1) {
+        throw new Error(`[ERR_NOT_SUPPORTED]: ${feature} requires Stream Deck version ${required.major}.${required.minor} or higher, but current version is ${streamDeckVersion.major}.${streamDeckVersion.minor}; please update Stream Deck and the "Software.MinimumVersion" in the plugin's manifest to "${required.major}.${required.minor}" or higher.`);
+    }
+    else if (getSoftwareMinimumVersion().compareTo(required) === -1) {
+        throw new Error(`[ERR_NOT_SUPPORTED]: ${feature} requires Stream Deck version ${required.major}.${required.minor} or higher; please update the "Software.MinimumVersion" in the plugin's manifest to "${required.major}.${required.minor}" or higher.`);
+    }
+}
+
+/**
+ * Provides interaction with Stream Deck profiles.
+ */
+class ProfileClient {
+    connection;
+    /**
+     * Initializes a new instance of the {@link ProfileClient} class.
+     * @param connection Connection with Stream Deck.
+     */
+    constructor(connection) {
+        this.connection = connection;
+    }
+    /**
+     * Requests the Stream Deck switches the current profile of the specified {@link deviceId} to the {@link profile}; when no {@link profile} is provided the previously active profile
+     * is activated.
+     *
+     * NB: Plugins may only switch to profiles distributed with the plugin, as defined within the manifest, and cannot access user-defined profiles.
+     * @param deviceId Unique identifier of the device where the profile should be set.
+     * @param profile Optional name of the profile to switch to; when `undefined` the previous profile will be activated. Name must be identical to the one provided in the manifest.
+     * @param page Optional page to show when switching to the {@link profile}, indexed from 0. When `undefined`, the page that was previously visible (when switching away from the
+     * profile) will be made visible.
+     * @returns `Promise` resolved when the request to switch the `profile` has been sent to Stream Deck.
+     */
+    switchToProfile(deviceId, profile, page) {
+        if (page !== undefined) {
+            requiresVersion(6.5, this.connection.version, "Switching to a profile page");
+        }
+        return this.connection.send({
+            event: "switchToProfile",
+            context: this.connection.registrationParameters.pluginUUID,
+            device: deviceId,
+            payload: {
+                page,
+                profile
+            }
+        });
+    }
+}
+
+/**
+ * Provides management of settings associated with the Stream Deck plugin.
+ */
+class SettingsClient {
+    connection;
+    /**
+     * Initializes a new instance of the {@link SettingsClient} class.
+     * @param connection Connection with Stream Deck.
+     */
+    constructor(connection) {
+        this.connection = connection;
+    }
+    /**
+     * Gets the global settings associated with the plugin. Use in conjunction with {@link SettingsClient.setGlobalSettings}.
+     * @template T The type of global settings associated with the plugin.
+     * @returns Promise containing the plugin's global settings.
+     */
+    getGlobalSettings() {
+        return new Promise((resolve) => {
+            this.connection.once("didReceiveGlobalSettings", (ev) => resolve(ev.payload.settings));
+            this.connection.send({
+                event: "getGlobalSettings",
+                context: this.connection.registrationParameters.pluginUUID
+            });
+        });
+    }
+    /**
+     * Occurs when the global settings are requested using {@link SettingsClient.getGlobalSettings}, or when the the global settings were updated by the property inspector.
+     * @template T The type of settings associated with the action.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onDidReceiveGlobalSettings(listener) {
+        return this.connection.addDisposableListener("didReceiveGlobalSettings", (ev) => listener(new DidReceiveGlobalSettingsEvent(ev)));
+    }
+    /**
+     * Occurs when the settings associated with an action instance are requested using {@link SettingsClient.getSettings}, or when the the settings were updated by the property inspector.
+     * @template T The type of settings associated with the action.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onDidReceiveSettings(listener) {
+        return this.connection.addDisposableListener("didReceiveSettings", (ev) => listener(new ActionEvent(new Action(this.connection, ev), ev)));
+    }
+    /**
+     * Sets the global {@link settings} associated the plugin. **Note**, these settings are only available to this plugin, and should be used to persist information securely. Use in
+     * conjunction with {@link SettingsClient.getGlobalSettings}.
+     * @param settings Settings to save.
+     * @returns `Promise` resolved when the global `settings` are sent to Stream Deck.
+     * @example
+     * streamDeck.settings.setGlobalSettings({
+     *   apiKey,
+     *   connectedDate: new Date()
+     * })
+     */
+    setGlobalSettings(settings) {
+        return this.connection.send({
+            event: "setGlobalSettings",
+            context: this.connection.registrationParameters.pluginUUID,
+            payload: settings
+        });
+    }
+}
+
+/**
+ * Provides events and methods for interacting with the system, e.g. monitoring applications or when the system wakes, etc.
+ */
+class System {
+    connection;
+    /**
+     * Initializes a new instance of the {@link System} class.
+     * @param connection Connection with Stream Deck.
+     */
+    constructor(connection) {
+        this.connection = connection;
+    }
+    /**
+     * Occurs when a monitored application is launched. Monitored applications can be defined in the manifest via the {@link Manifest.ApplicationsToMonitor} property.
+     * Also see {@link System.onApplicationDidTerminate}.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onApplicationDidLaunch(listener) {
+        return this.connection.addDisposableListener("applicationDidLaunch", (ev) => listener(new ApplicationEvent(ev)));
+    }
+    /**
+     * Occurs when a monitored application terminates. Monitored applications can be defined in the manifest via the {@link Manifest.ApplicationsToMonitor} property.
+     * Also see {@link System.onApplicationDidLaunch}.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onApplicationDidTerminate(listener) {
+        return this.connection.addDisposableListener("applicationDidTerminate", (ev) => listener(new ApplicationEvent(ev)));
+    }
+    /**
+     * Occurs when a deep-link message is routed to the plugin from Stream Deck. One-way deep-link messages can be sent to plugins from external applications using the URL format
+     * `streamdeck://plugins/message/<PLUGIN_UUID>/{MESSAGE}`.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onDidReceiveDeepLink(listener) {
+        requiresVersion(6.5, this.connection.version, "Receiving deep-link messages");
+        return this.connection.addDisposableListener("didReceiveDeepLink", (ev) => listener(new DidReceiveDeepLinkEvent(ev)));
+    }
+    /**
+     * Occurs when the computer wakes up.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onSystemDidWakeUp(listener) {
+        return this.connection.addDisposableListener("systemDidWakeUp", (ev) => listener(new Event(ev)));
+    }
+    /**
+     * Opens the specified `url` in the user's default browser.
+     * @param url URL to open.
+     * @returns `Promise` resolved when the request to open the `url` has been sent to Stream Deck.
+     */
+    openUrl(url) {
+        return this.connection.send({
+            event: "openUrl",
+            payload: {
+                url
+            }
+        });
+    }
+}
+
+/**
+ * Client responsible for interacting with the Stream Deck UI (aka property inspector).
+ */
+class UIClient {
+    connection;
+    /**
+     *
+     * @param connection Connection with Stream Deck.
+     */
+    constructor(connection) {
+        this.connection = connection;
+    }
+    /**
+     * Occurs when the property inspector associated with the action becomes visible, i.e. the user selected an action in the Stream Deck application. Also see {@link UIClient.onPropertyInspectorDidDisappear}.
+     * @template T The type of settings associated with the action.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onPropertyInspectorDidAppear(listener) {
+        return this.connection.addDisposableListener("propertyInspectorDidAppear", (ev) => listener(new ActionWithoutPayloadEvent(new Action(this.connection, ev), ev)));
+    }
+    /**
+     * Occurs when the property inspector associated with the action becomes invisible, i.e. the user unselected the action in the Stream Deck application. Also see {@link UIClient.onPropertyInspectorDidAppear}.
+     * @template T The type of settings associated with the action.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onPropertyInspectorDidDisappear(listener) {
+        return this.connection.addDisposableListener("propertyInspectorDidDisappear", (ev) => listener(new ActionWithoutPayloadEvent(new Action(this.connection, ev), ev)));
+    }
+    /**
+     * Occurs when a message was sent to the plugin _from_ the property inspector. The plugin can also send messages _to_ the property inspector using {@link Action.sendToPropertyInspector}.
+     * @template TPayload The type of the payload received from the property inspector.
+     * @template TSettings The type of settings associated with the action.
+     * @param listener Function to be invoked when the event occurs.
+     * @returns A disposable that, when disposed, removes the listener.
+     */
+    onSendToPlugin(listener) {
+        return this.connection.addDisposableListener("sendToPlugin", (ev) => listener(new SendToPluginEvent(new Action(this.connection, ev), ev)));
+    }
+}
+
+/**
+ * Defines the default export of this library.
+ */
+class StreamDeck {
+    /**
+     * Private backing field for {@link StreamDeck.actions}.
+     */
+    _actions;
+    /**
+     * Private backing field for {@link StreamDeck.connection}.
+     */
+    _connection;
+    /**
+     * Private backing field for {@link StreamDeck.devices}.
+     */
+    _devices;
+    /**
+     * Private backing field for {@link StreamDeck.i18n}.
+     */
+    _i18n;
+    /**
+     * Private backing field for {@link StreamDeck.logger}.
+     */
+    _logger;
+    /**
+     * Private backing field for {@link StreamDeck.manifest}.
+     */
+    _manifest;
+    /**
+     * Private backing field for {@link StreamDeck.profiles};
+     */
+    _profiles;
+    /**
+     * Private backing field for {@link StreamDeck.registrationParameters}
+     */
+    _registrationParameters;
+    /**
+     * Private backing field for {@link StreamDeck.settings}.
+     */
+    _settings;
+    /**
+     * Private backing field for {@link StreamDeck.system};
+     */
+    _system;
+    /**
+     * Private backing field for {@link StreamDeck.ui}.
+     */
+    _ui;
+    /**
+     * Provides information about, and methods for interacting with, actions associated with the Stream Deck plugin.
+     * @returns The {@link ActionClient}.
+     */
+    get actions() {
+        return (this._actions ??= new ActionClient(this.connection, this.manifest, this.settings, this.ui, this.logger));
+    }
+    /**
+     * Collection of known Stream Deck devices associated with the computer.
+     * @returns The collection of {@link Device}.
+     */
+    get devices() {
+        return (this._devices ??= new DeviceClient(this.connection));
+    }
+    /**
+     * Internalization provider for retrieving translations from locally defined resources, see {@link https://docs.elgato.com/sdk/plugins/localization}
+     * @returns The {@link I18nProvider}.
+     */
+    get i18n() {
+        return (this._i18n ??= new I18nProvider(this.registrationParameters.info.application.language, this.manifest, this.logger));
+    }
+    /**
+     * Information about the plugin, and the Stream Deck application.
+     * @returns The {@link RegistrationInfo}.
+     */
+    get info() {
+        return this.registrationParameters.info;
+    }
+    /**
+     * Local file logger; logs can be found within the plugins directory under the "./logs" folder. Log files are re-indexed at 50MiB, with the 10 most recent log files being retained.
+     * @returns The {@link Logger}.
+     */
+    get logger() {
+        return (this._logger ??= createLogger());
+    }
+    /**
+     * Manifest associated with the plugin.
+     * @returns The {@link Manifest}.
+     */
+    get manifest() {
+        return (this._manifest ??= getManifest());
+    }
+    /**
+     * Provides interaction with Stream Deck profiles.
+     * @returns The {@link ProfileClient}.
+     */
+    get profiles() {
+        return (this._profiles ??= new ProfileClient(this.connection));
+    }
+    /**
+     * Provides management of settings associated with the Stream Deck plugin.
+     * @returns The {@link System}.
+     */
+    get settings() {
+        return (this._settings ??= new SettingsClient(this.connection));
+    }
+    /**
+     * Provides events and methods for interacting with the system, e.g. monitoring applications or when the system wakes, etc.
+     * @returns The {@link System}.
+     */
+    get system() {
+        return (this._system ??= new System(this.connection));
+    }
+    /**
+     * Provides interaction with the Stream Deck UI (aka property inspector).
+     * @returns The {@link UIClient}.
+     */
+    get ui() {
+        return (this._ui ??= new UIClient(this.connection));
+    }
+    /**
+     * Singleton connection used throughout the plugin.
+     * @returns The {@link StreamDeckConnection}.
+     */
+    get connection() {
+        return (this._connection ??= createConnection(this.registrationParameters, this.logger));
+    }
+    /**
+     * Registration parameters supplied to the plugin from Stream Deck.
+     * @returns The {@link RegistrationParameters}
+     */
+    get registrationParameters() {
+        return (this._registrationParameters ??= new RegistrationParameters(process.argv, this.logger));
+    }
+    /**
+     * Establishes the connection with the Stream Deck.
+     * @returns A promise resolved when the connection was established.
+     */
+    connect() {
+        if (this._devices === undefined) {
+            this._devices = new DeviceClient(this.connection);
+        }
+        return this.connection.connect();
+    }
+}
+
+/**
+ * Defines a Stream Deck action associated with the plugin.
+ * @param definition The definition of the action, e.g. it's identifier, name, etc.
+ * @returns The definition decorator.
+ */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+function action(definition) {
+    const manifestId = definition.UUID;
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-unused-vars
+    return function (target, context) {
+        return class extends target {
+            /**
+             * The universally-unique value that identifies the action within the manifest.
+             */
+            manifestId = manifestId;
+        };
+    };
+}
+
+/**
+ * Provides the main bridge between the plugin and the Stream Deck allowing the plugin to send requests and receive events, e.g. when the user presses an action.
+ * @template T The type of settings associated with the action.
+ */
+class SingletonAction {
+    /**
+     * The universally-unique value that identifies the action within the manifest.
+     */
+    manifestId;
+}
+
+/**
+ * List of available types that can be applied to {@link Bar} and {@link GBar} to determine their style.
+ */
+var BarSubType;
+(function (BarSubType) {
+    /**
+     * Rectangle bar; the bar fills from left to right, determined by the {@link Bar.value}, similar to a standard progress bar.
+     */
+    BarSubType[BarSubType["Rectangle"] = 0] = "Rectangle";
+    /**
+     * Rectangle bar; the bar fills outwards from the centre of the bar, determined by the {@link Bar.value}.
+     * @example
+     * // Value is 2, range is 1-10.
+     * // [  ███     ]
+     * @example
+     * // Value is 10, range is 1-10.
+     * // [     █████]
+     */
+    BarSubType[BarSubType["DoubleRectangle"] = 1] = "DoubleRectangle";
+    /**
+     * Trapezoid bar, represented as a right-angle triangle; the bar fills from left to right, determined by the {@link Bar.value}, similar to a volume meter.
+     */
+    BarSubType[BarSubType["Trapezoid"] = 2] = "Trapezoid";
+    /**
+     * Trapezoid bar, represented by two right-angle triangles; the bar fills outwards from the centre of the bar, determined by the {@link Bar.value}. See {@link BarSubType.DoubleRectangle}.
+     */
+    BarSubType[BarSubType["DoubleTrapezoid"] = 3] = "DoubleTrapezoid";
+    /**
+     * Rounded rectangle bar; the bar fills from left to right, determined by the {@link Bar.value}, similar to a standard progress bar.
+     */
+    BarSubType[BarSubType["Groove"] = 4] = "Groove";
+})(BarSubType || (BarSubType = {}));
+
+/**
+ * Defines the target of a request, i.e. whether the request should update the Stream Deck hardware, Stream Deck software (application), or both, when calling `setImage` and `setState`.
+ */
+var Target;
+(function (Target) {
+    /**
+     * Hardware and software should be updated as part of the request.
+     */
+    Target[Target["HardwareAndSoftware"] = 0] = "HardwareAndSoftware";
+    /**
+     * Hardware only should be updated as part of the request.
+     */
+    Target[Target["Hardware"] = 1] = "Hardware";
+    /**
+     * Software only should be updated as part of the request.
+     */
+    Target[Target["Software"] = 2] = "Software";
+})(Target || (Target = {}));
+
+var index = new StreamDeck();
+
+/******************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+/* global Reflect, Promise, SuppressedError, Symbol */
+
+
+function __esDecorate(ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for (var i = decorators.length - 1; i >= 0; i--) {
+        var context = {};
+        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
+        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
+        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
+        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        }
+        else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+}
+function __runInitializers(thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for (var i = 0; i < initializers.length; i++) {
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+}
+typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
+
+var elements$1 = {};
+
+var content = {
+    animation: [
+        'animate',
+        'animatecolor',
+        'animatemotion',
+        'animatetransform',
+        'discard',
+        'mapath',
+        'set'
+    ],
+    basicshapes: [
+        'circle',
+        'ellipse',
+        'line',
+        'polygon',
+        'polyline',
+        'rect'
+    ],
+    container: [
+        'a',
+        'defs',
+        'glyph',
+        'g',
+        'marker',
+        'mask',
+        'missing-glyph',
+        'pattern',
+        'svg',
+        'switch',
+        'symbol'
+    ],
+    descriptive: [
+        'desc',
+        'metadata',
+        'title'
+    ],
+    paint: [
+        'linearGradient', 
+        'radialGradient', 
+        'pattern'
+    ],
+    structural: [
+        'defs', 
+        'g', 
+        'svg', 
+        'symbol', 
+        'use'
+    ],
+    textcontent: [
+        'altglyph',
+        'altglyphdef',
+        'altglyphitem',
+        'glyph',
+        'glyphref',
+        'text',
+        'textpath',
+        'tref',
+        'tspan'
+    ],
+    textcontentchild: [
+        'altglyph',
+        'textpath',
+        'tref',
+        'tspan'
+    ]
+
+};
+
+var attributes = {
+    animationevent: [
+        'onbegin',
+        'onend',
+        'onload',
+        'onrepeat'
+    ],
+    animationattributetarget: [
+        'attributeType',
+        'attributeName'
+    ],
+    animationtiming: [
+        'begin',
+        'dur',
+        'end',
+        'min',
+        'max',
+        'restart',
+        'repeatCount',
+        'repeatDur',
+        'fill'
+    ],
+    animationvalue: [
+        'calcMode',
+        'values',
+        'keyTimes',
+        'keySplines',
+        'from',
+        'to',
+        'by'
+    ],
+    animationaddition: [
+        'additive',
+        'accumulate'
+    ],
+    aria: [
+        'aria-activedescendant', 'aria-atomic', 'aria-autocomplete', 'aria-busy', 'aria-checked', 'aria-colcount', 'aria-colindex', 'aria-colspan', 'aria-controls', 'aria-current', 'aria-describedby', 'aria-details', 'aria-disabled', 'aria-dropeffect', 'aria-errormessage', 'aria-expanded', 'aria-flowto', 'aria-grabbed', 'aria-haspopup', 'aria-hidden', 'aria-invalid', 'aria-keyshortcuts', 'aria-label', 'aria-labelledby', 'aria-level', 'aria-live', 'aria-modal', 'aria-multiline', 'aria-multiselectable', 'aria-orientation', 'aria-owns', 'aria-placeholder', 'aria-posinset', 'aria-pressed', 'aria-readonly', 'aria-relevant', 'aria-required', 'aria-roledescription', 'aria-rowcount', 'aria-rowindex', 'aria-rowspan', 'aria-selected', 'aria-setsize', 'aria-sort', 'aria-valuemax', 'aria-valuemin', 'aria-valuenow', 'aria-valuetext', 'role'
+    ],
+    conditionalprocessing: [
+        'requiredExtensions',
+        'requiredFeatures',
+        'systemLanguage'
+    ],
+    core: [
+        'class',
+        'id',
+        'lang',
+        'style',
+        'tabindex',
+        'xml:base',
+        'xml:lang',
+        'xml:space'
+    ],
+    documentevent: [
+        'onabort',
+        'onerror',
+        'onresize',
+        'onscroll',
+        'onunload',
+        'onzoom'
+    ],
+    filterprimitive: [
+        'height',
+        'result',
+        'width',
+        'x',
+        'y'
+    ],
+    graphicalevent: [
+        'onactivate',
+        'onclick',
+        'onfocusin',
+        'onfocusout',
+        'onload',
+        'onmousedown',
+        'onmousemove',
+        'onmouseout',
+        'onmouseover',
+        'onmouseup'
+    ],
+    presentation: [
+        'alignment-baseline',
+        'baseline-shift',
+        'clip',
+        'clip-path',
+        'clip-rule',
+        'color',
+        'color-interpolation',
+        'color-interpolation-filters',
+        'color-profile',
+        'color-rendering',
+        'cursor',
+        'direction',
+        'display',
+        'dominant-baseline',
+        'enable-background',
+        'fill',
+        'fill-opacity',
+        'fill-rule',
+        'filter',
+        'flood-color',
+        'flood-opacity',
+        'font-family',
+        'font-size',
+        'font-size-adjust',
+        'font-stretch',
+        'font-style',
+        'font-variant',
+        'font-weight',
+        'glyph-orientation-horizontal',
+        'glyph-orientation-vertical',
+        'image-rendering',
+        'kerning',
+        'letter-spacing',
+        'lighting-color',
+        'marker-end',
+        'marker-mid',
+        'marker-start',
+        'mask',
+        'opacity',
+        'overflow',
+        'pointer-events',
+        'shape-rendering',
+        'stop-color',
+        'stop-opacity',
+        'stroke',
+        'stroke-dasharray',
+        'stroke-dashoffset',
+        'stroke-linecap',
+        'stroke-linejoin',
+        'stroke-miterlimit',
+        'stroke-opacity',
+        'stroke-width',
+        'text-anchor',
+        'text-decoration',
+        'text-rendering',
+        'unicode-bidi',
+        'visibility',
+        'word-spacing',
+        'writing-mode'
+    ],
+    transferfunction: [
+        'type',
+        'tableValues',
+        'slope',
+        'intercept',
+        'amplitude',
+        'exponent',
+        'offset'
+    ],
+    xlink: [
+        'xlink:href',
+        'xlink:type',
+        'xlink:role',
+        'xlink:arcrole',
+        'xlink:title',
+        'xlink:show',
+        'xlink:actuate'
+    ]
+};
+
+var prop = Object.defineProperty,
+    getPropDesc = Object.getOwnPropertyDescriptor,
+    permittedContent = content,
+    permittedAttributes = attributes,
+    Element$9 = {
+
+        globalAttributes: [
+            'conditionalprocessing',
+            'core'
+        ],
+
+        constructor: function (attrs, content) {
+            this.attributes = attrs;
+            this.content = content;
+            this.defineAttributes();
+            this.defineContent();
+            this.checkAttributes();
+            this.checkContent();
+            this.make(attrs, content);
+        },
+
+        checkAny: function checkAny(list) {
+            return (list === 'any');
+        },
+
+        defineContent: function contentList() {
+            if (this.checkAny(this.permittedContent)) return;
+            this.permittedContent.forEach(function (item) {
+                this.permittedContent = this.permittedContent.concat(permittedContent[item]);
+            }, this);
+        },
+
+        defineAttributes: function attrsList() {
+            if (this.checkAny(this.permittedAttributes)) return;
+            var args = this.permittedAttributes.concat(this.globalAttributes);
+            args.forEach(function (item) {
+                this.permittedAttributes = args.concat(permittedAttributes[item]);
+            }, this);
+        },
+
+        getElementName: function getElementName(element) {
+            return element.match(/(\w+)/)[0];
+        },
+
+        checkAttributes: function checkAttributes() {
+            for (var attr in this.attributes) {
+                if (this.permittedAttributes.indexOf(attr) !== -1) {
+                    throw new Error(attr + ' is not permitted on ' + this.name + ' elements.');
+                }
+            }
+        },
+
+        checkContent: function checkContent() {
+            if (this.content) {
+                if (typeof this.content === 'string' && this.name !== 'text') {
+                    throw new Error('Content cannot be a string.');
+
+                } else if (this.content.elements && this.permittedContent !== 'any') {
+                    this.content.elements.forEach(function (element) {
+                        var name = this.getElementName(element);
+                        if (this.permittedContent.indexOf(name) === -1) {
+                            throw new Error(this.name + ' cannot contain ' + name + ' elements.');
+                        }
+                    }.bind(this));
+                }
+            }
+        },
+
+        make: function makeElement(attrs, content) {
+            var element = '<' + this.name,
+                prop;
+
+            if ( attrs) {
+               for (prop in attrs) {
+                    element += (' ' + prop + '="' + attrs[prop]) + '"';
+                }
+            }
+            element += '>';
+            this.node = element;
+        }
+
+    };
+
+function extendProps(onto, from) {
+    var props = Object.getOwnPropertyNames(from),
+        replace,
+        i;
+    for (i = 0; i < props.length; ++i) {
+        replace = getPropDesc(onto, props[i]);
+        if (!(props[i] in Function) && (!replace || replace.writable)) {
+            prop(onto, props[i], getPropDesc(from, props[i]));
+        }
+    }
+}
+
+function extend(parent, protoProps, staticProps) {
+    var child;
+
+    if (protoProps && protoProps.hasOwnProperty('constructor')) {
+        child = protoProps.constructor;
+    } else {
+        child = function subClass() {
+            return child.super.apply(this, arguments);
+        };
+    }
+
+    prop(child, 'super', { value: parent });
+
+    extendProps(child, parent);
+    if (staticProps) {
+        extendProps(child, staticProps);
+    }
+
+    child.prototype = Object.create(parent, {
+        constructor: {
+            value: child,
+            enumerable: false,
+            writable: true,
+            configurable: true
+        },
+    });
+
+    if (protoProps) {
+        extendProps(child.prototype, protoProps);
+    }
+    return child;
+}
+
+prop(Element$9, 'extend', {
+    configurable: true,
+    writable: true,
+    value: function ElementExtend(protoProps, staticProps) {
+        return extend(this, protoProps, staticProps);
+    },
+});
+
+var element = Element$9;
+
+var Element$8 = element;
+
+var a = Element$8.extend({
+
+    constructor: function () {
+
+        this.name = 'a';
+
+        this.permittedContent = 'any';
+
+        this.permittedAttributes = [
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+
+        Element$8.constructor.apply(this, arguments);
+
+    }
+
+});
+
+var Element$7 = element;
+
+var g = Element$7.extend({
+
+    constructor: function () {
+
+        this.name = 'g';
+
+        this.permittedContent = 'any';
+
+        this.permittedAttributes = [
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+
+        Element$7.constructor.apply(this, arguments);
+
+    }
+
+});
+
+var Element$6 = element;
+
+var circle = Element$6.extend({
+
+    constructor: function () {
+
+        this.name = 'circle';
+
+        this.permittedContent = [
+            'animation',
+            'descriptive'
+        ];
+
+        this.permittedAttributes = [
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+
+        Element$6.constructor.apply(this, arguments);
+
+    }
+
+});
+
+var Element$5 = element;
+
+var text = Element$5.extend({
+
+    constructor: function () {
+
+        this.name = 'text';
+
+        this.permittedContent = [
+            'animation',
+            'descriptive',
+            'textcontentchild',
+            'container a'
+        ];
+
+        this.permittedAttributes = [
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+
+        Element$5.constructor.apply(this, arguments);
+    }
+
+});
+
+var Element$4 = element;
+
+var foreignobject = Element$4.extend({
+
+    constructor: function () {
+
+        this.name = 'foreignObject';
+
+        this.permittedContent = 'any';
+
+        this.permittedAttributes = [
+            'filterprimitive',
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+
+        Element$4.constructor.apply(this, arguments);
+    }
+
+});
+
+var Element$3 = element;
+
+var line = Element$3.extend({
+
+    constructor: function () {
+
+        this.name = 'line';
+
+        this.permittedContent = [
+            'animation',
+            'descriptive'
+        ];
+
+        this.permittedAttributes = [
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+        Element$3.constructor.apply(this, arguments);
+
+    }
+
+});
+
+var Element$2 = element;
+
+var rect = Element$2.extend({
+
+    constructor: function () {
+
+        this.name = 'rect';
+
+        this.permittedContent = [
+            'animation',
+            'descriptive'
+        ];
+
+        this.permittedAttributes = [
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+        Element$2.constructor.apply(this, arguments);
+
+    }
+
+});
+
+var Element$1 = element;
+
+var path$1 = Element$1.extend({
+
+    constructor: function () {
+
+        this.name = 'path';
+
+        this.permittedContent = [
+            'animation',
+            'descriptive'
+        ];
+
+        this.permittedAttributes = [
+            'graphicalevent',
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+
+        Element$1.constructor.apply(this, arguments);
+
+    }
+
+});
+
+var Element = element;
+
+var style = Element.extend({
+
+    constructor: function () {
+
+        this.name = 'style';
+
+        this.categories = 'none';
+
+        this.permittedContent = 'any';
+
+        this.permittedAttributes = [
+            'type',
+            'media',
+            'title',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
+        ];
+
+        Element.constructor.apply(this, arguments);
+
+    }
+
+});
+
+elements$1.A = a;
+elements$1.G = g;
+elements$1.Circle = circle;
+elements$1.Text = text;
+elements$1.ForeignObject = foreignobject;
+elements$1.Line = line;
+elements$1.Rect = rect;
+elements$1.Path = path$1;
+elements$1.Style = style;
+
+var elements = elements$1;
+
+function SvgBuilder() {
+
+    this.root = '<svg height="100" width="100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
+    this.elements = [];
+
+    function formatRoot(name, value) {
+      /* jshint -W040 */
+        var formatted = this.root,
+            regexp = new RegExp(name + '([^=,]*)=("[^"]*"|[^,"]*)');
+        return formatted.replace(regexp, name + '="' + value + '"');
+      /* jshint +W040 */
+    }
+
+    this.closeTag = function closeTag(name) {
+        return '</' + name + '>';
+    };
+
+    this.width = function width(value) {
+        this.root = formatRoot.call(this, 'width', value);
+        return this;
+    };
+
+    this.height = function height(value) {
+        this.root = formatRoot.call(this, 'height', value);
+        return this;
+    };
+
+    this.viewBox = function viewBox(value) {
+        this.root = this.root.replace("<svg ", `<svg viewBox="${value}" `);
+        return this;
+    };
+
+    this.addElement = function addElement(element) {
+        if (!element.content) {
+            element.node += this.closeTag(element.name);
+            this.elements.push(element.node);
+        } else if (typeof element.content === 'string' && element.name === 'text') {
+            element.node += element.content + this.closeTag(element.name);
+            this.elements.push(element.node);
+        } else if (typeof element.content === 'object') {
+            var elements = this.elements.join('');
+            this.elements = [];
+            this.elements.unshift(element.node, elements);
+            this.elements.push(this.closeTag(element.name));
+        }
+    };
+
+}
+
+SvgBuilder.prototype.newInstance = function() {
+  return new SvgBuilder();
+};
+
+SvgBuilder.prototype.reset = function() {
+  this.elements = [];
+  return this;
+};
+
+SvgBuilder.prototype.render = function render() {
+    return this.root + this.elements.join('') + this.closeTag('svg');
+};
+
+SvgBuilder.prototype.buffer = function toBuffer() {
+    return Buffer.from(this.render());
+};
+
+SvgBuilder.prototype.a = function anchor(attrs, content) {
+    this.addElement(new elements.A(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.g = function group(attrs, content) {
+    this.addElement(new elements.G(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.circle = function circle(attrs, content) {
+    this.addElement(new elements.Circle(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.text = function link(attrs, content) {
+    this.addElement(new elements.Text(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.foreignObject = function foreignObject(attrs, content) {
+    this.addElement(new elements.ForeignObject(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.line = function line(attrs, content) {
+    this.addElement(new elements.Line(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.rect = function rect(attrs, content) {
+    this.addElement(new elements.Rect(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.path = function line(attrs, content) {
+    this.addElement(new elements.Path(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.style = function line(attrs, content) {
+    this.addElement(new elements.Style(attrs, content));
+    return this;
+};
+
+var svgBuilder = new SvgBuilder();
+
+var SvgBuilder$1 = /*@__PURE__*/getDefaultExportFromCjs(svgBuilder);
+
+//@ts-ignore
+class Graph {
+    graphHistory = [];
+    addSensorValue(sensorValue, graphMinValue, graphMaxValue) {
+        if (this.graphHistory.length >= 73) {
+            this.graphHistory.shift();
+        }
+        let yCoordinate = 144 -
+            ((sensorValue - graphMinValue) / (graphMaxValue - graphMinValue)) * 144;
+        //add new entry
+        this.graphHistory.push({
+            y1: yCoordinate,
+            y2: yCoordinate,
+        });
+    }
+    generateSvg(graphColor, backgroundColor, title, sensorValue, titleFontSize, sensorFontSize, fontName) {
+        var svgImg = SvgBuilder$1.newInstance();
+        svgImg.width(144).height(144);
+        svgImg.rect({ height: "144", width: "144", fill: backgroundColor });
+        for (let index = 0; index < this.graphHistory.length; index++) {
+            const element = this.graphHistory[index];
+            //setting the points
+            svgImg.line({
+                x1: index * 2,
+                y1: 144,
+                x2: index * 2,
+                y2: element.y2,
+                stroke: graphColor,
+                "stroke-width": 2,
+            });
+        }
+        svgImg.text({
+            x: 72,
+            y: 42,
+            "font-family": fontName,
+            "font-size": titleFontSize,
+            stroke: "grey",
+            fill: "grey",
+            "text-anchor": "middle",
+        }, title);
+        svgImg.text({
+            x: 72,
+            y: 116,
+            "font-family": fontName,
+            "font-size": sensorFontSize,
+            stroke: "white",
+            fill: "white",
+            "text-anchor": "middle",
+        }, sensorValue);
+        let logo = svgImg.render();
+        let base64encoded = Buffer.from(logo).toString("base64");
+        let svgImage = `data:image/svg+xml;base64,${base64encoded}`;
+        return svgImage;
+    }
+}
+
+index.logger.createScope("Custom Scope");
+let Sensor = (() => {
+    let _classDecorators = [action({ UUID: "com.5e.hwinfo-reader.sensor" })];
+    let _classDescriptor;
+    let _classExtraInitializers = [];
+    let _classThis;
+    let _classSuper = SingletonAction;
+    (class extends _classSuper {
+        static { _classThis = this; }
+        static {
+            const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(_classSuper[Symbol.metadata] ?? null) : void 0;
+            __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
+            _classThis = _classDescriptor.value;
+            if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
+            __runInitializers(_classThis, _classExtraInitializers);
+        }
+        buttons = {};
+        globalSettingsPoller = undefined;
+        getGlobalSettingsCopy = { registry: [] };
+        async onPropertyInspectorDidAppear(ev) {
+            ev.action.sendToPropertyInspector({
+                event: "registryKeys",
+                payload: this.getGlobalSettingsCopy["registry"],
+            });
+        }
+        onDidReceiveSettings(ev) {
+            this.buttons[ev.action.id]["settings"] = { ...ev.payload.settings };
+        }
+        onWillDisappear(ev) {
+            //ensures a queue of actions doesn't build up else after you switch screens these will all be executed at once
+            clearInterval(this.buttons[ev.action.id]["graphInterval"]);
+            this.buttons[ev.action.id]["graphInterval"] = undefined;
+        }
+        async onWillAppear(ev) {
+            let globalSettingsPoller = async () => {
+                let registryKeys = await index.settings.getGlobalSettings();
+                this.getGlobalSettingsCopy = registryKeys;
+            };
+            if (this.globalSettingsPoller == undefined) {
+                this.globalSettingsPoller = setInterval(async () => {
+                    globalSettingsPoller();
+                }, 1000);
+            }
+            let createSensorPollInterval = async () => {
+                let settings = this.buttons[ev.action.id]["settings"];
+                if (settings["registryName"] == undefined) {
+                    return;
+                }
+                if (this.getGlobalSettingsCopy["registry"] == undefined) {
+                    return;
+                }
+                let found = false;
+                for (let index = 0; index < this.getGlobalSettingsCopy["registry"].length; index++) {
+                    const element = this.getGlobalSettingsCopy["registry"][index];
+                    if (element["value"] == settings["registryName"]) {
+                        let sensorName = element["name"];
+                        //get last character which is the index number
+                        let index = sensorName.match(/\d+$/)?.[0];
+                        let registrySensorValueName = "Value" + index;
+                        let registrySensorRawValueName = "ValueRaw" + index;
+                        //e.g. 1,600.0 MHz or 16.5 °C
+                        let sensorValue = this.getGlobalSettingsCopy["registry"].find((item) => item.name === registrySensorValueName)?.value;
+                        //e.g. 1600.0 or 16.5
+                        let rawSensorValue = this.getGlobalSettingsCopy["registry"].find((item) => item.name === registrySensorRawValueName)?.value;
+                        if (sensorValue != undefined && rawSensorValue != undefined) {
+                            found = true;
+                            //remove everything after full stop, we don't want to display decimal places
+                            let formattedSensorValue = rawSensorValue.replace(/\..*/g, "");
+                            //get all characters after a space to get the unit e.g. MHz or °C
+                            let sensorValueUnit = sensorValue.replace(/.*\s/g, "");
+                            formattedSensorValue = formattedSensorValue + sensorValueUnit;
+                            //winreg returns a � instead of a °
+                            formattedSensorValue = formattedSensorValue.replace("�", "°");
+                            this.buttons[ev.action.id]["lastSensorValue"] =
+                                formattedSensorValue;
+                            this.buttons[ev.action.id]["graph"].addSensorValue(parseFloat(rawSensorValue), parseFloat(settings["graphMinValue"]), parseFloat(settings["graphMaxValue"]));
+                        }
+                    }
+                }
+                if (found == false) {
+                    //sensor was not found, must have been deleted from HWiNFO Gadgets
+                    this.buttons[ev.action.id]["lastSensorValue"] = undefined;
+                }
+            };
+            let updateScreen = async () => {
+                //   let settings = await ev.action.getSettings();
+                let settings = this.buttons[ev.action.id]["settings"];
+                ev.action.setImage(this.buttons[ev.action.id]["graph"].generateSvg(settings["graphColor"], settings["backgroundColor"], settings["title"], this.buttons[ev.action.id]["lastSensorValue"] ?? "ERROR", settings["titleFontSize"], settings["sensorFontSize"], settings["fontName"]));
+            };
+            if (!this.buttons[ev.action.id]) {
+                this.buttons[ev.action.id] = {
+                    graph: new Graph(),
+                    sensorPollInterval: setInterval(async () => {
+                        createSensorPollInterval();
+                    }, 1000),
+                    lastSensorValue: undefined,
+                    graphInterval: setInterval(async () => {
+                        updateScreen();
+                    }, 1000),
+                    settings: { ...ev.payload.settings },
+                };
+            }
+            else {
+                this.buttons[ev.action.id]["settings"] = { ...ev.payload.settings };
+                if (this.buttons[ev.action.id]["graphInterval"] == undefined) {
+                    this.buttons[ev.action.id]["graphInterval"] = setInterval(async () => {
+                        updateScreen();
+                    }, 1000);
+                }
+            }
+            updateScreen();
+        }
+    });
+    return _classThis;
+})();
+
+/************************************************************************************************************
+ * registry.js - contains a wrapper for the REG command under Windows, which provides access to the registry
+ *
+ * @author Paul Bottin a/k/a FrEsC
+ *
+ */
+
+/* imports */
+var util          = require$$0$4
+,   path          = require$$1$2
+,   spawn         = require$$2$1.spawn
+
+/* set to console.log for debugging */
+,   HKLM          = 'HKLM'
+,   HKCU          = 'HKCU'
+,   HKCR          = 'HKCR'
+,   HKU           = 'HKU'
+,   HKCC          = 'HKCC'
+,   HIVES         = [ HKLM, HKCU, HKCR, HKU, HKCC ]
+
+/* registry value type ids */
+,   REG_SZ        = 'REG_SZ'
+,   REG_MULTI_SZ  = 'REG_MULTI_SZ'
+,   REG_EXPAND_SZ = 'REG_EXPAND_SZ'
+,   REG_DWORD     = 'REG_DWORD'
+,   REG_QWORD     = 'REG_QWORD'
+,   REG_BINARY    = 'REG_BINARY'
+,   REG_NONE      = 'REG_NONE'
+,   REG_TYPES     = [ REG_SZ, REG_MULTI_SZ, REG_EXPAND_SZ, REG_DWORD, REG_QWORD, REG_BINARY, REG_NONE ]
+
+/* default registry value name */
+,   DEFAULT_VALUE = ''
+
+/* general key pattern */
+,   KEY_PATTERN   = /(\\[a-zA-Z0-9_\s]+)*/
+
+/* key path pattern (as returned by REG-cli) */
+,   PATH_PATTERN  = /^(HKEY_LOCAL_MACHINE|HKEY_CURRENT_USER|HKEY_CLASSES_ROOT|HKEY_USERS|HKEY_CURRENT_CONFIG)(.*)$/
+
+/* registry item pattern */
+,   ITEM_PATTERN  = /^(.*)\s(REG_SZ|REG_MULTI_SZ|REG_EXPAND_SZ|REG_DWORD|REG_QWORD|REG_BINARY|REG_NONE)\s+([^\s].*)$/;
+
+/**
+ * Creates an Error object that contains the exit code of the REG.EXE process.
+ * This contructor is private. Objects of this type are created internally and returned in the <code>err</code> parameters in case the REG.EXE process doesn't exit cleanly.
+ *
+ * @private
+ * @class
+ *
+ * @param {string} message - the error message
+ * @param {number} code - the process exit code
+ *
+ */
+function ProcessUncleanExitError(message, code) {
+  if (!(this instanceof ProcessUncleanExitError))
+    return new ProcessUncleanExitError(message, code);
+
+  Error.captureStackTrace(this, ProcessUncleanExitError);
+
+  /**
+   * The error name.
+   * @readonly
+   * @member {string} ProcessUncleanExitError#name
+   */
+  this.__defineGetter__('name', function () { return ProcessUncleanExitError.name; });
+
+  /**
+   * The error message.
+   * @readonly
+   * @member {string} ProcessUncleanExitError#message
+   */
+  this.__defineGetter__('message', function () { return message; });
+
+  /**
+   * The process exit code.
+   * @readonly
+   * @member {number} ProcessUncleanExitError#code
+   */
+  this.__defineGetter__('code', function () { return code; });
+
+}
+
+util.inherits(ProcessUncleanExitError, Error);
+
+/*
+ * Captures stdout/stderr for a child process
+ */
+function captureOutput(child) {
+  // Use a mutable data structure so we can append as we get new data and have
+  // the calling context see the new data
+  var output = {'stdout': '', 'stderr': ''};
+
+  child.stdout.on('data', function(data) { output["stdout"] += data.toString(); });
+  child.stderr.on('data', function(data) { output["stderr"] += data.toString(); });
+
+  return output;
+}
+
+
+/*
+ * Returns an error message containing the stdout/stderr of the child process
+ */
+function mkErrorMsg(registryCommand, code, output) {
+    var stdout = output['stdout'].trim();
+    var stderr = output['stderr'].trim();
+
+    var msg = util.format("%s command exited with code %d:\n%s\n%s", registryCommand, code, stdout, stderr);
+    return new ProcessUncleanExitError(msg, code);
+}
+
+
+/*
+ * Converts x86/x64 to 32/64
+ */
+function convertArchString(archString) {
+  if (archString == 'x64') {
+    return '64';
+  } else if (archString == 'x86') {
+    return '32';
+  } else {
+    throw new Error('illegal architecture: ' + archString + ' (use x86 or x64)');
+  }
+}
+
+
+/*
+ * Adds correct architecture to reg args
+ */
+function pushArch(args, arch) {
+  if (arch) {
+    args.push('/reg:' + convertArchString(arch));
+  }
+}
+
+/*
+ * Get the path to system's reg.exe. Useful when another reg.exe is added to the PATH
+ * Implemented only for Windows
+ */
+function getRegExePath() {
+    if (process.platform === 'win32') {
+        return path.join(process.env.windir, 'system32', 'reg.exe');
+    } else {
+        return "REG";
+    }
+}
+
+
+/**
+ * Creates a single registry value record.
+ * This contructor is private. Objects of this type are created internally and returned by methods of {@link Registry} objects.
+ *
+ * @private
+ * @class
+ *
+ * @param {string} host - the hostname
+ * @param {string} hive - the hive id
+ * @param {string} key - the registry key
+ * @param {string} name - the value name
+ * @param {string} type - the value type
+ * @param {string} value - the value
+ * @param {string} arch - the hive architecture ('x86' or 'x64')
+ *
+ */
+function RegistryItem (host, hive, key, name, type, value, arch) {
+
+  if (!(this instanceof RegistryItem))
+    return new RegistryItem(host, hive, key, name, type, value, arch);
+
+  /* private members */
+  var _host = host    // hostname
+  ,   _hive = hive    // registry hive
+  ,   _key = key      // registry key
+  ,   _name = name    // property name
+  ,   _type = type    // property type
+  ,   _value = value  // property value
+  ,   _arch = arch;    // hive architecture
+
+  /* getters/setters */
+
+  /**
+   * The hostname.
+   * @readonly
+   * @member {string} RegistryItem#host
+   */
+  this.__defineGetter__('host', function () { return _host; });
+
+  /**
+   * The hive id.
+   * @readonly
+   * @member {string} RegistryItem#hive
+   */
+  this.__defineGetter__('hive', function () { return _hive; });
+
+  /**
+   * The registry key.
+   * @readonly
+   * @member {string} RegistryItem#key
+   */
+  this.__defineGetter__('key', function () { return _key; });
+
+  /**
+   * The value name.
+   * @readonly
+   * @member {string} RegistryItem#name
+   */
+  this.__defineGetter__('name', function () { return _name; });
+
+  /**
+   * The value type.
+   * @readonly
+   * @member {string} RegistryItem#type
+   */
+  this.__defineGetter__('type', function () { return _type; });
+
+  /**
+   * The value.
+   * @readonly
+   * @member {string} RegistryItem#value
+   */
+  this.__defineGetter__('value', function () { return _value; });
+
+  /**
+   * The hive architecture.
+   * @readonly
+   * @member {string} RegistryItem#arch
+   */
+  this.__defineGetter__('arch', function () { return _arch; });
+
+}
+
+util.inherits(RegistryItem, Object);
+
+/**
+ * Creates a registry object, which provides access to a single registry key.
+ * Note: This class is returned by a call to ```require('winreg')```.
+ *
+ * @public
+ * @class
+ *
+ * @param {object} options - the options
+ * @param {string=} options.host - the hostname
+ * @param {string=} options.hive - the hive id
+ * @param {string=} options.key - the registry key
+ * @param {string=} options.arch - the optional registry hive architecture ('x86' or 'x64'; only valid on Windows 64 Bit Operating Systems)
+ *
+ * @example
+ * var Registry = require('winreg')
+ * ,   autoStartCurrentUser = new Registry({
+ *       hive: Registry.HKCU,
+ *       key:  '\\Software\\Microsoft\\Windows\\CurrentVersion\\Run'
+ *     });
+ *
+ */
+function Registry (options) {
+
+  if (!(this instanceof Registry))
+    return new Registry(options);
+
+  /* private members */
+  var _options = options || {}
+  ,   _host = '' + (_options.host || '')    // hostname
+  ,   _hive = '' + (_options.hive || HKLM)  // registry hive
+  ,   _key  = '' + (_options.key  || '')    // registry key
+  ,   _arch = _options.arch || null;         // hive architecture
+
+  /* getters/setters */
+
+  /**
+   * The hostname.
+   * @readonly
+   * @member {string} Registry#host
+   */
+  this.__defineGetter__('host', function () { return _host; });
+
+  /**
+   * The hive id.
+   * @readonly
+   * @member {string} Registry#hive
+   */
+  this.__defineGetter__('hive', function () { return _hive; });
+
+  /**
+   * The registry key name.
+   * @readonly
+   * @member {string} Registry#key
+   */
+  this.__defineGetter__('key', function () { return _key; });
+
+  /**
+   * The full path to the registry key.
+   * @readonly
+   * @member {string} Registry#path
+   */
+  this.__defineGetter__('path', function () { return '"' + (_host.length == 0 ? '' : '\\\\' + _host + '\\') + _hive + _key + '"'; });
+
+  /**
+   * The registry hive architecture ('x86' or 'x64').
+   * @readonly
+   * @member {string} Registry#arch
+   */
+  this.__defineGetter__('arch', function () { return _arch; });
+
+  /**
+   * Creates a new {@link Registry} instance that points to the parent registry key.
+   * @readonly
+   * @member {Registry} Registry#parent
+   */
+  this.__defineGetter__('parent', function () {
+    var i = _key.lastIndexOf('\\');
+    return new Registry({
+      host: this.host,
+      hive: this.hive,
+      key:  (i == -1)?'':_key.substring(0, i),
+      arch: this.arch
+    });
+  });
+
+  // validate options...
+  if (HIVES.indexOf(_hive) == -1)
+    throw new Error('illegal hive specified.');
+
+  if (!KEY_PATTERN.test(_key))
+    throw new Error('illegal key specified.');
+
+  if (_arch && _arch != 'x64' && _arch != 'x86')
+    throw new Error('illegal architecture specified (use x86 or x64)');
+
+}
+
+/**
+ * Registry hive key HKEY_LOCAL_MACHINE.
+ * Note: For writing to this hive your program has to run with admin privileges.
+ * @type {string}
+ */
+Registry.HKLM = HKLM;
+
+/**
+ * Registry hive key HKEY_CURRENT_USER.
+ * @type {string}
+ */
+Registry.HKCU = HKCU;
+
+/**
+ * Registry hive key HKEY_CLASSES_ROOT.
+ * Note: For writing to this hive your program has to run with admin privileges.
+ * @type {string}
+ */
+Registry.HKCR = HKCR;
+
+/**
+ * Registry hive key HKEY_USERS.
+ * Note: For writing to this hive your program has to run with admin privileges.
+ * @type {string}
+ */
+Registry.HKU = HKU;
+
+/**
+ * Registry hive key HKEY_CURRENT_CONFIG.
+ * Note: For writing to this hive your program has to run with admin privileges.
+ * @type {string}
+ */
+Registry.HKCC = HKCC;
+
+/**
+ * Collection of available registry hive keys.
+ * @type {array}
+ */
+Registry.HIVES = HIVES;
+
+/**
+ * Registry value type STRING.
+ * @type {string}
+ */
+Registry.REG_SZ = REG_SZ;
+
+/**
+ * Registry value type MULTILINE_STRING.
+ * @type {string}
+ */
+Registry.REG_MULTI_SZ = REG_MULTI_SZ;
+
+/**
+ * Registry value type EXPANDABLE_STRING.
+ * @type {string}
+ */
+Registry.REG_EXPAND_SZ = REG_EXPAND_SZ;
+
+/**
+ * Registry value type DOUBLE_WORD.
+ * @type {string}
+ */
+Registry.REG_DWORD = REG_DWORD;
+
+/**
+ * Registry value type QUAD_WORD.
+ * @type {string}
+ */
+Registry.REG_QWORD = REG_QWORD;
+
+/**
+ * Registry value type BINARY.
+ * @type {string}
+ */
+Registry.REG_BINARY = REG_BINARY;
+
+/**
+ * Registry value type UNKNOWN.
+ * @type {string}
+ */
+Registry.REG_NONE = REG_NONE;
+
+/**
+ * Collection of available registry value types.
+ * @type {array}
+ */
+Registry.REG_TYPES = REG_TYPES;
+
+/**
+ * The name of the default value. May be used instead of the empty string literal for better readability.
+ * @type {string}
+ */
+Registry.DEFAULT_VALUE = DEFAULT_VALUE;
+
+/**
+ * Retrieve all values from this registry key.
+ * @param {valuesCallback} cb - callback function
+ * @param {ProcessUncleanExitError=} cb.err - error object or null if successful
+ * @param {array=} cb.items - an array of {@link RegistryItem} objects
+ * @returns {Registry} this registry key object
+ */
+Registry.prototype.values = function values (cb) {
+
+  if (typeof cb !== 'function')
+    throw new TypeError('must specify a callback');
+
+  var args = [ 'QUERY', this.path ];
+
+  pushArch(args, this.arch);
+
+  var proc = spawn(getRegExePath(), args, {
+        cwd: undefined,
+        env: process.env,
+        shell: true,
+        windowsHide: true,
+        stdio: [ 'ignore', 'pipe', 'pipe' ]
+      })
+  ,   buffer = ''
+  ,   self = this
+  ,   error = null; // null means no error previously reported.
+
+  var output = captureOutput(proc);
+
+  proc.on('close', function (code) {
+    if (error) {
+      return;
+    } else if (code !== 0) {
+      cb(mkErrorMsg('QUERY', code, output), null);
+    } else {
+      var items = []
+      ,   result = []
+      ,   lines = buffer.split('\n')
+      ,   lineNumber = 0;
+
+      for (var i = 0, l = lines.length; i < l; i++) {
+        var line = lines[i].trim();
+        if (line.length > 0) {
+          if (lineNumber != 0) {
+            items.push(line);
+          }
+          ++lineNumber;
+        }
+      }
+
+      for (var i = 0, l = items.length; i < l; i++) {
+
+        var match = ITEM_PATTERN.exec(items[i])
+        ,   name
+        ,   type
+        ,   value;
+
+        if (match) {
+          name = match[1].trim();
+          type = match[2].trim();
+          value = match[3];
+          result.push(new RegistryItem(self.host, self.hive, self.key, name, type, value, self.arch));
+        }
+      }
+
+      cb(null, result);
+
+    }
+  });
+
+  proc.stdout.on('data', function (data) {
+    buffer += data.toString();
+  });
+
+  proc.on('error', function(err) {
+    error = err;
+    cb(err);
+  });
+
+  return this;
+};
+
+/**
+ * Retrieve all subkeys from this registry key.
+ * @param {function (err, items)} cb - callback function
+ * @param {ProcessUncleanExitError=} cb.err - error object or null if successful
+ * @param {array=} cb.items - an array of {@link Registry} objects
+ * @returns {Registry} this registry key object
+ */
+Registry.prototype.keys = function keys (cb) {
+
+  if (typeof cb !== 'function')
+    throw new TypeError('must specify a callback');
+
+  var args = [ 'QUERY', this.path ];
+
+  pushArch(args, this.arch);
+
+  var proc = spawn(getRegExePath(), args, {
+        cwd: undefined,
+        env: process.env,
+        shell: true,
+        windowsHide: true,
+        stdio: [ 'ignore', 'pipe', 'pipe' ]
+      })
+  ,   buffer = ''
+  ,   self = this
+  ,   error = null; // null means no error previously reported.
+
+  var output = captureOutput(proc);
+
+  proc.on('close', function (code) {
+    if (error) {
+      return;
+    } else if (code !== 0) {
+      cb(mkErrorMsg('QUERY', code, output), null);
+    }
+  });
+
+  proc.stdout.on('data', function (data) {
+    buffer += data.toString();
+  });
+
+  proc.stdout.on('end', function () {
+
+    var items = []
+    ,   result = []
+    ,   lines = buffer.split('\n');
+
+    for (var i = 0, l = lines.length; i < l; i++) {
+      var line = lines[i].trim();
+      if (line.length > 0) {
+        items.push(line);
+      }
+    }
+
+    for (var i = 0, l = items.length; i < l; i++) {
+
+      var match = PATH_PATTERN.exec(items[i])
+      ,   key;
+
+      if (match) {
+        match[1];
+        key  = match[2];
+        if (key && (key !== self.key)) {
+          result.push(new Registry({
+            host: self.host,
+            hive: self.hive,
+            key:  key,
+            arch: self.arch
+          }));
+        }
+      }
+    }
+
+    cb(null, result);
+
+  });
+
+  proc.on('error', function(err) {
+    error = err;
+    cb(err);
+  });
+
+  return this;
+};
+
+/**
+ * Gets a named value from this registry key.
+ * @param {string} name - the value name, use {@link Registry.DEFAULT_VALUE} or an empty string for the default value
+ * @param {function (err, item)} cb - callback function
+ * @param {ProcessUncleanExitError=} cb.err - error object or null if successful
+ * @param {RegistryItem=} cb.item - the retrieved registry item
+ * @returns {Registry} this registry key object
+ */
+Registry.prototype.get = function get (name, cb) {
+
+  if (typeof cb !== 'function')
+    throw new TypeError('must specify a callback');
+
+  var args = ['QUERY', this.path];
+  if (name == '')
+    args.push('/ve');
+  else
+    args = args.concat(['/v', name]);
+
+  pushArch(args, this.arch);
+
+  var proc = spawn(getRegExePath(), args, {
+        cwd: undefined,
+        env: process.env,
+        shell: true,
+        windowsHide: true,
+        stdio: [ 'ignore', 'pipe', 'pipe' ]
+      })
+  ,   buffer = ''
+  ,   self = this
+  ,   error = null; // null means no error previously reported.
+
+  var output = captureOutput(proc);
+
+  proc.on('close', function (code) {
+    if (error) {
+      return;
+    } else if (code !== 0) {
+      cb(mkErrorMsg('QUERY', code, output), null);
+    } else {
+      var items = []
+      ,   result = null
+      ,   lines = buffer.split('\n')
+      ,   lineNumber = 0;
+
+      for (var i = 0, l = lines.length; i < l; i++) {
+        var line = lines[i].trim();
+        if (line.length > 0) {
+          if (lineNumber != 0) {
+             items.push(line);
+          }
+          ++lineNumber;
+        }
+      }
+
+      //Get last item - so it works in XP where REG QUERY returns with a header
+      var item = items[items.length-1] || ''
+      ,   match = ITEM_PATTERN.exec(item)
+      ,   name
+      ,   type
+      ,   value;
+
+      if (match) {
+        name = match[1].trim();
+        type = match[2].trim();
+        value = match[3];
+        result = new RegistryItem(self.host, self.hive, self.key, name, type, value, self.arch);
+      }
+
+      cb(null, result);
+    }
+  });
+
+  proc.stdout.on('data', function (data) {
+    buffer += data.toString();
+  });
+
+  proc.on('error', function(err) {
+    error = err;
+    cb(err);
+  });
+
+  return this;
+};
+
+/**
+ * Sets a named value in this registry key, overwriting an already existing value.
+ * @param {string} name - the value name, use {@link Registry.DEFAULT_VALUE} or an empty string for the default value
+ * @param {string} type - the value type
+ * @param {string} value - the value
+ * @param {function (err)} cb - callback function
+ * @param {ProcessUncleanExitError=} cb.err - error object or null if successful
+ * @returns {Registry} this registry key object
+ */
+Registry.prototype.set = function set (name, type, value, cb) {
+
+  if (typeof cb !== 'function')
+    throw new TypeError('must specify a callback');
+
+  if (REG_TYPES.indexOf(type) == -1)
+    throw Error('illegal type specified.');
+
+  var args = ['ADD', this.path];
+  if (name == '')
+    args.push('/ve');
+  else
+    args = args.concat(['/v', name]);
+
+  args = args.concat(['/t', type, '/d', value, '/f']);
+
+  pushArch(args, this.arch);
+
+  var proc = spawn(getRegExePath(), args, {
+        cwd: undefined,
+        env: process.env,
+        shell: true,
+        windowsHide: true,
+        stdio: [ 'ignore', 'pipe', 'pipe' ]
+      })
+  ,   error = null; // null means no error previously reported.
+
+  var output = captureOutput(proc);
+
+  proc.on('close', function (code) {
+    if(error) {
+      return;
+    } else if (code !== 0) {
+      cb(mkErrorMsg('ADD', code, output));
+    } else {
+      cb(null);
+    }
+  });
+
+  proc.stdout.on('data', function (data) {
+  });
+
+  proc.on('error', function(err) {
+    error = err;
+    cb(err);
+  });
+
+  return this;
+};
+
+/**
+ * Remove a named value from this registry key. If name is empty, sets the default value of this key.
+ * Note: This key must be already existing.
+ * @param {string} name - the value name, use {@link Registry.DEFAULT_VALUE} or an empty string for the default value
+ * @param {function (err)} cb - callback function
+ * @param {ProcessUncleanExitError=} cb.err - error object or null if successful
+ * @returns {Registry} this registry key object
+ */
+Registry.prototype.remove = function remove (name, cb) {
+
+  if (typeof cb !== 'function')
+    throw new TypeError('must specify a callback');
+
+  var args = name ? ['DELETE', this.path, '/f', '/v', name] : ['DELETE', this.path, '/f', '/ve'];
+
+  pushArch(args, this.arch);
+
+  var proc = spawn(getRegExePath(), args, {
+        cwd: undefined,
+        env: process.env,
+        shell: true,
+        windowsHide: true,
+        stdio: [ 'ignore', 'pipe', 'pipe' ]
+      })
+  ,   error = null; // null means no error previously reported.
+
+  var output = captureOutput(proc);
+
+  proc.on('close', function (code) {
+    if(error) {
+      return;
+    } else if (code !== 0) {
+      cb(mkErrorMsg('DELETE', code, output), null);
+    } else {
+      cb(null);
+    }
+  });
+
+  proc.stdout.on('data', function (data) {
+  });
+
+  proc.on('error', function(err) {
+    error = err;
+    cb(err);
+  });
+
+  return this;
+};
+
+/**
+ * Remove all subkeys and values (including the default value) from this registry key.
+ * @param {function (err)} cb - callback function
+ * @param {ProcessUncleanExitError=} cb.err - error object or null if successful
+ * @returns {Registry} this registry key object
+ */
+Registry.prototype.clear = function clear (cb) {
+
+  if (typeof cb !== 'function')
+    throw new TypeError('must specify a callback');
+
+  var args = ['DELETE', this.path, '/f', '/va'];
+
+  pushArch(args, this.arch);
+
+  var proc = spawn(getRegExePath(), args, {
+        cwd: undefined,
+        env: process.env,
+        shell: true,
+        windowsHide: true,
+        stdio: [ 'ignore', 'pipe', 'pipe' ]
+      })
+  ,   error = null; // null means no error previously reported.
+
+  var output = captureOutput(proc);
+
+  proc.on('close', function (code) {
+    if(error) {
+      return;
+    } else if (code !== 0) {
+      cb(mkErrorMsg("DELETE", code, output), null);
+    } else {
+      cb(null);
+    }
+  });
+
+  proc.stdout.on('data', function (data) {
+  });
+
+  proc.on('error', function(err) {
+    error = err;
+    cb(err);
+  });
+
+  return this;
+};
+
+/**
+ * Alias for the clear method to keep it backward compatible.
+ * @method
+ * @deprecated Use {@link Registry#clear} or {@link Registry#destroy} in favour of this method.
+ * @param {function (err)} cb - callback function
+ * @param {ProcessUncleanExitError=} cb.err - error object or null if successful
+ * @returns {Registry} this registry key object
+ */
+Registry.prototype.erase = Registry.prototype.clear;
+
+/**
+ * Delete this key and all subkeys from the registry.
+ * @param {function (err)} cb - callback function
+ * @param {ProcessUncleanExitError=} cb.err - error object or null if successful
+ * @returns {Registry} this registry key object
+ */
+Registry.prototype.destroy = function destroy (cb) {
+
+  if (typeof cb !== 'function')
+    throw new TypeError('must specify a callback');
+
+  var args = ['DELETE', this.path, '/f'];
+
+  pushArch(args, this.arch);
+
+  var proc = spawn(getRegExePath(), args, {
+        cwd: undefined,
+        env: process.env,
+        shell: true,
+        windowsHide: true,
+        stdio: [ 'ignore', 'pipe', 'pipe' ]
+      })
+  ,   error = null; // null means no error previously reported.
+
+  var output = captureOutput(proc);
+
+  proc.on('close', function (code) {
+    if (error) {
+      return;
+    } else if (code !== 0) {
+      cb(mkErrorMsg('DELETE', code, output), null);
+    } else {
+      cb(null);
+    }
+  });
+
+  proc.stdout.on('data', function (data) {
+  });
+
+  proc.on('error', function(err) {
+    error = err;
+    cb(err);
+  });
+
+  return this;
+};
+
+/**
+ * Create this registry key. Note that this is a no-op if the key already exists.
+ * @param {function (err)} cb - callback function
+ * @param {ProcessUncleanExitError=} cb.err - error object or null if successful
+ * @returns {Registry} this registry key object
+ */
+Registry.prototype.create = function create (cb) {
+
+  if (typeof cb !== 'function')
+    throw new TypeError('must specify a callback');
+
+  var args = ['ADD', this.path, '/f'];
+
+  pushArch(args, this.arch);
+
+  var proc = spawn(getRegExePath(), args, {
+        cwd: undefined,
+        env: process.env,
+        shell: true,
+        windowsHide: true,
+        stdio: [ 'ignore', 'pipe', 'pipe' ]
+      })
+  ,   error = null; // null means no error previously reported.
+
+  var output = captureOutput(proc);
+
+  proc.on('close', function (code) {
+    if (error) {
+      return;
+    } else if (code !== 0) {
+      cb(mkErrorMsg('ADD', code, output), null);
+    } else {
+      cb(null);
+    }
+  });
+
+  proc.stdout.on('data', function (data) {
+  });
+
+  proc.on('error', function(err) {
+    error = err;
+    cb(err);
+  });
+
+  return this;
+};
+
+/**
+ * Checks if this key already exists.
+ * @param {function (err, exists)} cb - callback function
+ * @param {ProcessUncleanExitError=} cb.err - error object or null if successful
+ * @param {boolean=} cb.exists - true if a registry key with this name already exists
+ * @returns {Registry} this registry key object
+ */
+Registry.prototype.keyExists = function keyExists (cb) {
+
+  this.values(function (err, items) {
+    if (err) {
+      // process should return with code 1 if key not found
+      if (err.code == 1) {
+        return cb(null, false);
+      }
+      // other error
+      return cb(err);
+    }
+    cb(null, true);
+  });
+
+  return this;
+};
+
+/**
+ * Checks if a value with the given name already exists within this key.
+ * @param {string} name - the value name, use {@link Registry.DEFAULT_VALUE} or an empty string for the default value
+ * @param {function (err, exists)} cb - callback function
+ * @param {ProcessUncleanExitError=} cb.err - error object or null if successful
+ * @param {boolean=} cb.exists - true if a value with the given name was found in this key
+ * @returns {Registry} this registry key object
+ */
+Registry.prototype.valueExists = function valueExists (name, cb) {
+
+  this.get(name, function (err, item) {
+    if (err) {
+      // process should return with code 1 if value not found
+      if (err.code == 1) {
+        return cb(null, false);
+      }
+      // other error
+      return cb(err);
+    }
+    cb(null, true);
+  });
+
+  return this;
+};
+
+var registry = Registry;
+
+var Registry$1 = /*@__PURE__*/getDefaultExportFromCjs(registry);
+
+index.logger.setLevel(LogLevel.DEBUG);
+index.actions.registerAction(new Sensor());
+const logger = index.logger.createScope("Plugin.Ts scope");
+let regKey = new Registry$1({
+    hive: Registry$1.HKCU, // open registry hive HKEY_CURRENT_USER
+    key: "\\Software\\HWiNFO64\\VSB",
+});
+//keep a local copy of the registry keys so the action can access it
+setInterval(async function () {
+    let arrayOfKeys = [];
+    regKey.values(async function (err, items) {
+        if (err)
+            logger.error(err.toString());
+        else {
+            for (var i = 0; i < items.length; i++) {
+                arrayOfKeys.push(items[i]);
+            }
+            await index.settings.setGlobalSettings({ registry: arrayOfKeys });
+        }
+    });
+}, 2000);
+index.connect();
+//# sourceMappingURL=plugin.js.map
