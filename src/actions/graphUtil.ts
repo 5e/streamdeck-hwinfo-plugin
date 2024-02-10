@@ -1,6 +1,4 @@
 //@ts-ignore
-import SvgBuilder from "svg-builder";
-
 export class Graph {
   graphHistory: GraphHistoryEntry[] = [];
 
@@ -32,52 +30,50 @@ export class Graph {
     sensorFontSize: string,
     fontName: string
   ) {
-    var svgImg = SvgBuilder.newInstance();
-    svgImg.width(144).height(144);
-    svgImg.rect({ height: "144", width: "144", fill: backgroundColor });
+    let svgBuilder = `<svg
+	height="144"
+	width="144"
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+  >
+	<rect height="144" width="144" fill="${backgroundColor}"></rect>`;
 
     for (let index = 0; index < this.graphHistory.length; index++) {
       const element: GraphHistoryEntry = this.graphHistory[index];
       //setting the points
-      svgImg.line({
-        x1: index * 2,
-        y1: 144,
-        x2: index * 2,
-        y2: element.y2,
-        stroke: graphColor,
-        "stroke-width": 2,
-      });
+      svgBuilder += `<line
+	  x1="${index * 2}"
+	  y1="144"
+	  x2="${index * 2}"
+	  y2="${element.y2}"
+	  stroke="${graphColor}"
+	  stroke-width="2"
+	></line>`;
     }
 
-    svgImg.text(
-      {
-        x: 72,
-        y: 42,
-        "font-family": fontName,
-        "font-size": titleFontSize,
-        stroke: "grey",
-        fill: "grey",
-        "text-anchor": "middle",
-      },
-      title
-    );
+    svgBuilder += `<text
+    x="72"
+    y="42"
+    font-family="${fontName}"
+    font-size="${titleFontSize}"
+    stroke="grey"
+    fill="grey"
+    text-anchor="middle"
+  >${title}</text>`;
 
-    svgImg.text(
-      {
-        x: 72,
-        y: 116,
-        "font-family": fontName,
-        "font-size": sensorFontSize,
-        stroke: "white",
-        fill: "white",
-        "text-anchor": "middle",
-      },
-      sensorValue
-    );
+    svgBuilder += `<text
+    x="72"
+    y="116"
+    font-family="${fontName}"
+    font-size="${sensorFontSize}"
+    stroke="white"
+    fill="white"
+    text-anchor="middle"
+  >${sensorValue}</text>`;
 
-    let logo = svgImg.render();
-    let base64encoded = Buffer.from(logo).toString("base64");
-    let svgImage = `data:image/svg+xml;base64,${base64encoded}`;
+    svgBuilder += `</svg>`;
+
+    let svgImage = `data:image/svg+xml;,${encodeURIComponent(svgBuilder)}`;
     return svgImage;
   }
 }
