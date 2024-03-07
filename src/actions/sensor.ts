@@ -94,14 +94,18 @@ export class Sensor extends SingletonAction<SensorSettings> {
             found = true;
 
             //remove everything after full stop or a comma, we don't want to display decimal places
-            let formattedSensorValue = rawSensorValue.replace(/[\.,].*/g, "");
+            let formattedRawSensorValue = rawSensorValue.replace(
+              /[\.,].*/g,
+              ""
+            );
 
             //use sensorValue to get the unit of the sensor value by getting everything after a space, if there is no space then it should return nothing (fixes for values such as Yes and No)
             let sensorValueUnit = sensorValue.includes(" ")
               ? sensorValue.replace(/.*\s/g, "")
               : "";
 
-            formattedSensorValue = formattedSensorValue + sensorValueUnit;
+            let formattedSensorValue =
+              formattedRawSensorValue + sensorValueUnit;
             //winreg returns a � instead of a °
             formattedSensorValue = formattedSensorValue.replace("�", "°");
 
@@ -113,6 +117,8 @@ export class Sensor extends SingletonAction<SensorSettings> {
 
             this.buttons[ev.action.id]["lastSensorValue"] =
               formattedSensorValue;
+            this.buttons[ev.action.id]["rawSensorValue"] =
+              formattedRawSensorValue;
             this.buttons[ev.action.id]["graph"].addSensorValue(
               parseFloat(rawSensorValue),
               parseFloat(settings["graphMinValue"]),
@@ -131,6 +137,19 @@ export class Sensor extends SingletonAction<SensorSettings> {
     let updateScreen = async () => {
       let settings = this.buttons[ev.action.id]["settings"];
 
+      let sensorValue = "";
+
+      if (
+        settings["customSuffix"] == undefined ||
+        settings["customSuffix"] == "<default>"
+      ) {
+        sensorValue = this.buttons[ev.action.id]["lastSensorValue"] ?? "ERROR";
+      } else {
+        sensorValue =
+          (this.buttons[ev.action.id]["rawSensorValue"] ?? "ERROR") +
+          settings["customSuffix"];
+      }
+
       if (
         settings["graphType"] == undefined ||
         settings["graphType"] == "Graph"
@@ -140,7 +159,7 @@ export class Sensor extends SingletonAction<SensorSettings> {
             settings["graphColor"],
             settings["backgroundColor"],
             settings["title"],
-            this.buttons[ev.action.id]["lastSensorValue"] ?? "ERROR",
+            sensorValue,
             settings["titleFontSize"],
             settings["sensorFontSize"],
             settings["fontName"]
@@ -152,7 +171,7 @@ export class Sensor extends SingletonAction<SensorSettings> {
             settings["graphColor"],
             settings["backgroundColor"],
             settings["title"],
-            this.buttons[ev.action.id]["lastSensorValue"] ?? "ERROR",
+            sensorValue,
             settings["titleFontSize"],
             settings["sensorFontSize"],
             settings["fontName"]
@@ -168,6 +187,7 @@ export class Sensor extends SingletonAction<SensorSettings> {
           createSensorPollInterval();
         }, 1000),
         lastSensorValue: undefined,
+        rawSensorValue: undefined,
         graphInterval: setInterval(async () => {
           updateScreen();
         }, 1000),
@@ -197,12 +217,14 @@ type SensorSettings = {
   graphMinValue: string;
   graphMaxValue: string;
   graphType: string;
+  customSuffix: string;
 };
 
 type Button = {
   graph: Graph;
   sensorPollInterval: NodeJS.Timeout | undefined;
   lastSensorValue: string | undefined;
+  rawSensorValue: string | undefined;
   graphInterval: NodeJS.Timeout | undefined;
   settings: SensorSettings;
 };
