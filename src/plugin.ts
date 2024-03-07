@@ -17,13 +17,14 @@ let regKey = new Registry({
 setInterval(async function () {
   let arrayOfKeys: Registry.RegistryItem[] = [];
   regKey.values(async function (err, items) {
-    if (err) logger.error(err.toString());
-    else {
+    if (err) {
+      logger.error(err.toString());
+    } else {
       for (var i = 0; i < items.length; i++) {
         arrayOfKeys.push(items[i]);
       }
-      await streamDeck.settings.setGlobalSettings({ registry: arrayOfKeys });
     }
+    streamDeck.settings.setGlobalSettings({ registry: arrayOfKeys });
   });
 }, 2000);
 
