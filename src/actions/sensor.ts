@@ -93,11 +93,24 @@ export class Sensor extends SingletonAction<SensorSettings> {
           if (sensorValue != undefined && rawSensorValue != undefined) {
             found = true;
 
-            //remove everything after full stop or a comma, we don't want to display decimal places
-            let formattedRawSensorValue = rawSensorValue.replace(
-              /[\.,].*/g,
-              ""
-            );
+            // Split the raw sensor value at the decimal point or comma
+            let parts = rawSensorValue.split(/[\.,]/);
+            let formattedRawSensorValue = "";
+            // If there are no decimal places, return the integer part
+            if (
+              parseInt(settings["numberOfDecimalPlaces"]) == 0 ||
+              parts.length == 1 ||
+              settings["numberOfDecimalPlaces"] == undefined
+            ) {
+              formattedRawSensorValue = parts[0];
+            } else {
+              // If there are decimal places, format the decimal part
+              let decimalPart = (parts[1] || "").substring(
+                0,
+                parseInt(settings["numberOfDecimalPlaces"])
+              );
+              formattedRawSensorValue = `${parts[0]}.${decimalPart}`;
+            }
 
             //use sensorValue to get the unit of the sensor value by getting everything after a space, if there is no space then it should return nothing (fixes for values such as Yes and No)
             let sensorValueUnit = sensorValue.includes(" ")
@@ -218,6 +231,7 @@ type SensorSettings = {
   graphMaxValue: string;
   graphType: string;
   customSuffix: string;
+  numberOfDecimalPlaces: string;
 };
 
 type Button = {
