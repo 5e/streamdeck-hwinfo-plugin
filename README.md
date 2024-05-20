@@ -26,7 +26,7 @@ You can download and install the plugin from the [Releases](https://github.com/5
 - Enable "enable reporting to Gadget"
 - Choose what sensors you would like to monitor by pressing "Report value in Gadget"
 
-(Hint: Two sensors with the same name? [Make sure to rename one of them to avoid conflicts](https://github.com/5e/streamdeck-hwinfo-plugin#current-known-issues))
+(Hint: Two sensors with the same name? [Make sure to rename one of them to avoid conflicts](https://github.com/5e/streamdeck-hwinfo-plugin#known-issue))
 
 ![HWiNFO Gadget](https://i.imgur.com/2zBMrJX.png)
 
