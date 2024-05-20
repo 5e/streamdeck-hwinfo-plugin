@@ -26,21 +26,12 @@ You can download and install the plugin from the [Releases](https://github.com/5
 - Enable "enable reporting to Gadget"
 - Choose what sensors you would like to monitor by pressing "Report value in Gadget"
 
+(Hint: Two sensors with the same name? [Make sure to rename one of them to avoid conflicts](https://github.com/5e/streamdeck-hwinfo-plugin#current-known-issues))
+
 ![HWiNFO Gadget](https://i.imgur.com/2zBMrJX.png)
 
 - Then the sensors you have enabled will show up in the stream deck plugin
 
-## Maybe for the future?
+## Known issue
 
-- Change font colour
-- Change font outline colour
-- Change graph style e.g. choose outline and fill colour
-- Font weight
-- Choose where the title and sensor text should appear
-- ~~Change Y scale of the graph, so it's not always 0 to 100 as some sensor values may be over 100 such as wattage.~~ Done
-- Change speed of polling
-- Change graph timescale
-
-## Current known issues
-
-- Enabling HWiNFO gadget on two sensors with the exact same name (very unlikely scenario) may cause issues of the Stream Deck plugin showing the wrong value. A temporary fix to this is to rename the sensor name in HWiNFO (right click on sensor and press rename) and then re-select the correct sensor in the settings of the plugin.
+- Enabling HWiNFO gadget on two sensors with the exact same name may cause issues of the Stream Deck plugin showing the wrong value. A fix for this is to rename the sensor name in HWiNFO (right click on sensor and press rename) and then re-select the correct sensor in the settings of the plugin.
