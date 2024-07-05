@@ -175,7 +175,9 @@ export class Sensor extends SingletonAction<SensorSettings> {
             sensorValue,
             settings["titleFontSize"],
             settings["sensorFontSize"],
-            settings["fontName"]
+            settings["fontName"],
+            settings["titleColor"] ?? "#808080",
+            settings["sensorColor"] ?? "#FFFFFF"
           )
         );
       } else {
@@ -187,7 +189,9 @@ export class Sensor extends SingletonAction<SensorSettings> {
             sensorValue,
             settings["titleFontSize"],
             settings["sensorFontSize"],
-            settings["fontName"]
+            settings["fontName"],
+            settings["titleColor"] ?? "#808080",
+            settings["sensorColor"] ?? "#FFFFFF"
           )
         );
       }
@@ -232,6 +236,8 @@ type SensorSettings = {
   graphType: string;
   customSuffix: string;
   numberOfDecimalPlaces: string;
+  titleColor: string;
+  sensorColor: string;
 };
 
 type Button = {
