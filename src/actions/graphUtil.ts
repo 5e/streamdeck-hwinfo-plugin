@@ -36,7 +36,9 @@ export class Graph {
     sensorValue: string,
     titleFontSize: string,
     sensorFontSize: string,
-    fontName: string
+    fontName: string,
+    titleColor: string,
+    sensorColor: string
   ) {
     let svgBuilder = `<svg
   	height="144"
@@ -64,8 +66,8 @@ export class Graph {
       y="42"
       font-family="${fontName}"
       font-size="${titleFontSize}"
-      stroke="grey"
-      fill="grey"
+      stroke="${titleColor}"
+      fill="${titleColor}"
       text-anchor="middle"
     >${title}</text>`;
 
@@ -74,8 +76,8 @@ export class Graph {
       y="116"
       font-family="${fontName}"
       font-size="${sensorFontSize}"
-      stroke="white"
-      fill="white"
+      stroke="${sensorColor}"
+      fill="${sensorColor}"
       text-anchor="middle"
     >${sensorValue}</text>`;
 
@@ -92,7 +94,9 @@ export class Graph {
     sensorValue: string,
     titleFontSize: string,
     sensorFontSize: string,
-    fontName: string
+    fontName: string,
+    titleColor: string,
+    sensorColor: string
   ) {
     let svgBuilder = `<svg
 	height="144"
@@ -118,8 +122,8 @@ export class Graph {
       y="130"
       font-family="${fontName}"
       font-size="${titleFontSize}"
-      stroke="grey"
-      fill="grey"
+      stroke="${titleColor}"
+      fill="${titleColor}"
       text-anchor="middle"
     >${title}</text>`;
 
@@ -128,8 +132,8 @@ export class Graph {
       y="83"
       font-family="${fontName}"
       font-size="${sensorFontSize}"
-      stroke="white"
-      fill="white"
+      stroke="${sensorColor}"
+      fill="${sensorColor}"
       text-anchor="middle"
     >${sensorValue}</text>`;
 
