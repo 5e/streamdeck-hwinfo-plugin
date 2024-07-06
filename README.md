@@ -32,6 +32,8 @@ You can download and install the plugin from the [Releases](https://github.com/5
 
 - Then the sensors you have enabled will show up in the stream deck plugin
 
+![Quick guide on how to change values from e.g. MB to GB](https://github.com/5e/streamdeck-hwinfo-plugin/issues/25#issuecomment-2184139637)
+
 ## Known issue
 
 - Enabling HWiNFO gadget on two sensors with the exact same name may cause issues of the Stream Deck plugin showing the wrong value. A fix for this is to rename the sensor name in HWiNFO (right click on sensor and press rename) and then re-select the correct sensor in the settings of the plugin.
