@@ -1,13 +1,13 @@
 import streamDeck, { WillAppearEvent } from "@elgato/streamdeck";
-import { Buttons, RegistryItemArray, SensorSettings } from "../types/types";
+import { Buttons, RegistryData, SensorSettings } from "../types/types";
 
 export async function populateSensorData(
   buttons: Buttons,
-  registryData: RegistryItemArray
+  registryData: RegistryData
 ) {
   for (const buttonId in buttons) {
     const settings = buttons[buttonId]["settings"];
-    if (!settings["registryName"] || !registryData) {
+    if (!settings["registryName"] || !registryData.items) {
       continue;
     }
 
@@ -18,7 +18,7 @@ export async function populateSensorData(
 
     let found = false;
 
-    for (const element of registryData) {
+    for (const element of registryData.items) {
       if (element["value"] !== registryName) continue;
 
       const sensorName = element["name"];
@@ -28,8 +28,8 @@ export async function populateSensorData(
       const registrySensorValueName = `Value${index}`;
       const registrySensorRawValueName = `ValueRaw${index}`;
 
-      const sensorValue = registryData.find(item => item.name === registrySensorValueName)?.value;
-      const rawSensorValue = registryData.find(item => item.name === registrySensorRawValueName)?.value;
+      const sensorValue = registryData.items.find(item => item.name === registrySensorValueName)?.value;
+      const rawSensorValue = registryData.items.find(item => item.name === registrySensorRawValueName)?.value;
 
       if (sensorValue === undefined || rawSensorValue === undefined) continue;
 

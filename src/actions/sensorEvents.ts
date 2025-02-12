@@ -3,16 +3,16 @@ import streamDeck, {
   WillDisappearEvent,
   WillAppearEvent,
 } from "@elgato/streamdeck";
-import { SensorSettings, Buttons, RegistryItemArray } from "../types/types";
+import { SensorSettings, Buttons, RegistryData } from "../types/types";
 import { Graph } from "../types/graph";
 import { populateRegistryData } from "./populateRegistryData";
 import { updateScreen } from "./updateScreen";
 
 export async function onSendToPlugin(
-  registryData: RegistryItemArray
+  registryData: RegistryData
 ) {
   //Filter global settings by only returning items where the name field has "Label" in it 
-  let filteredRegistry = registryData.filter(
+  let filteredRegistry = registryData.items.filter(
       (item) => item.name.includes("Label")
     ).map((item) => {
       return {
@@ -45,11 +45,10 @@ export function handleDidReceiveSettings(
 export async function handleWillAppear(
   ev: WillAppearEvent<SensorSettings>,
   buttons: Buttons,
-  registryData: RegistryItemArray,
-  registryPoller: NodeJS.Timeout | undefined
+  registryData: RegistryData
 ) {
-  if (registryPoller == undefined) {
-    registryPoller = setInterval(() => {
+  if (registryData.poller == undefined) {
+    registryData.poller = setInterval(() => {
       populateRegistryData(registryData, buttons);
     }, 1000);
   }
@@ -66,6 +65,11 @@ export async function handleWillAppear(
     };
   } else {
     buttons[ev.action.id]["settings"] = mapSettings(ev.payload.settings);
+    if (buttons[ev.action.id]["graphInterval"] == undefined) {
+      buttons[ev.action.id]["graphInterval"] = setInterval(async () => {
+        updateScreen(ev, buttons);
+      }, 1000);
+    }
   }
 
   updateScreen(ev, buttons);

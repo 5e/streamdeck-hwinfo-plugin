@@ -33,7 +33,10 @@ export type RegistryItem = {
 	value: string;
 };
 
-export type RegistryItemArray = RegistryItem[];
+export type RegistryData = {
+	items: RegistryItem[];
+	poller: NodeJS.Timeout | undefined;
+}
 
 export type GraphHistoryEntry = {
 	y1: number;

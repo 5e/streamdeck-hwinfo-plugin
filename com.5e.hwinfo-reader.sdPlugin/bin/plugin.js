@@ -8278,7 +8278,7 @@ class Graph {
 async function populateSensorData(buttons, registryData) {
     for (const buttonId in buttons) {
         const settings = buttons[buttonId]["settings"];
-        if (!settings["registryName"] || !registryData) {
+        if (!settings["registryName"] || !registryData.items) {
             continue;
         }
         const registryName = settings["registryName"];
@@ -8286,7 +8286,7 @@ async function populateSensorData(buttons, registryData) {
         const graphMinValue = parseFloat(settings["graphMinValue"]);
         const graphMaxValue = parseFloat(settings["graphMaxValue"]);
         let found = false;
-        for (const element of registryData) {
+        for (const element of registryData.items) {
             if (element["value"] !== registryName)
                 continue;
             const sensorName = element["name"];
@@ -8295,8 +8295,8 @@ async function populateSensorData(buttons, registryData) {
                 continue;
             const registrySensorValueName = `Value${index}`;
             const registrySensorRawValueName = `ValueRaw${index}`;
-            const sensorValue = registryData.find(item => item.name === registrySensorValueName)?.value;
-            const rawSensorValue = registryData.find(item => item.name === registrySensorRawValueName)?.value;
+            const sensorValue = registryData.items.find(item => item.name === registrySensorValueName)?.value;
+            const rawSensorValue = registryData.items.find(item => item.name === registrySensorRawValueName)?.value;
             if (sensorValue === undefined || rawSensorValue === undefined)
                 continue;
             found = true;
@@ -9360,7 +9360,7 @@ function populateRegistryData(registryData, buttons) {
                 arrayOfKeys.push(items[i]);
             }
         }
-        Object.assign(registryData, arrayOfKeys);
+        Object.assign(registryData.items, arrayOfKeys);
     });
     //populate the sensor data
     populateSensorData(buttons, registryData);
@@ -9401,7 +9401,7 @@ function getSensorValue(settings, button) {
 
 async function onSendToPlugin(registryData) {
     //Filter global settings by only returning items where the name field has "Label" in it 
-    let filteredRegistry = registryData.filter((item) => item.name.includes("Label")).map((item) => {
+    let filteredRegistry = registryData.items.filter((item) => item.name.includes("Label")).map((item) => {
         return {
             label: item.value,
             value: item.value,
@@ -9422,9 +9422,9 @@ async function onSendToPlugin(registryData) {
 function handleDidReceiveSettings(ev, buttons) {
     buttons[ev.action.id]["settings"] = mapSettings(ev.payload.settings);
 }
-async function handleWillAppear(ev, buttons, registryData, registryPoller) {
-    if (registryPoller == undefined) {
-        registryPoller = setInterval(() => {
+async function handleWillAppear(ev, buttons, registryData) {
+    if (registryData.poller == undefined) {
+        registryData.poller = setInterval(() => {
             populateRegistryData(registryData, buttons);
         }, 1000);
     }
@@ -9441,6 +9441,11 @@ async function handleWillAppear(ev, buttons, registryData, registryPoller) {
     }
     else {
         buttons[ev.action.id]["settings"] = mapSettings(ev.payload.settings);
+        if (buttons[ev.action.id]["graphInterval"] == undefined) {
+            buttons[ev.action.id]["graphInterval"] = setInterval(async () => {
+                updateScreen(ev, buttons);
+            }, 1000);
+        }
     }
     updateScreen(ev, buttons);
 }
@@ -9485,8 +9490,10 @@ let Sensor = (() => {
             __runInitializers(_classThis, _classExtraInitializers);
         }
         buttons = {};
-        registryPoller = undefined;
-        registryData = [];
+        registryData = {
+            poller: undefined,
+            items: []
+        };
         async onSendToPlugin(ev) {
             const payload = ev.payload;
             const event = payload?.event ?? 'defaultEvent';
@@ -9494,11 +9501,16 @@ let Sensor = (() => {
                 await onSendToPlugin(this.registryData);
             }
         }
+        onWillDisappear(ev) {
+            //ensures a queue of actions doesn't build up else after you switch screens these will all be executed at once
+            clearInterval(this.buttons[ev.action.id]["graphInterval"]);
+            this.buttons[ev.action.id]["graphInterval"] = undefined;
+        }
         onDidReceiveSettings(ev) {
             handleDidReceiveSettings(ev, this.buttons);
         }
         async onWillAppear(ev) {
-            await handleWillAppear(ev, this.buttons, this.registryData, this.registryPoller);
+            await handleWillAppear(ev, this.buttons, this.registryData);
         }
     });
     return _classThis;
