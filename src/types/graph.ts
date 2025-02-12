@@ -1,4 +1,5 @@
-//@ts-ignore
+import { GraphHistoryEntry } from "./types";
+
 export class Graph {
   graphHistory: GraphHistoryEntry[] = [];
 
@@ -16,9 +17,9 @@ export class Graph {
       ((sensorValue - graphMinValue) / (graphMaxValue - graphMinValue)) * 144;
 
     /*
-	  If the arc takes 272 pixels to fill, that means graphMaxValue should equal to 272 pixels and graphMinValue should equal to 0 pixels
-	  Calculate the amount of pixels to fill using rawSensorValue
-	  */
+                    If the arc takes 272 pixels to fill, that means graphMaxValue should equal to 272 pixels and graphMinValue should equal to 0 pixels
+                    Calculate the amount of pixels to fill using rawSensorValue
+                    */
     let gaugePixels =
       272 * ((sensorValue - graphMinValue) / (graphMaxValue - graphMinValue));
     //add new entry
@@ -38,51 +39,60 @@ export class Graph {
     sensorFontSize: string,
     fontName: string,
     titleColor: string,
-    sensorColor: string
+    sensorColor: string,
+    highlightColor: string // Add highlight color parameter
   ) {
     let svgBuilder = `<svg
-  	height="144"
-  	width="144"
-  	xmlns="http://www.w3.org/2000/svg"
-  	xmlns:xlink="http://www.w3.org/1999/xlink"
-    >
-  	<rect height="144" width="144" fill="${backgroundColor}"></rect>`;
-
+        height="144"
+        width="144"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+      >
+        <rect height="144" width="144" fill="${backgroundColor}"></rect>`;
+  
     for (let index = 0; index < this.graphHistory.length; index++) {
       const element: GraphHistoryEntry = this.graphHistory[index];
-      //setting the points
+      // Add highlight rectangle
+      svgBuilder += `<rect
+        x="${index * 2}"
+        y="${element.y2 - 5}"
+        width="2"
+        height="5"
+        fill="${highlightColor}"
+        ></rect>`;
+      // Add main line
       svgBuilder += `<line
-  	  x1="${index * 2}"
-  	  y1="144"
-  	  x2="${index * 2}"
-  	  y2="${element.y2}"
-  	  stroke="${graphColor}"
-  	  stroke-width="2"
-  	></line>`;
+          x1="${index * 2}"
+          y1="144"
+          x2="${index * 2}"
+          y2="${element.y2}"
+          stroke="${graphColor}"
+          stroke-width="2"
+        ></line>`;
     }
-
+  
     svgBuilder += `<text
-      x="72"
-      y="42"
-      font-family="${fontName}"
-      font-size="${titleFontSize}"
-      stroke="${titleColor}"
-      fill="${titleColor}"
-      text-anchor="middle"
-    >${title}</text>`;
-
+        x="72"
+        y="42"
+        font-family="${fontName}"
+        font-size="${titleFontSize}"
+        stroke="${titleColor}"
+        fill="${titleColor}"
+        text-anchor="middle"
+      >${title}</text>`;
+  
     svgBuilder += `<text
-      x="72"
-      y="116"
-      font-family="${fontName}"
-      font-size="${sensorFontSize}"
-      stroke="${sensorColor}"
-      fill="${sensorColor}"
-      text-anchor="middle"
-    >${sensorValue}</text>`;
-
+        x="72"
+        y="116"
+        font-family="${fontName}"
+        font-size="${sensorFontSize}"
+        stroke="${sensorColor}"
+        fill="${sensorColor}"
+        text-anchor="middle"
+      >${sensorValue}</text>`;
+  
     svgBuilder += `</svg>`;
-
+  
     let svgImage = `data:image/svg+xml;,${encodeURIComponent(svgBuilder)}`;
     return svgImage;
   }
@@ -99,12 +109,12 @@ export class Graph {
     sensorColor: string
   ) {
     let svgBuilder = `<svg
-	height="144"
-	width="144"
-	xmlns="http://www.w3.org/2000/svg"
-	xmlns:xlink="http://www.w3.org/1999/xlink"
-  >
-	<rect height="144" width="144" fill="${backgroundColor}"></rect>`;
+      height="144"
+      width="144"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+    >
+      <rect height="144" width="144" fill="${backgroundColor}"></rect>`;
 
     if (this.graphHistory.length > 0) {
       //unfortunately dash offset is rendered from right to left, very band-aid fix
@@ -112,30 +122,30 @@ export class Graph {
         -273 + this.graphHistory[this.graphHistory.length - 1].gaugePixels;
 
       svgBuilder += `<path id="arc1" fill="none" stroke="#626464" stroke-width="20" d="M 117.96266658713867 112.56725658119235 A 60 60 0 1 0 26.037333412861322 112.56725658119235"></path>
-    <path id="arc1" fill="none" stroke="${graphColor}" stroke-dashoffset="${dashOffset}" stroke-dasharray="${
+      <path id="arc1" fill="none" stroke="${graphColor}" stroke-dashoffset="${dashOffset}" stroke-dasharray="${
         this.graphHistory[this.graphHistory.length - 1].gaugePixels
       } 1000" stroke-width="20" d="M 117.96266658713867 112.56725658119235 A 60 60 0 1 0 26.037333412861322 112.56725658119235"></path>
-	`;
+      `;
 
       svgBuilder += `<text
-      x="72"
-      y="130"
-      font-family="${fontName}"
-      font-size="${titleFontSize}"
-      stroke="${titleColor}"
-      fill="${titleColor}"
-      text-anchor="middle"
-    >${title}</text>`;
+        x="72"
+        y="130"
+        font-family="${fontName}"
+        font-size="${titleFontSize}"
+        stroke="${titleColor}"
+        fill="${titleColor}"
+        text-anchor="middle"
+      >${title}</text>`;
 
       svgBuilder += `<text
-      x="72"
-      y="83"
-      font-family="${fontName}"
-      font-size="${sensorFontSize}"
-      stroke="${sensorColor}"
-      fill="${sensorColor}"
-      text-anchor="middle"
-    >${sensorValue}</text>`;
+        x="72"
+        y="83"
+        font-family="${fontName}"
+        font-size="${sensorFontSize}"
+        stroke="${sensorColor}"
+        fill="${sensorColor}"
+        text-anchor="middle"
+      >${sensorValue}</text>`;
 
       svgBuilder += `</svg>`;
 
@@ -144,9 +154,3 @@ export class Graph {
     }
   }
 }
-
-type GraphHistoryEntry = {
-  y1: number;
-  y2: number;
-  gaugePixels: number;
-};
