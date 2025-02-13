@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <title>Increment Counter Settings</title>
+    <meta charset="utf-8" />
+    <script src="https://sdpi-components.dev/releases/v3/sdpi-components.js"></script>
+    <style>
+        .tab {
+            display: none;
+        }
+
+        .tab.active {
+            display: block;
+        }
+
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .tab-button {
+            color: #969696;
+            user-select: none;
+            padding: 5px 10px;
+            font-family: "Franklin Gothic Medium";
+            cursor: pointer;
+            background-color: #424242;
+            font-size: 14px;
+        }
+
+        .tab-button.active {
+            background-color: #565656;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="tab-buttons">
+        <div class="tab-button active" data-tab="general">General</div>
+        <div class="tab-button" data-tab="appearance">Colors</div>
+    </div>
+
+    <div class="tab active" id="general">
+        <sdpi-item label="Sensor">
+            <sdpi-select setting="registryName" datasource="populateSensorList" placeholder="Select a sensor" show-refresh="true">
+            </sdpi-select>
+            <a target="_blank" href="https://github.com/5e/streamdeck-hwinfo-plugin?tab=readme-ov-file#instructions-for-hwinfo">(Help)</a>
+        </sdpi-item>
+
+        <sdpi-item label="Display">
+            <sdpi-select setting="graphType">
+                <option value="Graph">Graph</option>
+                <option value="Gauge">Gauge</option>
+            </sdpi-select>
+        </sdpi-item>
+
+        <sdpi-item label="Title">
+            <sdpi-textfield setting="title" value="Hello"></sdpi-textfield>
+        </sdpi-item>
+
+        <sdpi-item label="Title Font Size">
+            <sdpi-textfield setting="titleFontSize" placeholder="26"></sdpi-textfield>
+        </sdpi-item>
+
+        <sdpi-item label="Title Text Alignment">
+            <sdpi-select setting="titleAlignment" default="top">
+                <option value="top">Top</option>
+                <option value="middle">Middle</option>
+                <option value="bottom">Bottom</option>
+            </sdpi-select>
+        </sdpi-item>
+
+        <sdpi-item label="Sensor Font Size">
+            <sdpi-textfield setting="sensorFontSize" placeholder="38"></sdpi-textfield>
+        </sdpi-item>
+
+        <sdpi-item label="Sensor Text Alignment">
+            <sdpi-select setting="sensorAlignment" default="bottom">
+                <option value="top">Top</option>
+                <option value="middle">Middle</option>
+                <option value="bottom">Bottom</option>
+            </sdpi-select>
+        </sdpi-item>
+
+        <sdpi-item label="Font Name">
+            <sdpi-textfield setting="fontName" placeholder="Franklin Gothic Medium"></sdpi-textfield>
+        </sdpi-item>
+
+        <sdpi-item label="Graph Min/Max">
+            <div style="display: flex">
+                <sdpi-textfield setting="graphMinValue" placeholder="0" style="width: 50px;"></sdpi-textfield>
+                <sdpi-textfield setting="graphMaxValue" placeholder="100" style="width: 50px; margin-left: 10px;"></sdpi-textfield>
+            </div>
+        </sdpi-item>
+
+        <sdpi-item label="Custom Suffix">
+            <sdpi-textfield setting="customSuffix"></sdpi-textfield>
+        </sdpi-item>
+
+        <sdpi-item label="Number of decimal places">
+            <sdpi-textfield setting="numberOfDecimalPlaces" placeholder="0"></sdpi-textfield>
+        </sdpi-item>
+    </div>
+
+    <div class="tab" id="appearance">
+        <sdpi-item label="Background">
+            <sdpi-color setting="backgroundColor" default="#000000"></sdpi-color>
+        </sdpi-item>
+
+        <sdpi-item label="Graph">
+            <sdpi-color setting="graphColor" default="#103B00"></sdpi-color>
+        </sdpi-item>
+
+        <sdpi-item label="Graph Highlight">
+            <sdpi-color setting="graphHighlightColor" default="#1a6200"></sdpi-color>
+        </sdpi-item>
+
+        <sdpi-item label="Title">
+            <sdpi-color setting="titleColor" default="#808080"></sdpi-color>
+        </sdpi-item>
+
+        <sdpi-item label="Sensor">
+            <sdpi-color setting="sensorColor" default="#FFFFFF"></sdpi-color>
+        </sdpi-item>
+    </div>
+
+    <script>
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tab = button.getAttribute('data-tab');
+
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab').forEach(tabContent => tabContent.classList.remove('active'));
+
+                button.classList.add('active');
+                document.getElementById(tab).classList.add('active');
+            });
+        });
+    </script>
+</body>
+
+</html>

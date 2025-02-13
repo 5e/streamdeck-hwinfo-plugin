@@ -5,7 +5,8 @@
 			"node"
 		],
 		"module": "ES2022",
-		"moduleResolution": "Bundler"
+		"moduleResolution": "Bundler",
+		"noImplicitOverride": true
 	},
 	"include": [
 		"src/**/*.ts"
