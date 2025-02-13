@@ -20,7 +20,9 @@ export function updateScreen(
         settings["fontName"],
         settings["titleColor"],
         settings["sensorColor"],
-        settings["graphHighlightColor"]
+        settings["graphHighlightColor"],
+        settings["sensorAlignment"],
+        settings["titleAlignment"]
       )
     );
   } else {

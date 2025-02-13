@@ -40,7 +40,9 @@ export class Graph {
     fontName: string,
     titleColor: string,
     sensorColor: string,
-    highlightColor: string // Add highlight color parameter
+    highlightColor: string,
+    sensorAlignment: string,
+    titleAlignment: string
   ) {
     let svgBuilder = `<svg
         height="144"
@@ -73,7 +75,7 @@ export class Graph {
   
     svgBuilder += `<text
         x="72"
-        y="42"
+        y="${getYValue(titleFontSize, titleAlignment)}"
         font-family="${fontName}"
         font-size="${titleFontSize}"
         stroke="${titleColor}"
@@ -83,7 +85,7 @@ export class Graph {
   
     svgBuilder += `<text
         x="72"
-        y="116"
+        y="${getYValue(sensorFontSize, sensorAlignment)}"
         font-family="${fontName}"
         font-size="${sensorFontSize}"
         stroke="${sensorColor}"
@@ -153,4 +155,22 @@ export class Graph {
       return svgImage;
     }
   }
+}
+
+// Extracted getYValue function
+function getYValue(sensorFontSize: string, verticalAlign: string) {
+  const sensorFontSizePx = parseInt(sensorFontSize, 10);
+  let yPosition;
+  switch (verticalAlign) {
+    case "top":
+      yPosition = sensorFontSizePx; // Adjust to ensure the text stays within bounds
+      break;
+    case "middle":
+      yPosition = 72 + sensorFontSizePx / 2; // Adjust to ensure the text stays centered
+      break;
+    case "bottom":
+      yPosition = 144 - sensorFontSizePx / 2; // Adjust to ensure the text stays within bounds
+      break;
+  }
+  return yPosition;
 }

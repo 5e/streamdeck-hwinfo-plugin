@@ -16,6 +16,8 @@ export type SensorSettings = {
 	titleColor: string;
 	sensorColor: string;
 	graphHighlightColor: string;
+	sensorAlignment: string;
+	titleAlignment: string;
   };
   
 export type Button = {

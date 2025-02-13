@@ -94,6 +94,8 @@ export function mapSettings(settings: SensorSettings) {
     titleColor: defaultIfEmpty(settings.titleColor, "#808080"),
     sensorColor: defaultIfEmpty(settings.sensorColor, "#FFFFFF"),
     graphHighlightColor: defaultIfEmpty(settings.graphHighlightColor, "#1a6200"),
+    sensorAlignment: defaultIfEmpty(settings.sensorAlignment, "bottom"),
+    titleAlignment: defaultIfEmpty(settings.titleAlignment, "top"),
   };
 };
 

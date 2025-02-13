@@ -48,6 +48,13 @@
             <a target="_blank" href="https://github.com/5e/streamdeck-hwinfo-plugin?tab=readme-ov-file#instructions-for-hwinfo">(Help)</a>
         </sdpi-item>
 
+        <sdpi-item label="Display">
+            <sdpi-select setting="graphType">
+                <option value="Graph">Graph</option>
+                <option value="Gauge">Gauge</option>
+            </sdpi-select>
+        </sdpi-item>
+
         <sdpi-item label="Title">
             <sdpi-textfield setting="title" value="Hello"></sdpi-textfield>
         </sdpi-item>
@@ -56,15 +63,24 @@
             <sdpi-textfield setting="titleFontSize" placeholder="26"></sdpi-textfield>
         </sdpi-item>
 
-        <sdpi-item label="Display">
-            <sdpi-select setting="graphType">
-                <option value="Graph">Graph</option>
-                <option value="Gauge">Gauge</option>
+        <sdpi-item label="Title Text Alignment">
+            <sdpi-select setting="titleAlignment" default="top">
+                <option value="top">Top</option>
+                <option value="middle">Middle</option>
+                <option value="bottom">Bottom</option>
             </sdpi-select>
         </sdpi-item>
 
         <sdpi-item label="Sensor Font Size">
             <sdpi-textfield setting="sensorFontSize" placeholder="38"></sdpi-textfield>
+        </sdpi-item>
+
+        <sdpi-item label="Sensor Text Alignment">
+            <sdpi-select setting="sensorAlignment" default="bottom">
+                <option value="top">Top</option>
+                <option value="middle">Middle</option>
+                <option value="bottom">Bottom</option>
+            </sdpi-select>
         </sdpi-item>
 
         <sdpi-item label="Font Name">
