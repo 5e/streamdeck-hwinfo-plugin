@@ -169,7 +169,7 @@ function getYValue(sensorFontSize: string, verticalAlign: string) {
       yPosition = 72 + sensorFontSizePx / 2; // Adjust to ensure the text stays centered
       break;
     case "bottom":
-      yPosition = 144 - sensorFontSizePx / 2; // Adjust to ensure the text stays within bounds
+      yPosition = 144 - sensorFontSizePx / 3; // Adjust to ensure the text stays within bounds
       break;
   }
   return yPosition;
