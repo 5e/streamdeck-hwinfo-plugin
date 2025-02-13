@@ -1,23 +1,25 @@
 {
 	"Name": "HWiNFO Reader",
-	"Version": "1.4.0",
+	"Version": "1.5.0.0",
 	"Author": "5e",
 	"Actions": [
-	  {
-		"Name": "Show Sensor Value",
-		"UUID": "com.5e.hwinfo-reader.sensor",
-		"Icon": "imgs/actions/sensor/icon",
-		"UserTitleEnabled": false,
-		"Tooltip": "Displays a sensor value from HWiNFO",
-		"Controllers": ["Keypad"],
-		"States": [
-		  {
-			"Image": "imgs/plugin/category-icon",
-			"TitleAlignment": "middle"
-		  }
-		],
-		"PropertyInspectorPath": "ui/inspector.html"
-	  }
+		{
+			"Name": "Show Sensor Value",
+			"UUID": "com.5e.hwinfo-reader.sensor",
+			"Icon": "imgs/actions/sensor/icon",
+			"UserTitleEnabled": false,
+			"Tooltip": "Displays a sensor value from HWiNFO",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/plugin/category-icon",
+					"TitleAlignment": "middle"
+				}
+			],
+			"PropertyInspectorPath": "ui/inspector.html"
+		}
 	],
 	"Category": "HWiNFO Reader",
 	"CategoryIcon": "imgs/plugin/category-icon",
@@ -27,18 +29,17 @@
 	"URL": "https://github.com/5e/streamdeck-hwinfo-plugin",
 	"SDKVersion": 2,
 	"Software": {
-	  "MinimumVersion": "6.5"
+		"MinimumVersion": "6.5"
 	},
 	"OS": [
-	  {
-		"Platform": "windows",
-		"MinimumVersion": "10"
-	  }
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
 	],
 	"Nodejs": {
-	  "Version": "20",
-	  "Debug": "enabled"
+		"Version": "20",
+		"Debug": "enabled"
 	},
 	"UUID": "com.5e.hwinfo-reader"
-  }
-  
+}

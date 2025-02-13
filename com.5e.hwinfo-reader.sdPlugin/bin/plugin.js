@@ -8185,8 +8185,7 @@ class Graph {
             gaugePixels: gaugePixels,
         });
     }
-    generateSvg(graphColor, backgroundColor, title, sensorValue, titleFontSize, sensorFontSize, fontName, titleColor, sensorColor, highlightColor // Add highlight color parameter
-    ) {
+    generateSvg(graphColor, backgroundColor, title, sensorValue, titleFontSize, sensorFontSize, fontName, titleColor, sensorColor, highlightColor, sensorAlignment, titleAlignment) {
         let svgBuilder = `<svg
         height="144"
         width="144"
@@ -8216,7 +8215,7 @@ class Graph {
         }
         svgBuilder += `<text
         x="72"
-        y="42"
+        y="${getYValue(titleFontSize, titleAlignment)}"
         font-family="${fontName}"
         font-size="${titleFontSize}"
         stroke="${titleColor}"
@@ -8225,7 +8224,7 @@ class Graph {
       >${title}</text>`;
         svgBuilder += `<text
         x="72"
-        y="116"
+        y="${getYValue(sensorFontSize, sensorAlignment)}"
         font-family="${fontName}"
         font-size="${sensorFontSize}"
         stroke="${sensorColor}"
@@ -8273,6 +8272,23 @@ class Graph {
             return svgImage;
         }
     }
+}
+// Extracted getYValue function
+function getYValue(sensorFontSize, verticalAlign) {
+    const sensorFontSizePx = parseInt(sensorFontSize, 10);
+    let yPosition;
+    switch (verticalAlign) {
+        case "top":
+            yPosition = sensorFontSizePx; // Adjust to ensure the text stays within bounds
+            break;
+        case "middle":
+            yPosition = 72 + sensorFontSizePx / 2; // Adjust to ensure the text stays centered
+            break;
+        case "bottom":
+            yPosition = 144 - sensorFontSizePx / 3; // Adjust to ensure the text stays within bounds
+            break;
+    }
+    return yPosition;
 }
 
 async function populateSensorData(buttons, registryData) {
@@ -9370,7 +9386,7 @@ function updateScreen(ev, buttons) {
     const settings = buttons[ev.action.id]["settings"];
     const sensorValue = getSensorValue(settings, buttons[ev.action.id]);
     if (settings["graphType"] == "Graph") {
-        ev.action.setImage(buttons[ev.action.id]["graph"].generateSvg(settings["graphColor"], settings["backgroundColor"], settings["title"], sensorValue, settings["titleFontSize"], settings["sensorFontSize"], settings["fontName"], settings["titleColor"], settings["sensorColor"], settings["graphHighlightColor"]));
+        ev.action.setImage(buttons[ev.action.id]["graph"].generateSvg(settings["graphColor"], settings["backgroundColor"], settings["title"], sensorValue, settings["titleFontSize"], settings["sensorFontSize"], settings["fontName"], settings["titleColor"], settings["sensorColor"], settings["graphHighlightColor"], settings["sensorAlignment"], settings["titleAlignment"]));
     }
     else {
         ev.action.setImage(buttons[ev.action.id]["graph"].generateArcSvg(settings["graphColor"], settings["backgroundColor"], settings["title"], sensorValue, settings["titleFontSize"], settings["sensorFontSize"], settings["fontName"], settings["titleColor"] ?? "#808080", settings["sensorColor"] ?? "#FFFFFF"));
@@ -9468,6 +9484,8 @@ function mapSettings(settings) {
         titleColor: defaultIfEmpty(settings.titleColor, "#808080"),
         sensorColor: defaultIfEmpty(settings.sensorColor, "#FFFFFF"),
         graphHighlightColor: defaultIfEmpty(settings.graphHighlightColor, "#1a6200"),
+        sensorAlignment: defaultIfEmpty(settings.sensorAlignment, "bottom"),
+        titleAlignment: defaultIfEmpty(settings.titleAlignment, "top"),
     };
 }
 function defaultIfEmpty(value, defaultValue) {
