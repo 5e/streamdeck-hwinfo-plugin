@@ -54,14 +54,6 @@ export class Graph {
   
     for (let index = 0; index < this.graphHistory.length; index++) {
       const element: GraphHistoryEntry = this.graphHistory[index];
-      // Add highlight rectangle
-      svgBuilder += `<rect
-        x="${index * 2}"
-        y="${element.y2 - 5}"
-        width="2"
-        height="5"
-        fill="${highlightColor}"
-        ></rect>`;
       // Add main line
       svgBuilder += `<line
           x1="${index * 2}"
@@ -71,6 +63,15 @@ export class Graph {
           stroke="${graphColor}"
           stroke-width="2"
         ></line>`;
+
+      // Add highlight rectangle
+      svgBuilder += `<rect
+        x="${index * 2 - 1}"
+        y="${element.y2}"
+        width="2"
+        height="5"
+        fill="${highlightColor}"
+        ></rect>`;
     }
   
     svgBuilder += `<text
