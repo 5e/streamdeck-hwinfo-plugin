@@ -18,16 +18,16 @@ export type SensorSettings = {
 	graphHighlightColor: string;
 	sensorAlignment: string;
 	titleAlignment: string;
-  };
-  
+};
+
 export type Button = {
 	graph: Graph;
 	lastSensorValue: string | undefined;
 	rawSensorValue: string | undefined;
 	graphInterval: NodeJS.Timeout | undefined;
 	settings: SensorSettings;
-  };
-  
+};
+
 export type Buttons = { [key: string]: Button };
 
 export type RegistryItem = {
@@ -41,7 +41,6 @@ export type RegistryData = {
 }
 
 export type GraphHistoryEntry = {
-	y1: number;
-	y2: number;
+	y: number;
 	gaugePixels: number;
 };  
