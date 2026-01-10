@@ -8,6 +8,7 @@ export type SensorSettings = {
 	sensorFontSize: string;
 	titleFontSize: string;
 	fontName: string;
+	fontWeight: string;
 	graphMinValue: string;
 	graphMaxValue: string;
 	graphType: string;

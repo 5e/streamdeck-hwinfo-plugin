@@ -37,7 +37,8 @@ export class Graph {
     sensorColor: string,
     highlightColor: string,
     sensorAlignment: string,
-    titleAlignment: string
+    titleAlignment: string,
+	fontWeight: string
   ) {
     let svgBuilder = `<svg
         height="144"
@@ -81,7 +82,7 @@ export class Graph {
         y="${getYValue(titleFontSize, titleAlignment)}"
         font-family="${fontName}"
         font-size="${titleFontSize}"
-        stroke="${titleColor}"
+        font-weight="${fontWeight}"
         fill="${titleColor}"
         text-anchor="middle"
       >${title}</text>`;
@@ -91,6 +92,7 @@ export class Graph {
         y="${getYValue(sensorFontSize, sensorAlignment)}"
         font-family="${fontName}"
         font-size="${sensorFontSize}"
+		font-weight="${fontWeight}"
         stroke="${sensorColor}"
         fill="${sensorColor}"
         text-anchor="middle"
@@ -111,7 +113,8 @@ export class Graph {
     sensorFontSize: string,
     fontName: string,
     titleColor: string,
-    sensorColor: string
+    sensorColor: string,
+	fontWeight: string
   ) {
     let svgBuilder = `<svg
 		height="144"
@@ -137,6 +140,7 @@ export class Graph {
 			y="130"
 			font-family="${fontName}"
 			font-size="${titleFontSize}"
+			font-weight="${fontWeight}"
 			stroke="${titleColor}"
 			fill="${titleColor}"
 			text-anchor="middle"
@@ -147,6 +151,7 @@ export class Graph {
 			y="83"
 			font-family="${fontName}"
 			font-size="${sensorFontSize}"
+			font-weight="${fontWeight}"
 			stroke="${sensorColor}"
 			fill="${sensorColor}"
 			text-anchor="middle"

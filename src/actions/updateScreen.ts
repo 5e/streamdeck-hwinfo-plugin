@@ -22,7 +22,8 @@ export function updateScreen(
         settings["sensorColor"],
         settings["graphHighlightColor"],
         settings["sensorAlignment"],
-        settings["titleAlignment"]
+        settings["titleAlignment"],
+		settings["fontWeight"]
       )
     );
   } else {
@@ -36,7 +37,8 @@ export function updateScreen(
         settings["sensorFontSize"],
         settings["fontName"],
         settings["titleColor"] ?? "#808080",
-        settings["sensorColor"] ?? "#FFFFFF"
+        settings["sensorColor"] ?? "#FFFFFF",
+		settings["fontWeight"],
       )
     );
   }
