@@ -78,6 +78,8 @@ export async function handleWillAppear(
 export function mapSettings(settings: SensorSettings) {
   // Here we set the default values for the settings
   // We can no longer set the default values through the UI as sdpi-components doesn't support it
+  let titleColor = defaultIfEmpty(settings.titleColor, "#808080");
+  let sensorColor = defaultIfEmpty(settings.sensorColor, "#FFFFFF");
   return {
     registryName: defaultIfEmpty(settings.registryName, ""),
     title: defaultIfEmpty(settings.title, ""),
@@ -92,11 +94,15 @@ export function mapSettings(settings: SensorSettings) {
     graphType: defaultIfEmpty(settings.graphType, "Graph"),
     customSuffix: defaultIfEmpty(settings.customSuffix, ""),
     numberOfDecimalPlaces: defaultIfEmpty(settings.numberOfDecimalPlaces, "0"),
-    titleColor: defaultIfEmpty(settings.titleColor, "#808080"),
-    sensorColor: defaultIfEmpty(settings.sensorColor, "#FFFFFF"),
+    titleColor: titleColor,
+    titleOutlineColor: defaultIfEmpty(settings.titleOutlineColor, titleColor),
+    sensorColor: sensorColor,
+	sensorOutlineColor: defaultIfEmpty(settings.sensorOutlineColor, sensorColor),
     graphHighlightColor: defaultIfEmpty(settings.graphHighlightColor, "#1a6200"),
     sensorAlignment: defaultIfEmpty(settings.sensorAlignment, "bottom"),
     titleAlignment: defaultIfEmpty(settings.titleAlignment, "top"),
+	sensorOutlineWidth: defaultIfEmpty(settings.sensorOutlineWidth, "1"),
+	titleOutlineWidth: defaultIfEmpty(settings.titleOutlineWidth, "1"),
   };
 };
 

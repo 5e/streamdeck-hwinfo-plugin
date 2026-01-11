@@ -32,12 +32,17 @@
         .tab-button.active {
             background-color: #565656;
         }
+
+		.divider {
+			height: 1px; background-color: #565656; margin: 10px 0;
+		}
     </style>
 </head>
 
 <body>
     <div class="tab-buttons">
         <div class="tab-button active" data-tab="general">General</div>
+		<div class="tab-button" data-tab="styling">Styling</div>
         <div class="tab-button" data-tab="appearance">Colors</div>
     </div>
 
@@ -46,55 +51,6 @@
             <sdpi-select setting="registryName" datasource="populateSensorList" placeholder="Select a sensor" show-refresh="true">
             </sdpi-select>
             <a target="_blank" href="https://github.com/5e/streamdeck-hwinfo-plugin?tab=readme-ov-file#instructions-for-hwinfo">(Help)</a>
-        </sdpi-item>
-
-        <sdpi-item label="Display">
-            <sdpi-select setting="graphType">
-                <option value="Graph">Graph</option>
-                <option value="Gauge">Gauge</option>
-            </sdpi-select>
-        </sdpi-item>
-
-        <sdpi-item label="Title">
-            <sdpi-textfield setting="title" value="Hello"></sdpi-textfield>
-        </sdpi-item>
-
-        <sdpi-item label="Title Font Size">
-            <sdpi-textfield setting="titleFontSize" placeholder="26"></sdpi-textfield>
-        </sdpi-item>
-
-        <sdpi-item label="Title Text Alignment">
-            <sdpi-select setting="titleAlignment" default="top">
-                <option value="top">Top</option>
-                <option value="middle">Middle</option>
-                <option value="bottom">Bottom</option>
-            </sdpi-select>
-        </sdpi-item>
-
-        <sdpi-item label="Sensor Font Size">
-            <sdpi-textfield setting="sensorFontSize" placeholder="38"></sdpi-textfield>
-        </sdpi-item>
-
-        <sdpi-item label="Sensor Text Alignment">
-            <sdpi-select setting="sensorAlignment" default="bottom">
-                <option value="top">Top</option>
-                <option value="middle">Middle</option>
-                <option value="bottom">Bottom</option>
-            </sdpi-select>
-        </sdpi-item>
-
-        <sdpi-item label="Font Name">
-            <sdpi-textfield setting="fontName" placeholder="Franklin Gothic"></sdpi-textfield>
-        </sdpi-item>
-
-		<sdpi-item label="Font Weight">
-			<sdpi-range
-				setting="fontWeight"
-				min="100"
-				max="900"
-				step="100"
-				showlabels>
-			</sdpi-range>
         </sdpi-item>
 
         <sdpi-item label="Graph Min/Max">
@@ -113,6 +69,85 @@
         </sdpi-item>
     </div>
 
+	<div class="tab" id="styling">
+		<sdpi-item label="Display">
+            <sdpi-select setting="graphType">
+                <option value="Graph">Graph</option>
+                <option value="Gauge">Gauge</option>
+            </sdpi-select>
+        </sdpi-item>
+
+		<sdpi-item label="Font Name">
+            <sdpi-textfield setting="fontName" placeholder="Franklin Gothic"></sdpi-textfield>
+        </sdpi-item>
+
+		<sdpi-item label="Font Weight">
+			<sdpi-range
+				setting="fontWeight"
+				min="100"
+				max="900"
+				step="100"
+				showlabels>
+			</sdpi-range>
+		</sdpi-item>
+
+		<div class="divider"></div>
+
+        <sdpi-item label="Title">
+            <sdpi-textfield setting="title" value="Hello"></sdpi-textfield>
+        </sdpi-item>
+
+        <sdpi-item label="Title Font Size">
+            <sdpi-textfield setting="titleFontSize" placeholder="26"></sdpi-textfield>
+        </sdpi-item>
+
+        <sdpi-item label="Title Text Alignment">
+            <sdpi-select setting="titleAlignment" default="top">
+                <option value="top">Top</option>
+                <option value="middle">Middle</option>
+                <option value="bottom">Bottom</option>
+            </sdpi-select>
+        </sdpi-item>
+
+		<sdpi-item label="Title">
+            <sdpi-color setting="titleColor" default="#808080"></sdpi-color>
+        </sdpi-item>
+
+		<sdpi-item label="Title Outline">
+            <sdpi-color setting="titleOutlineColor" default="#808080"></sdpi-color>
+        </sdpi-item>
+
+		<sdpi-item label="Title Outline Width">
+            <sdpi-textfield setting="titleOutlineWidth" placeholder="1"></sdpi-textfield>
+        </sdpi-item>
+
+		<div class="divider"></div>
+
+        <sdpi-item label="Sensor Font Size">
+            <sdpi-textfield setting="sensorFontSize" placeholder="38"></sdpi-textfield>
+        </sdpi-item>
+
+        <sdpi-item label="Sensor Text Alignment">
+            <sdpi-select setting="sensorAlignment" default="bottom">
+                <option value="top">Top</option>
+                <option value="middle">Middle</option>
+                <option value="bottom">Bottom</option>
+            </sdpi-select>
+        </sdpi-item>
+
+		<sdpi-item label="Sensor">
+            <sdpi-color setting="sensorColor" default="#FFFFFF"></sdpi-color>
+        </sdpi-item>
+
+		<sdpi-item label="Sensor Outline">
+            <sdpi-color setting="sensorOutlineColor" default="#FFFFFF"></sdpi-color>
+        </sdpi-item>
+
+		<sdpi-item label="Sensor Outline Width">
+            <sdpi-textfield setting="sensorOutlineWidth" placeholder="1"></sdpi-textfield>
+        </sdpi-item>
+    </div>
+
     <div class="tab" id="appearance">
         <sdpi-item label="Background">
             <sdpi-color setting="backgroundColor" default="#000000"></sdpi-color>
@@ -124,15 +159,7 @@
 
         <sdpi-item label="Graph Highlight">
             <sdpi-color setting="graphHighlightColor" default="#1a6200"></sdpi-color>
-        </sdpi-item>
-
-        <sdpi-item label="Title">
-            <sdpi-color setting="titleColor" default="#808080"></sdpi-color>
-        </sdpi-item>
-
-        <sdpi-item label="Sensor">
-            <sdpi-color setting="sensorColor" default="#FFFFFF"></sdpi-color>
-        </sdpi-item>
+        </sdpi-item>	
     </div>
 
     <script>

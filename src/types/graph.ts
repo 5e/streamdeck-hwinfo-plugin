@@ -1,4 +1,4 @@
-import { GraphHistoryEntry } from "./types";
+import { GraphHistoryEntry, SensorSettings } from "./types";
 
 export class Graph {
   graphHistory: GraphHistoryEntry[] = [];
@@ -26,19 +26,8 @@ export class Graph {
   }
 
   generateSvg(
-    graphColor: string,
-    backgroundColor: string,
-    title: string,
-    sensorValue: string,
-    titleFontSize: string,
-    sensorFontSize: string,
-    fontName: string,
-    titleColor: string,
-    sensorColor: string,
-    highlightColor: string,
-    sensorAlignment: string,
-    titleAlignment: string,
-	fontWeight: string
+	settings: SensorSettings,
+	sensorValue: string
   ) {
     let svgBuilder = `<svg
         height="144"
@@ -46,7 +35,7 @@ export class Graph {
         xmlns="http://www.w3.org/2000/svg"
         xmlns:xlink="http://www.w3.org/1999/xlink"
       >
-        <rect height="144" width="144" fill="${backgroundColor}"></rect>`;
+        <rect height="144" width="144" fill="${settings.backgroundColor}"></rect>`;
 
     // Build smooth path for the graph line
     if (this.graphHistory.length > 1) {
@@ -72,29 +61,32 @@ export class Graph {
       }
       // Close area path: drop to bottom, go left to start, close
       areaD += ` L ${points[points.length - 1].x} 144 L ${points[0].x} 144 Z`;
-      svgBuilder += `<path d="${areaD}" fill="${graphColor}" stroke="none" />`;
-      svgBuilder += `<path d="${pathD}" fill="none" stroke="${graphColor}" stroke-width="2" />`;
-      svgBuilder += `<path d="${highlightD}" fill="none" stroke="${highlightColor}" stroke-width="3" />`;
+      svgBuilder += `<path d="${areaD}" fill="${settings.graphColor}" stroke="none" />`;
+      svgBuilder += `<path d="${pathD}" fill="none" stroke="${settings.graphColor}" stroke-width="2" />`;
+      svgBuilder += `<path d="${highlightD}" fill="none" stroke="${settings.graphHighlightColor}" stroke-width="3" />`;
     }
 
     svgBuilder += `<text
         x="72"
-        y="${getYValue(titleFontSize, titleAlignment)}"
-        font-family="${fontName}"
-        font-size="${titleFontSize}"
-        font-weight="${fontWeight}"
-        fill="${titleColor}"
+        y="${getYValue(settings.titleFontSize, settings.titleAlignment)}"
+        font-family="${settings.fontName}"
+        font-size="${settings.titleFontSize}"
+        font-weight="${settings.fontWeight}"
+        fill="${settings.titleColor}"
+		stroke="${settings.titleOutlineColor}"
+		stroke-width="${settings.titleOutlineWidth}"
         text-anchor="middle"
-      >${title}</text>`;
+      >${settings.title}</text>`;
 
     svgBuilder += `<text
         x="72"
-        y="${getYValue(sensorFontSize, sensorAlignment)}"
-        font-family="${fontName}"
-        font-size="${sensorFontSize}"
-		font-weight="${fontWeight}"
-        stroke="${sensorColor}"
-        fill="${sensorColor}"
+        y="${getYValue(settings.sensorFontSize, settings.sensorAlignment)}"
+        font-family="${settings.fontName}"
+        font-size="${settings.sensorFontSize}"
+		font-weight="${settings.fontWeight}"
+		stroke-width="${settings.sensorOutlineWidth}"
+        stroke="${settings.sensorOutlineColor}"
+        fill="${settings.sensorColor}"
         text-anchor="middle"
       >${sensorValue}</text>`;
 
@@ -105,16 +97,8 @@ export class Graph {
   }
 
   generateArcSvg(
-    graphColor: string,
-    backgroundColor: string,
-    title: string,
-    sensorValue: string,
-    titleFontSize: string,
-    sensorFontSize: string,
-    fontName: string,
-    titleColor: string,
-    sensorColor: string,
-	fontWeight: string
+    settings: SensorSettings,
+	sensorValue: string
   ) {
     let svgBuilder = `<svg
 		height="144"
@@ -122,7 +106,7 @@ export class Graph {
 		xmlns="http://www.w3.org/2000/svg"
 		xmlns:xlink="http://www.w3.org/1999/xlink"
 		>
-      	<rect height="144" width="144" fill="${backgroundColor}"></rect>`;
+      	<rect height="144" width="144" fill="${settings.backgroundColor}"></rect>`;
 
     if (this.graphHistory.length > 0) {
       //unfortunately dash offset is rendered from right to left, very band-aid fix
@@ -130,7 +114,7 @@ export class Graph {
         -273 + this.graphHistory[this.graphHistory.length - 1].gaugePixels;
 
       svgBuilder += `<path id="arc1" fill="none" stroke="#626464" stroke-width="20" d="M 117.96266658713867 112.56725658119235 A 60 60 0 1 0 26.037333412861322 112.56725658119235"></path>
-      <path id="arc1" fill="none" stroke="${graphColor}" stroke-dashoffset="${dashOffset}" stroke-dasharray="${
+      <path id="arc1" fill="none" stroke="${settings.graphColor}" stroke-dashoffset="${dashOffset}" stroke-dasharray="${
         this.graphHistory[this.graphHistory.length - 1].gaugePixels
       } 1000" stroke-width="20" d="M 117.96266658713867 112.56725658119235 A 60 60 0 1 0 26.037333412861322 112.56725658119235"></path>
       `;
@@ -138,22 +122,24 @@ export class Graph {
       svgBuilder += `<text
 			x="72"
 			y="130"
-			font-family="${fontName}"
-			font-size="${titleFontSize}"
-			font-weight="${fontWeight}"
-			stroke="${titleColor}"
-			fill="${titleColor}"
+			font-family="${settings.fontName}"
+			font-size="${settings.titleFontSize}"
+			font-weight="${settings.fontWeight}"
+			stroke="${settings.titleOutlineColor}"
+			stroke-width="${settings.titleOutlineWidth}"
+			fill="${settings.titleColor}"
 			text-anchor="middle"
-			>${title}</text>`;
+			>${settings.title}</text>`;
 
       svgBuilder += `<text
 			x="72"
 			y="83"
-			font-family="${fontName}"
-			font-size="${sensorFontSize}"
-			font-weight="${fontWeight}"
-			stroke="${sensorColor}"
-			fill="${sensorColor}"
+			font-family="${settings.fontName}"
+			font-size="${settings.sensorFontSize}"
+			font-weight="${settings.fontWeight}"
+			stroke="${settings.sensorOutlineColor}"
+			stroke-width="${settings.sensorOutlineWidth}"
+			fill="${settings.sensorColor}"
 			text-anchor="middle"
 			>${sensorValue}</text>`;
 

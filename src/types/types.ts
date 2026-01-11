@@ -15,10 +15,14 @@ export type SensorSettings = {
 	customSuffix: string;
 	numberOfDecimalPlaces: string;
 	titleColor: string;
+	titleOutlineColor: string;
 	sensorColor: string;
+	sensorOutlineColor: string;
 	graphHighlightColor: string;
 	sensorAlignment: string;
 	titleAlignment: string;
+	sensorOutlineWidth: string;
+	titleOutlineWidth: string;
 };
 
 export type Button = {
