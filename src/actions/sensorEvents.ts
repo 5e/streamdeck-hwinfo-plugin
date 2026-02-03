@@ -7,8 +7,9 @@ import { SensorSettings, Buttons, RegistryData } from "../types/types";
 import { Graph } from "../types/graph";
 import { populateRegistryData } from "./populateRegistryData";
 import { updateScreen } from "./updateScreen";
+import { getFonts2, IFontInfo } from 'font-list';
 
-export async function onSendToPlugin(
+export async function onPopulateSensorList(
   registryData: RegistryData
 ) {
   //Filter global settings by only returning items where the name field has "Label" in it 
@@ -33,6 +34,24 @@ export async function onSendToPlugin(
     event: "populateSensorList",
     items: filteredRegistry
   });
+}
+
+export async function onPopulateFontList() {
+	// Read system fonts and pass them to the property inspector
+	let fonts: IFontInfo[] = await getFonts2({disableQuoting: true});
+
+	// The SVG version used by stream deck has issues with font families with specific weights. 
+	// e.g. Franklin Gothic Medium does not work, we have to set it to Frankilin Gothic with weight seperately
+
+	let fontFamilies = fonts.map(font => font.familyName);
+	
+	// Remove duplicates
+	fontFamilies = Array.from(new Set(fontFamilies));
+
+	await streamDeck.ui.current?.sendToPropertyInspector({
+		event: "populateFontList",
+		items: fontFamilies.map(font => ({ label: font, value: font }))
+	});
 }
 
 export function handleDidReceiveSettings(

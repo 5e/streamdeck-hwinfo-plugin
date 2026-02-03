@@ -9,7 +9,7 @@ import {
 	WillAppearEvent,
 	WillDisappearEvent,
   } from "@elgato/streamdeck";
-  import { onSendToPlugin, handleDidReceiveSettings, handleWillAppear } from "./sensorEvents";
+  import { onPopulateSensorList, handleDidReceiveSettings, handleWillAppear, onPopulateFontList } from "./sensorEvents";
   import { SensorSettings, Buttons, RegistryData } from "../types/types";
 
   @action({ UUID: "com.5e.hwinfo-reader.sensor" })
@@ -25,7 +25,10 @@ import {
 		const event = payload?.event ?? 'defaultEvent';
 
 		if (event === "populateSensorList") {
-			await onSendToPlugin(this.registryData);
+			await onPopulateSensorList(this.registryData);
+		} else if (event === "populateFontList") {
+			// Handle populateFontList event if needed
+			await onPopulateFontList();
 		}
 	}
 

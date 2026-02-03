@@ -14,6 +14,7 @@ import fs, { existsSync, readFileSync } from 'node:fs';
 import require$$0$4 from 'util';
 import require$$1$2 from 'path';
 import require$$2$1 from 'child_process';
+import { getFonts2 } from 'font-list';
 
 /**!
  * @author Elgato
@@ -8180,14 +8181,14 @@ class Graph {
             gaugePixels: gaugePixels,
         });
     }
-    generateSvg(graphColor, backgroundColor, title, sensorValue, titleFontSize, sensorFontSize, fontName, titleColor, sensorColor, highlightColor, sensorAlignment, titleAlignment) {
+    generateSvg(settings, sensorValue) {
         let svgBuilder = `<svg
         height="144"
         width="144"
         xmlns="http://www.w3.org/2000/svg"
         xmlns:xlink="http://www.w3.org/1999/xlink"
       >
-        <rect height="144" width="144" fill="${backgroundColor}"></rect>`;
+        <rect height="144" width="144" fill="${settings.backgroundColor}"></rect>`;
         // Build smooth path for the graph line
         if (this.graphHistory.length > 1) {
             let pathD = "";
@@ -8212,62 +8213,70 @@ class Graph {
             }
             // Close area path: drop to bottom, go left to start, close
             areaD += ` L ${points[points.length - 1].x} 144 L ${points[0].x} 144 Z`;
-            svgBuilder += `<path d="${areaD}" fill="${graphColor}" stroke="none" />`;
-            svgBuilder += `<path d="${pathD}" fill="none" stroke="${graphColor}" stroke-width="2" />`;
-            svgBuilder += `<path d="${highlightD}" fill="none" stroke="${highlightColor}" stroke-width="3" />`;
+            svgBuilder += `<path d="${areaD}" fill="${settings.graphColor}" stroke="none" />`;
+            svgBuilder += `<path d="${pathD}" fill="none" stroke="${settings.graphColor}" stroke-width="2" />`;
+            svgBuilder += `<path d="${highlightD}" fill="none" stroke="${settings.graphHighlightColor}" stroke-width="3" />`;
         }
         svgBuilder += `<text
         x="72"
-        y="${getYValue(titleFontSize, titleAlignment)}"
-        font-family="${fontName}"
-        font-size="${titleFontSize}"
-        stroke="${titleColor}"
-        fill="${titleColor}"
+        y="${getYValue(settings.titleFontSize, settings.titleAlignment)}"
+        font-family="${settings.fontName}"
+        font-size="${settings.titleFontSize}"
+        font-weight="${settings.fontWeight}"
+        fill="${settings.titleColor}"
+		stroke="${settings.titleOutlineColor}"
+		stroke-width="${settings.titleOutlineWidth}"
         text-anchor="middle"
-      >${title}</text>`;
+      >${settings.title}</text>`;
         svgBuilder += `<text
         x="72"
-        y="${getYValue(sensorFontSize, sensorAlignment)}"
-        font-family="${fontName}"
-        font-size="${sensorFontSize}"
-        stroke="${sensorColor}"
-        fill="${sensorColor}"
+        y="${getYValue(settings.sensorFontSize, settings.sensorAlignment)}"
+        font-family="${settings.fontName}"
+        font-size="${settings.sensorFontSize}"
+		font-weight="${settings.fontWeight}"
+		stroke-width="${settings.sensorOutlineWidth}"
+        stroke="${settings.sensorOutlineColor}"
+        fill="${settings.sensorColor}"
         text-anchor="middle"
       >${sensorValue}</text>`;
         svgBuilder += `</svg>`;
         let svgImage = `data:image/svg+xml;,${encodeURIComponent(svgBuilder)}`;
         return svgImage;
     }
-    generateArcSvg(graphColor, backgroundColor, title, sensorValue, titleFontSize, sensorFontSize, fontName, titleColor, sensorColor) {
+    generateArcSvg(settings, sensorValue) {
         let svgBuilder = `<svg
 		height="144"
 		width="144"
 		xmlns="http://www.w3.org/2000/svg"
 		xmlns:xlink="http://www.w3.org/1999/xlink"
 		>
-      	<rect height="144" width="144" fill="${backgroundColor}"></rect>`;
+      	<rect height="144" width="144" fill="${settings.backgroundColor}"></rect>`;
         if (this.graphHistory.length > 0) {
             //unfortunately dash offset is rendered from right to left, very band-aid fix
             let dashOffset = -273 + this.graphHistory[this.graphHistory.length - 1].gaugePixels;
             svgBuilder += `<path id="arc1" fill="none" stroke="#626464" stroke-width="20" d="M 117.96266658713867 112.56725658119235 A 60 60 0 1 0 26.037333412861322 112.56725658119235"></path>
-      <path id="arc1" fill="none" stroke="${graphColor}" stroke-dashoffset="${dashOffset}" stroke-dasharray="${this.graphHistory[this.graphHistory.length - 1].gaugePixels} 1000" stroke-width="20" d="M 117.96266658713867 112.56725658119235 A 60 60 0 1 0 26.037333412861322 112.56725658119235"></path>
+      <path id="arc1" fill="none" stroke="${settings.graphColor}" stroke-dashoffset="${dashOffset}" stroke-dasharray="${this.graphHistory[this.graphHistory.length - 1].gaugePixels} 1000" stroke-width="20" d="M 117.96266658713867 112.56725658119235 A 60 60 0 1 0 26.037333412861322 112.56725658119235"></path>
       `;
             svgBuilder += `<text
 			x="72"
 			y="130"
-			font-family="${fontName}"
-			font-size="${titleFontSize}"
-			stroke="${titleColor}"
-			fill="${titleColor}"
+			font-family="${settings.fontName}"
+			font-size="${settings.titleFontSize}"
+			font-weight="${settings.fontWeight}"
+			stroke="${settings.titleOutlineColor}"
+			stroke-width="${settings.titleOutlineWidth}"
+			fill="${settings.titleColor}"
 			text-anchor="middle"
-			>${title}</text>`;
+			>${settings.title}</text>`;
             svgBuilder += `<text
 			x="72"
 			y="83"
-			font-family="${fontName}"
-			font-size="${sensorFontSize}"
-			stroke="${sensorColor}"
-			fill="${sensorColor}"
+			font-family="${settings.fontName}"
+			font-size="${settings.sensorFontSize}"
+			font-weight="${settings.fontWeight}"
+			stroke="${settings.sensorOutlineColor}"
+			stroke-width="${settings.sensorOutlineWidth}"
+			fill="${settings.sensorColor}"
 			text-anchor="middle"
 			>${sensorValue}</text>`;
             svgBuilder += `</svg>`;
@@ -9388,10 +9397,10 @@ function updateScreen(ev, buttons) {
     const settings = buttons[ev.action.id]["settings"];
     const sensorValue = getSensorValue(settings, buttons[ev.action.id]);
     if (settings["graphType"] == "Graph") {
-        ev.action.setImage(buttons[ev.action.id]["graph"].generateSvg(settings["graphColor"], settings["backgroundColor"], settings["title"], sensorValue, settings["titleFontSize"], settings["sensorFontSize"], settings["fontName"], settings["titleColor"], settings["sensorColor"], settings["graphHighlightColor"], settings["sensorAlignment"], settings["titleAlignment"]));
+        ev.action.setImage(buttons[ev.action.id]["graph"].generateSvg(settings, sensorValue));
     }
     else {
-        ev.action.setImage(buttons[ev.action.id]["graph"].generateArcSvg(settings["graphColor"], settings["backgroundColor"], settings["title"], sensorValue, settings["titleFontSize"], settings["sensorFontSize"], settings["fontName"], settings["titleColor"] ?? "#808080", settings["sensorColor"] ?? "#FFFFFF"));
+        ev.action.setImage(buttons[ev.action.id]["graph"].generateArcSvg(settings, sensorValue));
     }
 }
 function getSensorValue(settings, button) {
@@ -9417,7 +9426,7 @@ function getSensorValue(settings, button) {
     }
 }
 
-async function onSendToPlugin(registryData) {
+async function onPopulateSensorList(registryData) {
     //Filter global settings by only returning items where the name field has "Label" in it 
     let filteredRegistry = registryData.items.filter((item) => item.name.includes("Label")).map((item) => {
         return {
@@ -9435,6 +9444,19 @@ async function onSendToPlugin(registryData) {
     await streamDeck.ui.current?.sendToPropertyInspector({
         event: "populateSensorList",
         items: filteredRegistry
+    });
+}
+async function onPopulateFontList() {
+    // Read system fonts and pass them to the property inspector
+    let fonts = await getFonts2({ disableQuoting: true });
+    // The SVG version used by stream deck has issues with font families with specific weights. 
+    // e.g. Franklin Gothic Medium does not work, we have to set it to Frankilin Gothic with weight seperately
+    let fontFamilies = fonts.map(font => font.familyName);
+    // Remove duplicates
+    fontFamilies = Array.from(new Set(fontFamilies));
+    await streamDeck.ui.current?.sendToPropertyInspector({
+        event: "populateFontList",
+        items: fontFamilies.map(font => ({ label: font, value: font }))
     });
 }
 function handleDidReceiveSettings(ev, buttons) {
@@ -9470,6 +9492,8 @@ async function handleWillAppear(ev, buttons, registryData) {
 function mapSettings(settings) {
     // Here we set the default values for the settings
     // We can no longer set the default values through the UI as sdpi-components doesn't support it
+    let titleColor = defaultIfEmpty(settings.titleColor, "#808080");
+    let sensorColor = defaultIfEmpty(settings.sensorColor, "#FFFFFF");
     return {
         registryName: defaultIfEmpty(settings.registryName, ""),
         title: defaultIfEmpty(settings.title, ""),
@@ -9477,17 +9501,22 @@ function mapSettings(settings) {
         graphColor: defaultIfEmpty(settings.graphColor, "#103B00"),
         sensorFontSize: defaultIfEmpty(settings.sensorFontSize, "38"),
         titleFontSize: defaultIfEmpty(settings.titleFontSize, "26"),
-        fontName: defaultIfEmpty(settings.fontName, "Franklin Gothic Medium"),
+        fontName: defaultIfEmpty(settings.fontName, "Franklin Gothic"),
+        fontWeight: defaultIfEmpty(settings.fontWeight, "400"),
         graphMinValue: defaultIfEmpty(settings.graphMinValue, "0"),
         graphMaxValue: defaultIfEmpty(settings.graphMaxValue, "100"),
         graphType: defaultIfEmpty(settings.graphType, "Graph"),
         customSuffix: defaultIfEmpty(settings.customSuffix, ""),
         numberOfDecimalPlaces: defaultIfEmpty(settings.numberOfDecimalPlaces, "0"),
-        titleColor: defaultIfEmpty(settings.titleColor, "#808080"),
-        sensorColor: defaultIfEmpty(settings.sensorColor, "#FFFFFF"),
+        titleColor: titleColor,
+        titleOutlineColor: defaultIfEmpty(settings.titleOutlineColor, titleColor),
+        sensorColor: sensorColor,
+        sensorOutlineColor: defaultIfEmpty(settings.sensorOutlineColor, sensorColor),
         graphHighlightColor: defaultIfEmpty(settings.graphHighlightColor, "#1a6200"),
         sensorAlignment: defaultIfEmpty(settings.sensorAlignment, "bottom"),
         titleAlignment: defaultIfEmpty(settings.titleAlignment, "top"),
+        sensorOutlineWidth: defaultIfEmpty(settings.sensorOutlineWidth, "1"),
+        titleOutlineWidth: defaultIfEmpty(settings.titleOutlineWidth, "1"),
     };
 }
 function defaultIfEmpty(value, defaultValue) {
@@ -9518,7 +9547,11 @@ let Sensor = (() => {
             const payload = ev.payload;
             const event = payload?.event ?? 'defaultEvent';
             if (event === "populateSensorList") {
-                await onSendToPlugin(this.registryData);
+                await onPopulateSensorList(this.registryData);
+            }
+            else if (event === "populateFontList") {
+                // Handle populateFontList event if needed
+                await onPopulateFontList();
             }
         }
         onWillDisappear(ev) {

@@ -19,6 +19,7 @@
     },
     "dependencies": {
         "@elgato/streamdeck": "^1.1.1",
+        "font-list": "^2.0.2",
         "winreg": "^1.2.5"
     }
 }
