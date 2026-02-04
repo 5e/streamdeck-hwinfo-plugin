@@ -59,14 +59,21 @@
                 <sdpi-textfield setting="graphMaxValue" placeholder="100" style="width: 50px; margin-left: 10px;"></sdpi-textfield>
             </div>
         </sdpi-item>
-
+		
         <sdpi-item label="Custom Suffix">
             <sdpi-textfield setting="customSuffix"></sdpi-textfield>
         </sdpi-item>
 
-        <sdpi-item label="Number of decimal places">
-            <sdpi-textfield setting="numberOfDecimalPlaces" placeholder="0"></sdpi-textfield>
-        </sdpi-item>
+		<sdpi-item label="Number of Decimal Places">
+			<sdpi-range
+				setting="numberOfDecimalPlaces"
+				min="0"
+				max="10"
+				default="0"
+				step="1"
+				showlabels>
+			</sdpi-range>
+		</sdpi-item>
     </div>
 
 	<div class="tab" id="styling">
@@ -88,6 +95,7 @@
 				min="100"
 				max="900"
 				step="100"
+				default="400"
 				showlabels>
 			</sdpi-range>
 		</sdpi-item>
@@ -98,9 +106,16 @@
             <sdpi-textfield setting="title" value="Hello"></sdpi-textfield>
         </sdpi-item>
 
-        <sdpi-item label="Title Font Size">
-            <sdpi-textfield setting="titleFontSize" placeholder="26"></sdpi-textfield>
-        </sdpi-item>
+		<sdpi-item label="Title Font Size">
+			<sdpi-range
+				setting="titleFontSize"
+				min="20"
+				max="100"
+				default="26"
+				step="1"
+				showlabels>
+			</sdpi-range>
+		</sdpi-item>
 
 		<sdpi-item label="Title Position">
 			<sdpi-range
@@ -122,14 +137,28 @@
         </sdpi-item>
 
 		<sdpi-item label="Title Outline Width">
-            <sdpi-textfield setting="titleOutlineWidth" placeholder="1"></sdpi-textfield>
-        </sdpi-item>
+			<sdpi-range
+				setting="titleOutlineWidth"
+				min="0"
+				max="10"
+				default="1"
+				step="1"
+				showlabels>
+			</sdpi-range>
+		</sdpi-item>
 
 		<div class="divider"></div>
 
-        <sdpi-item label="Sensor Font Size">
-            <sdpi-textfield setting="sensorFontSize" placeholder="38"></sdpi-textfield>
-        </sdpi-item>
+		<sdpi-item label="Sensor Font Size">
+			<sdpi-range
+				setting="sensorFontSize"
+				min="20"
+				max="100"
+				default="38"
+				step="1"
+				showlabels>
+			</sdpi-range>
+		</sdpi-item>
 
 		<sdpi-item label="Sensor Position">
 			<sdpi-range
@@ -151,8 +180,15 @@
         </sdpi-item>
 
 		<sdpi-item label="Sensor Outline Width">
-            <sdpi-textfield setting="sensorOutlineWidth" placeholder="1"></sdpi-textfield>
-        </sdpi-item>
+			<sdpi-range
+				setting="sensorOutlineWidth"
+				min="0"
+				max="10"
+				default="1"
+				step="1"
+				showlabels>
+			</sdpi-range>
+		</sdpi-item>
     </div>
 
     <div class="tab" id="appearance">
@@ -181,6 +217,7 @@
                 document.getElementById(tab).classList.add('active');
             });
         });
+
 		document.querySelector("sdpi-select[setting=\"graphType\"]").addEventListener('valuechange', function (ev) {
             // If the value is "Gauge", hide the position settings
 			const graphType = ev.target.value;
