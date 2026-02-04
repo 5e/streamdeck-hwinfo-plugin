@@ -155,6 +155,7 @@ function getYValue(sensorFontSize: string, verticalAlign: string) {
   const sensorFontSizePx = parseInt(sensorFontSize, 10);
   let yPosition;
   switch (verticalAlign) {
+	// Legacy behaviour for predefined alignments
     case "top":
       yPosition = sensorFontSizePx; // Adjust to ensure the text stays within bounds
       break;
@@ -164,6 +165,9 @@ function getYValue(sensorFontSize: string, verticalAlign: string) {
     case "bottom":
       yPosition = 144 - sensorFontSizePx / 3; // Adjust to ensure the text stays within bounds
       break;
+	default:
+		// New behaviour, we are letting them choose specific pixel value, just let it through
+		yPosition = parseInt(verticalAlign, 10);
   }
   return yPosition;
 }

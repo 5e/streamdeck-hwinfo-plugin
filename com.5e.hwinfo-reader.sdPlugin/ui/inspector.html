@@ -102,13 +102,16 @@
             <sdpi-textfield setting="titleFontSize" placeholder="26"></sdpi-textfield>
         </sdpi-item>
 
-        <sdpi-item label="Title Text Alignment">
-            <sdpi-select setting="titleAlignment" default="top">
-                <option value="top">Top</option>
-                <option value="middle">Middle</option>
-                <option value="bottom">Bottom</option>
-            </sdpi-select>
-        </sdpi-item>
+		<sdpi-item label="Title Position">
+			<sdpi-range
+				setting="titleAlignment"
+				min="0"
+				max="144"
+				default="26"
+				step="1"
+				showlabels>
+			</sdpi-range>
+		</sdpi-item>
 
 		<sdpi-item label="Title">
             <sdpi-color setting="titleColor" default="#808080"></sdpi-color>
@@ -128,13 +131,16 @@
             <sdpi-textfield setting="sensorFontSize" placeholder="38"></sdpi-textfield>
         </sdpi-item>
 
-        <sdpi-item label="Sensor Text Alignment">
-            <sdpi-select setting="sensorAlignment" default="bottom">
-                <option value="top">Top</option>
-                <option value="middle">Middle</option>
-                <option value="bottom">Bottom</option>
-            </sdpi-select>
-        </sdpi-item>
+		<sdpi-item label="Sensor Position">
+			<sdpi-range
+				setting="sensorAlignment"
+				min="0"
+				max="144"
+				default="135"
+				step="1"
+				showlabels>
+			</sdpi-range>
+		</sdpi-item>
 
 		<sdpi-item label="Sensor">
             <sdpi-color setting="sensorColor" default="#FFFFFF"></sdpi-color>
