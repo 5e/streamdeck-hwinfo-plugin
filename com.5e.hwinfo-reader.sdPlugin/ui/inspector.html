@@ -175,6 +175,21 @@
                 document.getElementById(tab).classList.add('active');
             });
         });
+		document.querySelector("sdpi-select[setting=\"graphType\"]").addEventListener('valuechange', function (ev) {
+            // If the value is "Gauge", hide the position settings
+			const graphType = ev.target.value;
+			const sensorAlignmentItem = document.querySelector("sdpi-item[label=\"Sensor Position\"]");
+			const titleAlignmentItem = document.querySelector("sdpi-item[label=\"Title Position\"]");
+
+			if (graphType === "Gauge") {
+				sensorAlignmentItem.style.display = "none";
+				titleAlignmentItem.style.display = "none";
+			} else {
+				sensorAlignmentItem.style.display = "block";
+				titleAlignmentItem.style.display = "block";
+			}
+
+        });
     </script>
 </body>
 
