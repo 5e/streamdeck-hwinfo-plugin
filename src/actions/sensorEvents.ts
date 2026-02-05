@@ -48,6 +48,9 @@ export async function onPopulateFontList() {
 	// Remove duplicates
 	fontFamilies = Array.from(new Set(fontFamilies));
 
+	// Sort alphabetically
+	fontFamilies.sort((a, b) => a.localeCompare(b));
+
 	await streamDeck.ui.current?.sendToPropertyInspector({
 		event: "populateFontList",
 		items: fontFamilies.map(font => ({ label: font, value: font }))
