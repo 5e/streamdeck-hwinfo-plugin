@@ -66,6 +66,10 @@ export class Graph {
       svgBuilder += `<path d="${highlightD}" fill="none" stroke="${settings.graphHighlightColor}" stroke-width="3" />`;
     }
 
+	// If outline width is 0, set the stroke to the same color as fill
+	let titleStrokeColor = settings.titleOutlineWidth == "0" ? settings.titleColor : settings.titleOutlineColor;
+	let sensorStrokeColor = settings.sensorOutlineWidth == "0" ? settings.sensorColor : settings.sensorOutlineColor;
+
     svgBuilder += `<text
         x="72"
         y="${getYValue(settings.titleFontSize, settings.titleAlignment)}"
@@ -73,7 +77,7 @@ export class Graph {
         font-size="${settings.titleFontSize}"
         font-weight="${settings.fontWeight}"
         fill="${settings.titleColor}"
-		stroke="${settings.titleOutlineColor}"
+		stroke="${titleStrokeColor}"
 		stroke-width="${settings.titleOutlineWidth}"
         text-anchor="middle"
       >${settings.title}</text>`;
@@ -85,7 +89,7 @@ export class Graph {
         font-size="${settings.sensorFontSize}"
 		font-weight="${settings.fontWeight}"
 		stroke-width="${settings.sensorOutlineWidth}"
-        stroke="${settings.sensorOutlineColor}"
+        stroke="${sensorStrokeColor}"
         fill="${settings.sensorColor}"
         text-anchor="middle"
       >${sensorValue}</text>`;
@@ -109,44 +113,48 @@ export class Graph {
       	<rect height="144" width="144" fill="${settings.backgroundColor}"></rect>`;
 
     if (this.graphHistory.length > 0) {
-      //unfortunately dash offset is rendered from right to left, very band-aid fix
-      let dashOffset =
-        -273 + this.graphHistory[this.graphHistory.length - 1].gaugePixels;
+		//unfortunately dash offset is rendered from right to left, very band-aid fix
+		let dashOffset =
+		-273 + this.graphHistory[this.graphHistory.length - 1].gaugePixels;
 
-      svgBuilder += `<path id="arc1" fill="none" stroke="#626464" stroke-width="20" d="M 117.96266658713867 112.56725658119235 A 60 60 0 1 0 26.037333412861322 112.56725658119235"></path>
-      <path id="arc1" fill="none" stroke="${settings.graphColor}" stroke-dashoffset="${dashOffset}" stroke-dasharray="${
-        this.graphHistory[this.graphHistory.length - 1].gaugePixels
-      } 1000" stroke-width="20" d="M 117.96266658713867 112.56725658119235 A 60 60 0 1 0 26.037333412861322 112.56725658119235"></path>
-      `;
+		svgBuilder += `<path id="arc1" fill="none" stroke="#626464" stroke-width="20" d="M 117.96266658713867 112.56725658119235 A 60 60 0 1 0 26.037333412861322 112.56725658119235"></path>
+			<path id="arc1" fill="none" stroke="${settings.graphColor}" stroke-dashoffset="${dashOffset}" stroke-dasharray="${
+				this.graphHistory[this.graphHistory.length - 1].gaugePixels
+			} 1000" stroke-width="20" d="M 117.96266658713867 112.56725658119235 A 60 60 0 1 0 26.037333412861322 112.56725658119235"></path>
+			`;
 
-      svgBuilder += `<text
-			x="72"
-			y="130"
-			font-family="${settings.fontName}"
-			font-size="${settings.titleFontSize}"
-			font-weight="${settings.fontWeight}"
-			stroke="${settings.titleOutlineColor}"
-			stroke-width="${settings.titleOutlineWidth}"
-			fill="${settings.titleColor}"
-			text-anchor="middle"
-			>${settings.title}</text>`;
+		// If outline width is 0, set the stroke to the same color as fill
+		let titleStrokeColor = settings.titleOutlineWidth == "0" ? settings.titleColor : settings.titleOutlineColor;
+		let sensorStrokeColor = settings.sensorOutlineWidth == "0" ? settings.sensorColor : settings.sensorOutlineColor;
 
-      svgBuilder += `<text
-			x="72"
-			y="83"
-			font-family="${settings.fontName}"
-			font-size="${settings.sensorFontSize}"
-			font-weight="${settings.fontWeight}"
-			stroke="${settings.sensorOutlineColor}"
-			stroke-width="${settings.sensorOutlineWidth}"
-			fill="${settings.sensorColor}"
-			text-anchor="middle"
-			>${sensorValue}</text>`;
+		svgBuilder += `<text
+					x="72"
+					y="130"
+					font-family="${settings.fontName}"
+					font-size="${settings.titleFontSize}"
+					font-weight="${settings.fontWeight}"
+					stroke="${titleStrokeColor}"
+					stroke-width="${settings.titleOutlineWidth}"
+					fill="${settings.titleColor}"
+					text-anchor="middle"
+					>${settings.title}</text>`;
 
-      svgBuilder += `</svg>`;
+		svgBuilder += `<text
+				x="72"
+				y="83"
+				font-family="${settings.fontName}"
+				font-size="${settings.sensorFontSize}"
+				font-weight="${settings.fontWeight}"
+				stroke="${sensorStrokeColor}"
+				stroke-width="${settings.sensorOutlineWidth}"
+				fill="${settings.sensorColor}"
+				text-anchor="middle"
+				>${sensorValue}</text>`;
 
-      let svgImage = `data:image/svg+xml;,${encodeURIComponent(svgBuilder)}`;
-      return svgImage;
+		svgBuilder += `</svg>`;
+
+		let svgImage = `data:image/svg+xml;,${encodeURIComponent(svgBuilder)}`;
+		return svgImage;
     }
   }
 }
