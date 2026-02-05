@@ -30,7 +30,7 @@ export async function onPopulateSensorList(
     });
   }
 
-  await streamDeck.ui.current?.sendToPropertyInspector({
+  await streamDeck.ui.sendToPropertyInspector({
     event: "populateSensorList",
     items: filteredRegistry
   });
@@ -51,7 +51,7 @@ export async function onPopulateFontList() {
 	// Sort alphabetically
 	fontFamilies.sort((a, b) => a.localeCompare(b));
 
-	await streamDeck.ui.current?.sendToPropertyInspector({
+	await streamDeck.ui.sendToPropertyInspector({
 		event: "populateFontList",
 		items: fontFamilies.map(font => ({ label: font, value: font }))
 	});

@@ -2,13 +2,13 @@ import {
 	action,
 	streamDeck,
 	DidReceiveSettingsEvent,
-	JsonValue,
 	PropertyInspectorDidAppearEvent,
 	SendToPluginEvent,
 	SingletonAction,
 	WillAppearEvent,
 	WillDisappearEvent,
   } from "@elgato/streamdeck";
+  import { JsonValue } from "@elgato/utils";
   import { onPopulateSensorList, handleDidReceiveSettings, handleWillAppear, onPopulateFontList } from "./sensorEvents";
   import { SensorSettings, Buttons, RegistryData } from "../types/types";
 

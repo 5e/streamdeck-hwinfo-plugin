@@ -1,9 +1,9 @@
-import streamDeck, { LogLevel } from "@elgato/streamdeck";
+import streamDeck from "@elgato/streamdeck";
 
 import { Sensor } from "./actions/sensor";
 
 
-streamDeck.logger.setLevel(LogLevel.DEBUG);
+streamDeck.logger.setLevel("debug");
 
 streamDeck.actions.registerAction(new Sensor());
 
