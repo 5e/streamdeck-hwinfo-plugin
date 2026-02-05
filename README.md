@@ -35,3 +35,13 @@ You can download and install the plugin from the [Releases](https://github.com/5
 ## Known issue
 
 - Enabling HWiNFO gadget on two sensors with the exact same name may cause issues of the Stream Deck plugin showing the wrong value. A fix for this is to rename the sensor name in HWiNFO (right click on sensor and press rename) and then re-select the correct sensor in the settings of the plugin.
+
+# How to build
+
+This plugin requires "font-list" to be bundled together as an external package via rollup.
+
+Using npm, install the plugin, then copy the font-list folder into `com.5e-hwinfo-reader.sdPlugin/bin/node_modules`
+
+Then run `npm run build`
+
+Then `streamdeck pack`
