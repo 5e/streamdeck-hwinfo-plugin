@@ -2,3 +2,5 @@
 node_modules/
 com.5e.hwinfo-reader.sdPlugin/logs/
 .vscode/
+com.5e.hwinfo-reader.sdPlugin/bin/plugin.js
+com.5e.hwinfo-reader.sdPlugin/bin/plugin.js.map

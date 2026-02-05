@@ -7,8 +7,9 @@ import { SensorSettings, Buttons, RegistryData } from "../types/types";
 import { Graph } from "../types/graph";
 import { populateRegistryData } from "./populateRegistryData";
 import { updateScreen } from "./updateScreen";
+import { getFonts2, IFontInfo } from 'font-list';
 
-export async function onSendToPlugin(
+export async function onPopulateSensorList(
   registryData: RegistryData
 ) {
   //Filter global settings by only returning items where the name field has "Label" in it 
@@ -33,6 +34,27 @@ export async function onSendToPlugin(
     event: "populateSensorList",
     items: filteredRegistry
   });
+}
+
+export async function onPopulateFontList() {
+	// Read system fonts and pass them to the property inspector
+	let fonts: IFontInfo[] = await getFonts2({disableQuoting: true});
+
+	// The SVG version used by stream deck has issues with font families with specific weights. 
+	// e.g. Franklin Gothic Medium does not work, we have to set it to Frankilin Gothic with weight seperately
+
+	let fontFamilies = fonts.map(font => font.familyName);
+	
+	// Remove duplicates
+	fontFamilies = Array.from(new Set(fontFamilies));
+
+	// Sort alphabetically
+	fontFamilies.sort((a, b) => a.localeCompare(b));
+
+	await streamDeck.ui.current?.sendToPropertyInspector({
+		event: "populateFontList",
+		items: fontFamilies.map(font => ({ label: font, value: font }))
+	});
 }
 
 export function handleDidReceiveSettings(
@@ -76,8 +98,6 @@ export async function handleWillAppear(
 }
 
 export function mapSettings(settings: SensorSettings) {
-  // Here we set the default values for the settings
-  // We can no longer set the default values through the UI as sdpi-components doesn't support it
   return {
     registryName: defaultIfEmpty(settings.registryName, ""),
     title: defaultIfEmpty(settings.title, ""),
@@ -85,17 +105,22 @@ export function mapSettings(settings: SensorSettings) {
     graphColor: defaultIfEmpty(settings.graphColor, "#103B00"),
     sensorFontSize: defaultIfEmpty(settings.sensorFontSize, "38"),
     titleFontSize: defaultIfEmpty(settings.titleFontSize, "26"),
-    fontName: defaultIfEmpty(settings.fontName, "Franklin Gothic Medium"),
+    fontName: defaultIfEmpty(settings.fontName, "Franklin Gothic"),
+	fontWeight: defaultIfEmpty(settings.fontWeight, "400"),
     graphMinValue: defaultIfEmpty(settings.graphMinValue, "0"),
     graphMaxValue: defaultIfEmpty(settings.graphMaxValue, "100"),
     graphType: defaultIfEmpty(settings.graphType, "Graph"),
     customSuffix: defaultIfEmpty(settings.customSuffix, ""),
     numberOfDecimalPlaces: defaultIfEmpty(settings.numberOfDecimalPlaces, "0"),
     titleColor: defaultIfEmpty(settings.titleColor, "#808080"),
+    titleOutlineColor: defaultIfEmpty(settings.titleOutlineColor, "#808080"),
     sensorColor: defaultIfEmpty(settings.sensorColor, "#FFFFFF"),
+	sensorOutlineColor: defaultIfEmpty(settings.sensorOutlineColor, "#FFFFFF"),
     graphHighlightColor: defaultIfEmpty(settings.graphHighlightColor, "#1a6200"),
-    sensorAlignment: defaultIfEmpty(settings.sensorAlignment, "bottom"),
-    titleAlignment: defaultIfEmpty(settings.titleAlignment, "top"),
+    sensorAlignment: defaultIfEmpty(settings.sensorAlignment, "135"),
+    titleAlignment: defaultIfEmpty(settings.titleAlignment, "26"),
+	sensorOutlineWidth: defaultIfEmpty(settings.sensorOutlineWidth, "1"),
+	titleOutlineWidth: defaultIfEmpty(settings.titleOutlineWidth, "1"),
   };
 };
 

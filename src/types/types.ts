@@ -8,16 +8,21 @@ export type SensorSettings = {
 	sensorFontSize: string;
 	titleFontSize: string;
 	fontName: string;
+	fontWeight: string;
 	graphMinValue: string;
 	graphMaxValue: string;
 	graphType: string;
 	customSuffix: string;
 	numberOfDecimalPlaces: string;
 	titleColor: string;
+	titleOutlineColor: string;
 	sensorColor: string;
+	sensorOutlineColor: string;
 	graphHighlightColor: string;
 	sensorAlignment: string;
 	titleAlignment: string;
+	sensorOutlineWidth: string;
+	titleOutlineWidth: string;
 };
 
 export type Button = {

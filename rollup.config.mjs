@@ -20,6 +20,7 @@ const config = {
 			return url.pathToFileURL(path.resolve(path.dirname(sourcemapPath), relativeSourcePath)).href;
 		}
 	},
+	external: ["font-list"],
 	plugins: [
 		{
 			name: "watch-externals",

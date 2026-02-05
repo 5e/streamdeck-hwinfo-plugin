@@ -11,32 +11,15 @@ export function updateScreen(
   if (settings["graphType"] == "Graph") {
     ev.action.setImage(
       buttons[ev.action.id]["graph"].generateSvg(
-        settings["graphColor"],
-        settings["backgroundColor"],
-        settings["title"],
-        sensorValue,
-        settings["titleFontSize"],
-        settings["sensorFontSize"],
-        settings["fontName"],
-        settings["titleColor"],
-        settings["sensorColor"],
-        settings["graphHighlightColor"],
-        settings["sensorAlignment"],
-        settings["titleAlignment"]
+        settings,
+		sensorValue
       )
     );
   } else {
     ev.action.setImage(
       buttons[ev.action.id]["graph"].generateArcSvg(
-        settings["graphColor"],
-        settings["backgroundColor"],
-        settings["title"],
-        sensorValue,
-        settings["titleFontSize"],
-        settings["sensorFontSize"],
-        settings["fontName"],
-        settings["titleColor"] ?? "#808080",
-        settings["sensorColor"] ?? "#FFFFFF"
+        settings,
+        sensorValue
       )
     );
   }
