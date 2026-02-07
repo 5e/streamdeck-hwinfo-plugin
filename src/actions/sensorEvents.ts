@@ -119,8 +119,8 @@ export function mapSettings(settings: SensorSettings) {
     graphHighlightColor: defaultIfEmpty(settings.graphHighlightColor, "#1a6200"),
     sensorAlignment: defaultIfEmpty(settings.sensorAlignment, "135"),
     titleAlignment: defaultIfEmpty(settings.titleAlignment, "26"),
-	sensorOutlineWidth: defaultIfEmpty(settings.sensorOutlineWidth, "1"),
-	titleOutlineWidth: defaultIfEmpty(settings.titleOutlineWidth, "1"),
+	sensorOutlineWidth: defaultIfEmpty(settings.sensorOutlineWidth, "0"),
+	titleOutlineWidth: defaultIfEmpty(settings.titleOutlineWidth, "0"),
   };
 };
 
